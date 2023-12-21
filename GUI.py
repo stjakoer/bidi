@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 from matplotlib import dates as mdates
 
-
+#blabla
 
 # Verbindung zum Modbus-Server herstellen
 client = ModbusClient(host='192.168.2.149', port=502)

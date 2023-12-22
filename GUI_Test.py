@@ -7,6 +7,7 @@ Created on Tue Oct 24 15:37:44 2023
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import PhotoImage
 from pyModbusTCP.client import ModbusClient
 import struct
 import time
@@ -24,6 +25,9 @@ client = ModbusClient(host='192.168.2.149', port=502)
 client.open()
 
 
+def load_image():
+    image_path = "C:\Users\Joachim\PycharmProjects\GitHub_Bidi\Bilder"
+    img = PhotoImage(file=image_path)
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
 
 # Funktion für den aktuellen Status der CNG

@@ -3,6 +3,8 @@
 Created on Tue Oct 24 15:37:44 2023
 
 @author: main_branch
+
+the original GUI by the great Julian Essl
 """
 
 import tkinter as tk

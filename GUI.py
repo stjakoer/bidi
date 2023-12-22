@@ -2,9 +2,11 @@
 """
 Created on Tue Oct 24 15:37:44 2023
 
-@author: main_branch
+@author: add-picture
 
 the original GUI by the great Julian Essl
+
+hier ist ein bild eingefügt
 """
 
 import tkinter as tk

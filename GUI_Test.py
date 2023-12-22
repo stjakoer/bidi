@@ -26,8 +26,26 @@ client.open()
 
 
 def load_image():
-    image_path = "C:\Users\Joachim\PycharmProjects\GitHub_Bidi\Bilder"
+    # Lade das Bild
+    image_path = "C:\\Users\\Joachim\\PycharmProjects\\GitHub_Bidi\\Bilder\\00.PNG"
     img = PhotoImage(file=image_path)
+    # Aktualisiere das Label mit dem Bild
+    label.config(image=img)
+    label.image = img
+
+# GUI erstellen
+root = tk.Tk()
+root.title("Bild in GUI laden")
+
+# Button zum Laden des Bildes
+load_button = tk.Button(root, text="Bild laden", command=load_image)
+load_button.pack(pady=100)
+
+# Label für das Bild
+label = tk.Label(root)
+label.pack()
+
+
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
 
 # Funktion für den aktuellen Status der CNG

@@ -765,6 +765,7 @@ def enable_cng():
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
         print("Schaltfläche Enable_CNG betätigt")
         """
+    return
 
 
 def disable_cng():
@@ -2598,6 +2599,7 @@ def start_charging():
                 charge_control_current_manual() # Aufruf Funktion
                 print("Funktion charge_control_current_manual() erfolgreich aufgerufen")
                 """
+    return
 
 def stop_charging():
     """

@@ -3100,9 +3100,3 @@ control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
 
 # Starten der GUI
 root.mainloop()
-
-
-
-
-
-

@@ -2,7 +2,7 @@
 """
 Created on Tue Oct 24 15:37:44 2023
 
-@author: esslju01
+@author: Team-Bidi
 """
 
 import tkinter as tk
@@ -28,6 +28,7 @@ client.open()
 
 # Funktion für den aktuellen Status der CNG
 def update_status():
+    """
     if client.open():
         grafcet_status_register = 16000
 
@@ -80,10 +81,13 @@ def update_status():
 
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_status)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. U und V (EuT-Side)
 def update_voltage_uv():
+    """
     if client.open():
         voltage_uv_register = 26082
 
@@ -109,10 +113,13 @@ def update_voltage_uv():
 
         # Hier wird der aktuelle Spannungswert UV periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_uv)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. V und W (EuT-Side)
 def update_voltage_vw():
+    """
     if client.open():
         voltage_vw_register = 26084
 
@@ -138,10 +145,13 @@ def update_voltage_vw():
 
         # Hier wird der aktuelle Spannungswert VW periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_vw)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. W und U (EuT-Side)
 def update_voltage_wu():
+    """
     if client.open():
         voltage_wu_register = 26086
 
@@ -167,10 +177,13 @@ def update_voltage_wu():
 
         # Hier wird der aktuelle Spannungswert WU periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_wu)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. U und N (EuT-Side)
 def update_voltage_un():
+    """
     if client.open():
         voltage_un_register = 26094
 
@@ -196,10 +209,13 @@ def update_voltage_un():
 
         # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_un)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. V und N (EuT-Side)
 def update_voltage_vn():
+    """
     if client.open():
         voltage_vn_register = 26096
 
@@ -225,10 +241,13 @@ def update_voltage_vn():
 
         # Hier wird der aktuelle Spannungswert VN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_vn)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. W und N (EuT-Side)
 def update_voltage_wn():
+    """
     if client.open():
         voltage_wn_register = 26098
 
@@ -254,8 +273,11 @@ def update_voltage_wn():
 
         # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_wn)
+    """
+    return
 
 def update_voltage_plot():
+    """
     global update_count_voltage
     update_count_voltage += 1
 
@@ -321,10 +343,13 @@ def update_voltage_plot():
 
     # Hier wird die Funktion periodisch aufgerufen. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_plot)
+    """
+    return
 
 
 # Funktion zum Auslesen des aktuellen Stroms auf Phase U (EuT-Side)
 def update_current_ph_u():
+    """
     if client.open():
         current_ph_u_register = 26100
 
@@ -350,10 +375,13 @@ def update_current_ph_u():
 
         # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_current_ph_u)
+    """
+    return
 
 
 # Funktion zum Auslesen des aktuellen Stroms auf Phase V (EuT-Side)
 def update_current_ph_v():
+    """
     if client.open():
         current_ph_v_register = 26102
 
@@ -379,10 +407,13 @@ def update_current_ph_v():
 
         # Hier wird der aktuelle Stromwert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_current_ph_v)
+    """
+    return
 
 
 # Funktion zum Auslesen des aktuellen Stroms auf Phase W (EuT-Side)
 def update_current_ph_w():
+    """
     if client.open():
         current_ph_w_register = 26104
 
@@ -408,8 +439,11 @@ def update_current_ph_w():
 
         # Hier wird der aktuelle Stromwert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_current_ph_w)
+    """
+    return
 
 def update_current_plot():
+    """
     global update_count_current
     update_count_current += 1
 
@@ -473,11 +507,14 @@ def update_current_plot():
 
     # Hier wird die Funktion periodisch aufgerufen. Zyklus hier ist 1000 ms
     root.after(1000, update_current_plot)
+    """
+    return
 
 
 
 # Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
 def update_current_total():
+    """
     if client.open():
         current_total_register = 26106
 
@@ -503,10 +540,13 @@ def update_current_total():
 
         # Hier wird der aktuelle Stromwert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_current_total)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Leistung auf Phase U (EuT-Side)
 def update_power_ph_u():
+    """
     if client.open():
         power_ph_u_register = 26114
 
@@ -532,10 +572,13 @@ def update_power_ph_u():
 
         # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_power_ph_u)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Leistung auf Phase V (EuT-Side)
 def update_power_ph_v():
+    """
     if client.open():
         power_ph_v_register = 26116
 
@@ -562,10 +605,13 @@ def update_power_ph_v():
 
     # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_power_ph_v)
+    """
+    return
 
 
 # Funktion zum Auslesen der aktuellen Leistung auf Phase W (EuT-Side)
 def update_power_ph_w():
+    """
     if client.open():
         power_ph_w_register = 26118
 
@@ -592,9 +638,12 @@ def update_power_ph_w():
 
     # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_power_ph_w)
+    """
+    return
 
 
 def update_power_plot():
+    """
     global update_count_power
     update_count_power += 1
 
@@ -661,9 +710,12 @@ def update_power_plot():
 
     # Hier wird die Funktion periodisch aufgerufen. Zyklus hier ist 1000 ms
     root.after(1000, update_power_plot)
+    """
+    return
 
 # Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
 def update_power_total():
+    """
     if client.open():
         power_total_register = 26120
 
@@ -690,6 +742,8 @@ def update_power_total():
 
     # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_power_total)
+    """
+    return
 
 
 
@@ -698,6 +752,7 @@ def update_power_total():
 
 # Funktionen für die Schaltflächen
 def enable_cng():
+    """
     if client.open() and grafcet_status == 2:
         enable_disable_cng_register = 17000
 
@@ -709,9 +764,12 @@ def enable_cng():
 
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
         print("Schaltfläche Enable_CNG betätigt")
+        """
+    return
 
 
 def disable_cng():
+    """
     if client.open() and grafcet_status >= 4:
         enable_disable_cng_register = 17000
 
@@ -723,9 +781,12 @@ def disable_cng():
 
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     print("Schaltfläche Disable_CNG betätigt")
+    """
+    return
 
 
 def reset_alarm_warning():
+    """
 
     ## ---> Hier noch überlegen, ob Ladevorgang bei Status Alarm automatisch abgebrochen werden soll? Das Gleiche für Status Warning überlegen! ##
 
@@ -747,6 +808,8 @@ def reset_alarm_warning():
 
     else:
         print("Sequenz [0, 1, 0] wurde nicht in das Register geschrieben!")
+        """
+    return
 
 
 
@@ -801,6 +864,7 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
         1: "Current",
         2: "Power"
     }
+    """
 
     if selected_operation == "Power":
         control_operation_ph_u_write_register = 17004
@@ -904,6 +968,8 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 
         control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
         print(f"Control Operation Ph W: {mode_translation.get(control_operation, 'Unbekannt')}")
+        """
+    return
 
 
 
@@ -949,6 +1015,7 @@ def enable_power_automatic():
 
 # Funktion, die durch Betätigung der Schaltfläche "Power [manual]" aufgerufen wird
 def enable_power_manual():
+    """
     print("Schaltfläche Power [manual] betätigt")
     # Einzelne Phasen werden je nach Zustand der Kontrollkästchen auf der GUI ein- bzw. ausgeschaltet
     if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4: # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1031,6 +1098,7 @@ def enable_power_manual():
 
             client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Ph_W Power entsprechend Stellung Kippschalter ausgeschaltet")
+            """
 
     power_manual_entry_1.config(state="normal")
     power_manual_entry_2.config(state="normal")
@@ -1088,6 +1156,7 @@ def enable_current_automatic():
 
 # Funktion, die durch Betätigung der Schaltfläche "Current [manual]" aufgerufen wird
 def enable_current_manual():
+    """
     print("Schaltfläche Current [manual] betätigt")
     # Einzelne Phasen werden je nach Zustand der Kontrollkästchen auf der GUI ein- bzw. ausgeschaltet
     if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4:  # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1170,6 +1239,7 @@ def enable_current_manual():
 
             client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Ph_W Current entsprechend Stellung Kippschalter ausgeschaltet")
+            """
 
     current_manual_entry_1.config(state="normal")
     current_manual_entry_2.config(state="normal")
@@ -1238,6 +1308,7 @@ def current_manual_entry_3_selected(event):
 
 # Funktion des On/Off Kippschalters (Toggles)
 def on_off_toggle_power_ph_u():
+    """
     # Aktuellen Wert des Kippschalters abrufen
     present_value = on_off_1_var.get()
     # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1267,10 +1338,13 @@ def on_off_toggle_power_ph_u():
 
             client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Kippschalter Ph_U Power ist auf 'Off'")
+            """
+    return
 
 
 # Funktion des On/Off Kippschalters (Toggles)
 def on_off_toggle_power_ph_v():
+    """
     # Aktuellen Wert des Kippschalters abrufen
     present_value = on_off_2_var.get()
     # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1300,10 +1374,13 @@ def on_off_toggle_power_ph_v():
 
             client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Kippschalter Ph_V Power ist auf 'Off'")
+            """
+    return
 
 
 # Funktion des On/Off Kippschalters (Toggles)
 def on_off_toggle_power_ph_w():
+    """
     # Aktuellen Wert des Kippschalters abrufen
     present_value = on_off_3_var.get()
     # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1333,10 +1410,13 @@ def on_off_toggle_power_ph_w():
 
             client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Kippschalter Ph_W Power ist auf 'Off'")
+            """
+    return
 
 
 # Funktion des On/Off Kippschalters (Toggles)
 def on_off_toggle_current_ph_u():
+    """
     # Aktuellen Wert des Kippschalters abrufen
     present_value = on_off_4_var.get()
     # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1366,10 +1446,13 @@ def on_off_toggle_current_ph_u():
 
             client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Kippschalter Ph_U Current ist auf 'Off'")
+            """
+    return
 
 
 # Funktion des On/Off Kippschalters (Toggles)
 def on_off_toggle_current_ph_v():
+    """
     # Aktuellen Wert des Kippschalters abrufen
     present_value = on_off_5_var.get()
     # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1399,10 +1482,13 @@ def on_off_toggle_current_ph_v():
 
             client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Kippschalter Ph_V Current ist auf 'Off'")
+            """
+    return
 
 
 # Funktion des On/Off Kippschalters (Toggles)
 def on_off_toggle_current_ph_w():
+    """
     # Aktuellen Wert des Kippschalters abrufen
     present_value = on_off_6_var.get()
     # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
@@ -1432,6 +1518,8 @@ def on_off_toggle_current_ph_w():
 
             client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
             print("Kippschalter Ph_W Current ist auf 'Off'")
+            """
+    return
 
 
 
@@ -1439,6 +1527,7 @@ def on_off_toggle_current_ph_w():
 
 # Charge Control Auswahl "POWER"
 def charge_control_power_static():
+    """
 
     print("Aufruf Fkt charge_control_power_static()")
 
@@ -1714,12 +1803,15 @@ def charge_control_power_static():
     byte3 = value_to_write & 0xFF
 
     client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    """
+    return
 
 def charge_control_power_automatic():
     print("Aufruf Fkt charge_control_power_automatic()")
     pass
 
 def charge_control_power_manual():
+    """
     print("Aufruf Fkt charge_control_power_manual()")
     if grafcet_status == 5: # --> Nur notwendig, wenn CNG auf Status 5 = Run steht; Ansonsten, wenn Status < 5 ist, werden Phasen direkt bei Betätigung der Kippschalter auf GUI geschalten!!!
 
@@ -1919,10 +2011,13 @@ def charge_control_power_manual():
     byte3 = value_to_write & 0xFF
 
     client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    """
+    return
 
 
 # Charge Control Auswahl "CURRENT"
 def charge_control_current_static():
+    """
     print("Aufruf Fkt charge_control_current_static()")
 
     ### Zuerst alle 3 Phasen einschalten. Stromwert aus Dropdown-Auswahl fließt über jede einzelne Phase! ###
@@ -2237,12 +2332,15 @@ def charge_control_current_static():
     byte3 = value_to_write & 0xFF
 
     client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    """
+    return
 
 def charge_control_current_automatic():
     print("Aufruf Fkt charge_control_current_automatic()")
     pass
 
 def charge_control_current_manual():
+    """
     print("Aufruf Fkt charge_control_current_manual()")
     if grafcet_status == 5:  # --> Nur notwendig, wenn CNG auf Status 5 = Run steht; Ansonsten, wenn Status < 5 ist, werden Phasen direkt bei Betätigung der Kippschalter auf GUI geschalten!!!
 
@@ -2444,6 +2542,8 @@ def charge_control_current_manual():
     byte3 = value_to_write & 0xFF
 
     client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    """
+    return
 
 
 
@@ -2453,6 +2553,7 @@ def charge_control_current_manual():
 
 # Funktionen für Schaltflächen
 def start_charging():
+    """
 
     if client.open() and grafcet_status >= 4: # Status 4 = Ready, Status 5 = Run
 
@@ -2497,8 +2598,11 @@ def start_charging():
             if current_manual_state == 1: # Globale Variable aus Fkt "enable_current_manual()"
                 charge_control_current_manual() # Aufruf Funktion
                 print("Funktion charge_control_current_manual() erfolgreich aufgerufen")
+                """
+    return
 
 def stop_charging():
+    """
     run_ready_register = 17002
 
     value_to_write = 0
@@ -2509,6 +2613,8 @@ def stop_charging():
 
     client.write_multiple_registers(run_ready_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     print("Schaltfläche Stop Charging betätigt")
+    """
+    return
 
 
 

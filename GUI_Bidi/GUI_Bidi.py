@@ -85,38 +85,6 @@ def update_status():
     return
 
 
-# Funktion zum Auslesen der aktuellen Spannung zw. U und V (EuT-Side)
-def update_voltage_uv():
-    """
-    if client.open():
-        voltage_uv_register = 26082
-
-        voltage_bytes = client.read_holding_registers(voltage_uv_register, 2)
-        if voltage_bytes:
-            if len(voltage_bytes) == 2:
-                msb = voltage_bytes[0]  # Wert des MSB-Registers
-                lsb = voltage_bytes[1]  # Wert des LSB-Registers
-
-                # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
-                combined_value = (msb << 16) | lsb
-
-                # Konvertiere den kombinierten Wert in den Datentyp float32
-                global voltage_uv  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
-                voltage_uv = struct.unpack('!f', struct.pack('!I', combined_value))[0]
-
-                voltage_uv_label.config(text="{0:.2f}".format(voltage_uv))  # Anzeige auf 2 Dezimalstellen
-            else:
-                voltage_uv_label.config(text='Fehler beim Lesen des Registers')
-
-    else:
-        voltage_uv_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-        # Hier wird der aktuelle Spannungswert UV periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_voltage_uv)
-    """
-    return
-
-
 # Funktion zum Auslesen der aktuellen Spannung zw. V und W (EuT-Side)
 def update_voltage_vw():
     """

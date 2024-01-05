@@ -2173,45 +2173,13 @@ update_status() # Aufruf der Funktion. Ausgelesener Wert aus Funktion wird an vo
 
 
 # Erstellen eines Labels zur Anzeige von Spannungswerten im LINKEN Frame "voltage_display_frame"
-voltage_uv_label_fix = ttk.Label(voltage_display_frame, text="Voltage U-V:")
-voltage_uv_label = ttk.Label(voltage_display_frame, text="")
-update_voltage_uv()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_uv = ttk.Label(voltage_display_frame, text="[V_rms]")
-voltage_vw_label_fix = ttk.Label(voltage_display_frame, text="Voltage V-W:")
-voltage_vw_label = ttk.Label(voltage_display_frame, text="")
-update_voltage_vw()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_vw = ttk.Label(voltage_display_frame, text="[V_rms]")
-voltage_wu_label_fix = ttk.Label(voltage_display_frame, text="Voltage W-U:")
-voltage_wu_label = ttk.Label(voltage_display_frame, text="")
-update_voltage_wu()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_wu = ttk.Label(voltage_display_frame, text="[V_rms]")
 voltage_un_label_fix = ttk.Label(voltage_display_frame, text="Voltage U-N:")
 voltage_un_label = ttk.Label(voltage_display_frame, text="")
 update_voltage_un()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
 unit_label_un = ttk.Label(voltage_display_frame, text="[V_rms]")
-voltage_vn_label_fix = ttk.Label(voltage_display_frame, text="Voltage V-N:")
-voltage_vn_label = ttk.Label(voltage_display_frame, text="")
-update_voltage_vn()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_vn = ttk.Label(voltage_display_frame, text="[V_rms]")
-voltage_wn_label_fix = ttk.Label(voltage_display_frame, text="Voltage W-N:")
-voltage_wn_label = ttk.Label(voltage_display_frame, text="")
-update_voltage_wn()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_wn = ttk.Label(voltage_display_frame, text="[V_rms]")
 
 
 # Erstellen eines Labels zur Anzeige von Stromwerten im LINKEN Frame "current_display_frame"
-current_ph_u_label_fix = ttk.Label(current_display_frame, text="Current Ph U:")
-current_ph_u_label = ttk.Label(current_display_frame, text="")
-update_current_ph_u()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_current_ph_u = ttk.Label(current_display_frame, text="[A_rms]")
-current_ph_v_label_fix = ttk.Label(current_display_frame, text="Current Ph V:")
-current_ph_v_label = ttk.Label(current_display_frame, text="")
-update_current_ph_v()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_current_ph_v = ttk.Label(current_display_frame, text="[A_rms]")
-current_ph_w_label_fix = ttk.Label(current_display_frame, text="Current Ph W:")
-current_ph_w_label = ttk.Label(current_display_frame, text="")
-update_current_ph_w()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_current_ph_w = ttk.Label(current_display_frame, text="[A_rms]")
 current_total_label_fix = ttk.Label(current_display_frame, text="Current total:")
 current_total_label = ttk.Label(current_display_frame, text="")
 update_current_total()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
@@ -2219,18 +2187,6 @@ unit_label_current_total = ttk.Label(current_display_frame, text="[A_rms]")
 
 
 # Erstellen eines Labels zur Anzeige der einzelnen Leistungen im LINKEN Frame "power_display_frame"
-power_ph_u_label_fix = ttk.Label(power_display_frame, text="Power Ph U:")
-power_ph_u_label = ttk.Label(power_display_frame, text="")
-update_power_ph_u()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_power_ph_u = ttk.Label(power_display_frame, text="[W]")
-power_ph_v_label_fix = ttk.Label(power_display_frame, text="Power Ph V:")
-power_ph_v_label = ttk.Label(power_display_frame, text="")
-update_power_ph_v()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_power_ph_v = ttk.Label(power_display_frame, text="[W]")
-power_ph_w_label_fix = ttk.Label(power_display_frame, text="Power Ph W:")
-power_ph_w_label = ttk.Label(power_display_frame, text="")
-update_power_ph_w()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
-unit_label_power_ph_w = ttk.Label(power_display_frame, text="[W]")
 power_total_label_fix = ttk.Label(power_display_frame, text="Power total:")
 power_total_label = ttk.Label(power_display_frame, text="")
 update_power_total()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben

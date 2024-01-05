@@ -2199,26 +2199,6 @@ update_voltage_wn()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorhe
 unit_label_wn = ttk.Label(voltage_display_frame, text="[V_rms]")
 
 
-# GUI-Elemente für Spannungsanzeigen-Plot
-fig_voltage, ax_voltage = plt.subplots(figsize=(7, 2))
-canvas_voltage = FigureCanvasTkAgg(fig_voltage, master=right_frame)
-canvas_widget_voltage = canvas_voltage.get_tk_widget()
-canvas_widget_voltage.grid(row=2, column=0, sticky="nsew")
-
-# Initialisierung der Datenpunkte für Spannungsanzeige-Plot
-x_data_time_voltage = []
-y_data_un = []
-y_data_vn = []
-y_data_wn = []
-
-# Zählvariable für die Aktualisierungen der Spannungsanzeige
-update_count_voltage = 0
-
-# Grafischen Spannungsanzeigen-Plot aufrufen
-update_voltage_plot()
-
-
-
 # Erstellen eines Labels zur Anzeige von Stromwerten im LINKEN Frame "current_display_frame"
 current_ph_u_label_fix = ttk.Label(current_display_frame, text="Current Ph U:")
 current_ph_u_label = ttk.Label(current_display_frame, text="")
@@ -2236,24 +2216,6 @@ current_total_label_fix = ttk.Label(current_display_frame, text="Current total:"
 current_total_label = ttk.Label(current_display_frame, text="")
 update_current_total()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
 unit_label_current_total = ttk.Label(current_display_frame, text="[A_rms]")
-
-# GUI-Elemente für Strom-Plot
-fig_current, ax_current = plt.subplots(figsize=(7, 2))
-canvas_current = FigureCanvasTkAgg(fig_current, master=right_frame)
-canvas_widget_current = canvas_current.get_tk_widget()
-canvas_widget_current.grid(row=3, column=0, sticky="nsew")
-
-# Initialisierung der Datenpunkte für Spannungsanzeige-Plot
-x_data_time_current = []
-y_data_ph_u = []
-y_data_ph_v = []
-y_data_ph_w = []
-
-# Zählvariable für die Aktualisierungen der Spannungsanzeige
-update_count_current = 0
-
-# Grafischen Spannungsanzeigen-Plot aufrufen
-update_current_plot()
 
 
 # Erstellen eines Labels zur Anzeige der einzelnen Leistungen im LINKEN Frame "power_display_frame"
@@ -2273,27 +2235,6 @@ power_total_label_fix = ttk.Label(power_display_frame, text="Power total:")
 power_total_label = ttk.Label(power_display_frame, text="")
 update_power_total()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
 unit_label_power_total = ttk.Label(power_display_frame, text="[W]")
-
-# GUI-Elemente für Power-Plot
-fig_power, ax_power = plt.subplots(figsize=(7, 2))
-canvas_power = FigureCanvasTkAgg(fig_power, master=right_frame)
-canvas_widget_power = canvas_power.get_tk_widget()
-canvas_widget_power.grid(row=4, column=0, sticky="nsew")
-
-# Initialisierung der Datenpunkte für Power-Plot
-x_data_time_power = []
-y_data_power_ph_u = []
-y_data_power_ph_v = []
-y_data_power_ph_w = []
-
-# Zählvariable für die Aktualisierungen der Power-Anzeige
-update_count_power = 0
-
-# Grafischen Power-Plot aufrufen
-update_power_plot()
-
-
-
 
 
 # Positionieren der Schaltflächen, der Statusanzeige und dem Rest im LINKEN Frame

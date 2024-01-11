@@ -259,8 +259,8 @@ def update_button_and_combo_states():
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Laden":
-        power_static_button.config(state="normal")
-        power_automatic_button.config(state="normal")
+        voltage_static_button.config(state="normal")
+        voltage_automatic_button.config(state="normal")
         current_static_button.config(state="disabled")
         current_automatic_button.config(state="disabled")
         current_static_combo.config(state="disabled")
@@ -269,10 +269,10 @@ def update_button_and_combo_states():
     elif selected_operation == "Entladen":
         current_static_button.config(state="normal")
         current_automatic_button.config(state="normal")
-        power_static_button.config(state="disabled")
-        power_automatic_button.config(state="disabled")
-        power_static_combo.config(state="disabled")
-        power_automatic_combo.config(state="disabled")
+        voltage_static_button.config(state="disabled")
+        voltage_automatic_button.config(state="disabled")
+        voltage_static_combo.config(state="disabled")
+        voltage_automatic_combo.config(state="disabled")
 
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
@@ -394,11 +394,11 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 
 ### SCHALTFLÄCHEN 2 ###
 
-# Funktion, die durch Betätigung der Schaltfläche "Power [static]" aufgerufen wird
-def enable_power_static():
-    print("Schaltfläche Power [static] betätigt")
-    power_static_combo.config(state="normal")
-    power_automatic_combo.config(state="disabled")
+# Funktion, die durch Betätigung der Schaltfläche "Voltage [static]" aufgerufen wird
+def enable_voltage_static():
+    print("Schaltfläche Voltage [static] betätigt")
+    voltage_static_combo.config(state="normal")
+    voltage_automatic_combo.config(state="disabled")
     global power_static_state
     power_static_state = 1 # Notwendig für if-Bedingung von Funktion "start_charging"
     global power_automatic_state
@@ -407,11 +407,11 @@ def enable_power_static():
     power_manual_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
 
 
-# Funktion, die durch Betätigung der Schaltfläche "Power [automatic]" aufgerufen wird
-def enable_power_automatic():
-    print("Schaltfläche Power [automatic] betätigt")
-    power_automatic_combo.config(state="normal")
-    power_static_combo.config(state="disabled")
+# Funktion, die durch Betätigung der Schaltfläche "Voltage [automatic]" aufgerufen wird
+def enable_voltage_automatic():
+    print("Schaltfläche Voltage [automatic] betätigt")
+    voltage_automatic_combo.config(state="normal")
+    voltage_static_combo.config(state="disabled")
     global power_static_state
     power_static_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
     global power_automatic_state
@@ -449,12 +449,12 @@ def enable_current_automatic():
 ### DROPDOWN-MENÜS + EINGABEFELDER ###
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def power_static_combo_selected(event):
-    print("Dropdown-Menü von Power [static] betätigt")
+def voltage_static_combo_selected(event):
+    print("Dropdown-Menü von Voltage [static] betätigt")
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def power_automatic_combo_selected(event):
-    print("Dropdown-Menü von Power [automatic] betätigt")
+def voltage_automatic_combo_selected(event):
+    print("Dropdown-Menü von Voltage [automatic] betätigt")
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_static_combo_selected(event):
@@ -467,8 +467,8 @@ def current_automatic_combo_selected(event):
 
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
 
-def charge_control_power_automatic():
-    print("Aufruf Fkt charge_control_power_automatic()")
+def charge_control_voltage_automatic():
+    print("Aufruf Fkt charge_control_voltage_automatic()")
     pass
 
 
@@ -870,6 +870,24 @@ def stop_charging():
 root = tk.Tk()
 root.title("EV-Emulator")
 
+"""
+get the screen dimension
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+window_width = screen_width
+window_height = screen_height
+# find the center point
+center_x = int(screen_width/2 - window_width / 2)
+center_y = int(screen_height/2 - window_height / 2)
+
+# set the position of the window to the center of the screen
+root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+root.resizable(False, False)
+root.attributes('-topmost', 1)
+"""
+
+
 # Erstellen eines Tab-Widgets
 notebook = ttk.Notebook(root)
 
@@ -942,10 +960,10 @@ no_header_middle_frame = ttk.LabelFrame(middle_frame, text="")
 no_header_middle_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 #no_header_middle_frame.columnconfigure(0, weight=1)
 
-# Erstellen eines weiteren Frames "Power Control EuT-Side" innerhalb des Frames "Charge Parameter"
-power_control_frame = ttk.LabelFrame(middle_frame, text="Power Control EuT-Side")
-power_control_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
-#power_control_frame.columnconfigure(0, weight=1)
+# Erstellen eines weiteren Frames "Voltage Control EuT-Side" innerhalb des Frames "Charge Parameter"
+voltage_control_frame = ttk.LabelFrame(middle_frame, text="Voltage Control EuT-Side")
+voltage_control_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+#voltage_control_frame.columnconfigure(0, weight=1)
 
 # Erstellen eines weiteren Frames "Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
 current_control_frame = ttk.LabelFrame(middle_frame, text="Current Control EuT-Side")
@@ -1022,35 +1040,34 @@ power_total_label.grid(row=14, column=4, padx=5, pady=5)
 unit_label_power_total.grid(row=14, column=5, padx=5, pady=5)
 
 
+# Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
+voltage_static_var = tk.StringVar()
+voltage_static_button = ttk.Button(voltage_control_frame, text="Voltage [static]", command=enable_voltage_static)
+voltage_static_button.config(state="disabled")
+voltage_static_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_static_var, values=["350 V", "400 V", "450 V"], state="readonly")
+voltage_static_combo.config(state="disabled")
 
-# Erstellen des Dropdown-Menüs für "Power [static]" im MITTLEREN Frame
-power_static_var = tk.StringVar()
-power_static_button = ttk.Button(power_control_frame, text="Power [static]", command=enable_power_static)
-power_static_button.config(state="disabled")
-power_static_combo = ttk.Combobox(power_control_frame, textvariable=power_static_var, values=["3.7 kW", "7.4 kW", "11 kW"], state="readonly")
-power_static_combo.config(state="disabled")
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
+voltage_static_button.grid(row=3, column=0, padx=5, pady=5)
+voltage_static_combo.grid(row=3, column=1, padx=5, pady=5)
 
-# Positionieren des Labels und des Dropdown-Menüs "Power [static]" im MITTLEREN Frame
-power_static_button.grid(row=3, column=0, padx=5, pady=5)
-power_static_combo.grid(row=3, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Power [static] an die entsprechende Funktion im MITTLEREN Frame
-power_static_combo.bind("<<ComboboxSelected>>", power_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+# Verknüpfung der Dropdown-Auswahl der Voltage [static] an die entsprechende Funktion im MITTLEREN Frame
+voltage_static_combo.bind("<<ComboboxSelected>>", voltage_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
 
-# Erstellen des Dropdown-Menüs für "Power [automatic]" im MITTLEREN Frame
-power_automatic_var = tk.StringVar()
-power_automatic_button = ttk.Button(power_control_frame, text="Power [automatic]", command=enable_power_automatic)
-power_automatic_button.config(state="disabled")
-power_automatic_combo = ttk.Combobox(power_control_frame, textvariable=power_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
-power_automatic_combo.config(state="disabled")
+# Erstellen des Dropdown-Menüs für "Voltage [automatic]" im MITTLEREN Frame
+voltage_automatic_var = tk.StringVar()
+voltage_automatic_button = ttk.Button(voltage_control_frame, text="Voltage [automatic]", command=enable_voltage_automatic)
+voltage_automatic_button.config(state="disabled")
+voltage_automatic_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
+voltage_automatic_combo.config(state="disabled")
 
-# Positionieren des Labels und des Dropdown-Menüs "Power [automatic]" im MITTLEREN Frame
-power_automatic_button.grid(row=4, column=0, padx=5, pady=5)
-power_automatic_combo.grid(row=4, column=1, padx=5, pady=5)
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
+voltage_automatic_button.grid(row=4, column=0, padx=5, pady=5)
+voltage_automatic_combo.grid(row=4, column=1, padx=5, pady=5)
 
-# Verknüpfung der Dropdown-Auswahl der Power [automatic] an die entsprechende Funktion im MITTLEREN Frame
-power_automatic_combo.bind("<<ComboboxSelected>>", power_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
+voltage_automatic_combo.bind("<<ComboboxSelected>>", voltage_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
@@ -1075,11 +1092,11 @@ current_automatic_button.config(state="disabled")
 current_automatic_combo = ttk.Combobox(current_control_frame, textvariable=current_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
 current_automatic_combo.config(state="disabled")
 
-# Positionieren des Labels und des Dropdown-Menüs "Power [automatic]" im MITTLEREN Frame
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
 current_automatic_button.grid(row=11, column=0, padx=5, pady=5)
 current_automatic_combo.grid(row=11, column=1, padx=5, pady=5)
 
-# Verknüpfung der Dropdown-Auswahl der Power [automatic] an die entsprechende Funktion im MITTLEREN Frame
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
 current_automatic_combo.bind("<<ComboboxSelected>>", current_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
 

@@ -887,7 +887,7 @@ root.resizable(False, False)
 root.attributes('-topmost', 1)
 """
 
-
+"""
 # Erstellen eines Tab-Widgets
 notebook = ttk.Notebook(root)
 
@@ -921,12 +921,14 @@ tab2.grid_rowconfigure(0, weight=1)
 tab3.grid_rowconfigure(0, weight=1)
 tab3.grid_columnconfigure(0, weight=1)
 tab3.grid_columnconfigure(1, weight=1)
+"""
 
 
-
-# Erstellen des Frames für den LINKEN Bereich "Controllable Load"
-left_frame = ttk.LabelFrame(tab3, text="Controllable Load")
+# Erstellen des Frames für den LINKEN Bereich "Controllable Load" (Tab3)
+left_frame = ttk.LabelFrame(text="Controllable Load")
 left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+right_frame = ttk.LabelFrame(text="Controllable Load")
+right_frame.grid(row=4, column=1, padx=10, pady=10, sticky="nsew")
 
 # Erstellen des Frames für den LINKEN Bereich "Controllable Load"
 control_left_frame = ttk.LabelFrame(left_frame, text="Control Cinergia")
@@ -938,20 +940,20 @@ control_left_frame.columnconfigure(1, weight=1)
 control_left_frame.columnconfigure(2, weight=1)
 
 # Erstellen eines weiteren Frames "Voltage EuT-Side" innerhalb des Frames "Controllable Load"
-voltage_display_frame = ttk.LabelFrame(left_frame, text="Voltage EuT-Side")
+voltage_display_frame = ttk.LabelFrame(right_frame, text="Voltage EuT-Side")
 voltage_display_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen eines weiteren Frames "Current EuT-Side" innerhalb des Frames "Controllable Load"
-current_display_frame = ttk.LabelFrame(left_frame, text="Current EuT-Side")
+current_display_frame = ttk.LabelFrame(right_frame, text="Current EuT-Side")
 current_display_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen eines weiteren Frames "Power EuT-Side" innerhalb des Frames "Controllable Load"
-power_display_frame = ttk.LabelFrame(left_frame, text="Power EuT-Side")
+power_display_frame = ttk.LabelFrame(right_frame, text="Power EuT-Side")
 power_display_frame.grid(row=12, column=0, padx=10, pady=10, sticky="nsew")
 
 
-# Erstellen eines Frames für den MITTLEREN Bereich "Charge Parameter"
-middle_frame = ttk.LabelFrame(tab2, text="Charge Parameter")
+# Erstellen eines Frames für den MITTLEREN Bereich "Charge Parameter" (Tab2)
+middle_frame = ttk.LabelFrame(text="Charge Parameter")
 middle_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 #middle_frame.columnconfigure(0, weight=1)
 
@@ -970,8 +972,8 @@ current_control_frame = ttk.LabelFrame(middle_frame, text="Current Control EuT-S
 current_control_frame.grid(row=9, column=0, padx=10, pady=10, sticky="nsew")
 #current_control_frame.columnconfigure(0, weight=1)
 
-# Erstellen eines Frames für den RECHTEN Bereich "Charge Process"
-right_frame = ttk.LabelFrame(tab3, text="Charge Process")
+# Erstellen eines Frames für den RECHTEN Bereich "Charge Process" (Tab3)
+right_frame = ttk.LabelFrame(text="Charge Process")
 right_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
 
 # Erstellen des Frames für den RECHTEN Bereich "Charge Process"

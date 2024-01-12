@@ -18,11 +18,11 @@ from matplotlib import ticker
 from matplotlib import dates as mdates
 
 
-
+"""
 # Verbindung zum Modbus-Server herstellen
 client = ModbusClient(host='192.168.2.149', port=502)
 client.open()
-
+"""
 
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
 
@@ -259,20 +259,20 @@ def update_button_and_combo_states():
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Laden":
-        voltage_static_button.config(state="normal")
-        voltage_automatic_button.config(state="normal")
-        current_static_button.config(state="disabled")
-        current_automatic_button.config(state="disabled")
-        current_static_combo.config(state="disabled")
-        current_automatic_combo.config(state="disabled")
+        current_ch_static_button.config(state="normal")
+        current_ch_automatic_button.config(state="normal")
+        current_dch_static_button.config(state="disabled")
+        current_dch_automatic_button.config(state="disabled")
+        current_dch_static_combo.config(state="disabled")
+        current_dch_automatic_combo.config(state="disabled")
 
     elif selected_operation == "Entladen":
-        current_static_button.config(state="normal")
-        current_automatic_button.config(state="normal")
-        voltage_static_button.config(state="disabled")
-        voltage_automatic_button.config(state="disabled")
-        voltage_static_combo.config(state="disabled")
-        voltage_automatic_combo.config(state="disabled")
+        current_dch_static_button.config(state="normal")
+        current_dch_automatic_button.config(state="normal")
+        current_ch_static_button.config(state="disabled")
+        current_ch_automatic_button.config(state="disabled")
+        current_ch_static_combo.config(state="disabled")
+        current_ch_automatic_combo.config(state="disabled")
 
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
@@ -419,12 +419,24 @@ def enable_voltage_automatic():
     global power_manual_state
     power_manual_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
 
+# Funktion, die durch Betätigung der Schaltfläche "Current [static]" aufgerufen wird
+def enable_current_ch_static():
+    print("Schaltfläche Current [static] betätigt")
+    current_ch_static_combo.config(state="normal")
+    current_ch_automatic_combo.config(state="disabled")
+    global current_static_state
+    current_static_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
+    global current_automatic_state
+    current_automatic_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
+    global current_manual_state
+    current_manual_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
+
 
 # Funktion, die durch Betätigung der Schaltfläche "Current [static]" aufgerufen wird
-def enable_current_static():
+def enable_current_dch_static():
     print("Schaltfläche Current [static] betätigt")
-    current_static_combo.config(state="normal")
-    current_automatic_combo.config(state="disabled")
+    current_dch_static_combo.config(state="normal")
+    current_dch_automatic_combo.config(state="disabled")
     global current_static_state
     current_static_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
     global current_automatic_state
@@ -434,10 +446,23 @@ def enable_current_static():
 
 
 # Funktion, die durch Betätigung der Schaltfläche "Current [automatic]" aufgerufen wird
-def enable_current_automatic():
+def enable_current_ch_automatic():
     print("Schaltfläche Current [automatic] betätigt")
-    current_automatic_combo.config(state="normal")
-    current_static_combo.config(state="disabled")
+    current_ch_automatic_combo.config(state="normal")
+    current_ch_static_combo.config(state="disabled")
+    global current_static_state
+    current_static_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
+    global current_automatic_state
+    current_automatic_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
+    global current_manual_state
+    current_manual_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
+
+
+# Funktion, die durch Betätigung der Schaltfläche "Current [automatic]" aufgerufen wird
+def enable_current_dch_automatic():
+    print("Schaltfläche Current [automatic] betätigt")
+    current_dch_automatic_combo.config(state="normal")
+    current_dch_static_combo.config(state="disabled")
     global current_static_state
     current_static_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
     global current_automatic_state
@@ -457,11 +482,19 @@ def voltage_automatic_combo_selected(event):
     print("Dropdown-Menü von Voltage [automatic] betätigt")
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def current_static_combo_selected(event):
+def current_ch_static_combo_selected(event):
     print("Dropdown-Menü von Current [static] betätigt")
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def current_automatic_combo_selected(event):
+def current_dch_static_combo_selected(event):
+    print("Dropdown-Menü von Current [static] betätigt")
+
+# Anzeige, dass Dropdown-Menü betätigt wurde
+def current_ch_automatic_combo_selected(event):
+    print("Dropdown-Menü von Current [automatic] betätigt")
+
+# Anzeige, dass Dropdown-Menü betätigt wurde
+def current_dch_automatic_combo_selected(event):
     print("Dropdown-Menü von Current [automatic] betätigt")
 
 
@@ -924,11 +957,148 @@ tab3.grid_columnconfigure(1, weight=1)
 """
 
 
+# Erstellen eines Frames für den 1. Bereich von links, "Charge Parameter"
+frame_0_0 = ttk.LabelFrame(text="Charge Parameter")
+frame_0_0.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+#frame_0_0.columnconfigure(0, weight=1)
+
+#
+
+# Erstellen eines weiteren Frames ohne Überschrift innerhalb des Frames "Charge Parameter"
+no_header_frame_0_0 = ttk.LabelFrame(frame_0_0, text="")
+no_header_frame_0_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+#no_header_frame_0_0.columnconfigure(0, weight=1)
+
+# Erstellen des Dropdown-Menüs für "Control Operation" im MITTLEREN Frame
+control_operation_var = tk.StringVar()
+control_operation_label = ttk.Label(no_header_frame_0_0, text="Control Operation:")
+control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Laden", "Entladen"], state="readonly")
+update_button_and_combo_states()
+
+# Positionieren des Labels und des Dropdown-Menüs "Control Operation" im MITTLEREN Frame
+control_operation_label.grid(row=1, column=0, padx=5, pady=5)
+control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Control Operation an die entsprechende Funktion im MITTLEREN Frame
+control_operation_combo.bind("<<ComboboxSelected>>", control_operation_selected)  # Durch bind-Methode wird Fkt "control_operation_selected(event)" jedes Mal bei Benutzung des Dropdown-Menüs aufgerufen (-->EVENT!!!)
+
+#
+
+# Erstellen eines weiteren Frames "Voltage Control EuT-Side" innerhalb des Frames "Charge Parameter"
+voltage_control_frame = ttk.LabelFrame(frame_0_0, text="Voltage Control EuT-Side")
+voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+#voltage_control_frame.columnconfigure(0, weight=1)
+
+
+# Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
+voltage_static_var = tk.StringVar()
+voltage_static_button = ttk.Button(voltage_control_frame, text="Voltage [static]", command=enable_voltage_static)
+voltage_static_button.config(state="disabled")
+voltage_static_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_static_var, values=["350 V", "400 V", "450 V"], state="readonly")
+voltage_static_combo.config(state="disabled")
+
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
+voltage_static_button.grid(row=3, column=0, padx=5, pady=5)
+voltage_static_combo.grid(row=3, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Voltage [static] an die entsprechende Funktion im MITTLEREN Frame
+voltage_static_combo.bind("<<ComboboxSelected>>", voltage_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+
+# Erstellen des Dropdown-Menüs für "Voltage [automatic]" im MITTLEREN Frame
+voltage_automatic_var = tk.StringVar()
+voltage_automatic_button = ttk.Button(voltage_control_frame, text="Voltage [automatic]", command=enable_voltage_automatic)
+voltage_automatic_button.config(state="disabled")
+voltage_automatic_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
+voltage_automatic_combo.config(state="disabled")
+
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
+voltage_automatic_button.grid(row=4, column=0, padx=5, pady=5)
+voltage_automatic_combo.grid(row=4, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
+voltage_automatic_combo.bind("<<ComboboxSelected>>", voltage_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+#
+
+# Erstellen eines weiteren Frames "Charge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
+current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current Control EuT-Side")
+current_ch_control_frame.grid(row=5, column=0, padx=10, pady=10, sticky="nsew")
+#current_dch_control_frame.columnconfigure(0, weight=1)
+
+
+# Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
+current_ch_static_var = tk.StringVar()
+current_ch_static_button = ttk.Button(current_ch_control_frame, text="Current [static]", command=enable_current_ch_static)
+current_ch_static_button.config(state="disabled")
+current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["6 A", "8 A", "10 A", "13 A", "16 A"], state="readonly")
+current_ch_static_combo.config(state="disabled")
+
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
+current_ch_static_button.grid(row=6, column=0, padx=5, pady=5)
+current_ch_static_combo.grid(row=6, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
+current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+
+# Erstellen des Dropdown-Menüs für "Current [automatic]" im MITTLEREN Frame
+current_ch_automatic_var = tk.StringVar()
+current_ch_automatic_button = ttk.Button(current_ch_control_frame, text="Current [automatic]", command=enable_current_ch_automatic)
+current_ch_automatic_button.config(state="disabled")
+current_ch_automatic_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
+current_ch_automatic_combo.config(state="disabled")
+
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
+current_ch_automatic_button.grid(row=7, column=0, padx=5, pady=5)
+current_ch_automatic_combo.grid(row=7, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
+current_ch_automatic_combo.bind("<<ComboboxSelected>>", current_ch_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+#
+
+# Erstellen eines weiteren Frames "Discharge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
+current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current Control EuT-Side")
+current_dch_control_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
+#current_dch_control_frame.columnconfigure(0, weight=1)
+
+# Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
+current_dch_static_var = tk.StringVar()
+current_dch_static_button = ttk.Button(current_dch_control_frame, text="Current [static]", command=enable_current_dch_static)
+current_dch_static_button.config(state="disabled")
+current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["6 A", "8 A", "10 A", "13 A", "16 A"], state="readonly")
+current_dch_static_combo.config(state="disabled")
+
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
+current_dch_static_button.grid(row=9, column=0, padx=5, pady=5)
+current_dch_static_combo.grid(row=9, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
+current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+
+# Erstellen des Dropdown-Menüs für "Current [automatic]" im MITTLEREN Frame
+current_automatic_var = tk.StringVar()
+current_dch_automatic_button = ttk.Button(current_dch_control_frame, text="Current [automatic]", command=enable_current_dch_automatic)
+current_dch_automatic_button.config(state="disabled")
+current_dch_automatic_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
+current_dch_automatic_combo.config(state="disabled")
+
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
+current_dch_automatic_button.grid(row=10, column=0, padx=5, pady=5)
+current_dch_automatic_combo.grid(row=10, column=1, padx=5, pady=5)
+
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
+current_dch_automatic_combo.bind("<<ComboboxSelected>>", current_dch_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+#
+#
+#
+
 # Erstellen des Frames für den LINKEN Bereich "Controllable Load" (Tab3)
 left_frame = ttk.LabelFrame(text="Controllable Load")
-left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-right_frame = ttk.LabelFrame(text="Controllable Load")
-right_frame.grid(row=4, column=1, padx=10, pady=10, sticky="nsew")
+left_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
 # Erstellen des Frames für den LINKEN Bereich "Controllable Load"
 control_left_frame = ttk.LabelFrame(left_frame, text="Control Cinergia")
@@ -940,37 +1110,20 @@ control_left_frame.columnconfigure(1, weight=1)
 control_left_frame.columnconfigure(2, weight=1)
 
 # Erstellen eines weiteren Frames "Voltage EuT-Side" innerhalb des Frames "Controllable Load"
-voltage_display_frame = ttk.LabelFrame(right_frame, text="Voltage EuT-Side")
+voltage_display_frame = ttk.LabelFrame(left_frame, text="Voltage EuT-Side")
 voltage_display_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen eines weiteren Frames "Current EuT-Side" innerhalb des Frames "Controllable Load"
-current_display_frame = ttk.LabelFrame(right_frame, text="Current EuT-Side")
+current_display_frame = ttk.LabelFrame(left_frame, text="Current EuT-Side")
 current_display_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen eines weiteren Frames "Power EuT-Side" innerhalb des Frames "Controllable Load"
-power_display_frame = ttk.LabelFrame(right_frame, text="Power EuT-Side")
+power_display_frame = ttk.LabelFrame(left_frame, text="Power EuT-Side")
 power_display_frame.grid(row=12, column=0, padx=10, pady=10, sticky="nsew")
 
 
-# Erstellen eines Frames für den MITTLEREN Bereich "Charge Parameter" (Tab2)
-middle_frame = ttk.LabelFrame(text="Charge Parameter")
-middle_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-#middle_frame.columnconfigure(0, weight=1)
 
-# Erstellen eines weiteren Frames ohne Überschrift innerhalb des Frames "Charge Parameter"
-no_header_middle_frame = ttk.LabelFrame(middle_frame, text="")
-no_header_middle_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-#no_header_middle_frame.columnconfigure(0, weight=1)
 
-# Erstellen eines weiteren Frames "Voltage Control EuT-Side" innerhalb des Frames "Charge Parameter"
-voltage_control_frame = ttk.LabelFrame(middle_frame, text="Voltage Control EuT-Side")
-voltage_control_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
-#voltage_control_frame.columnconfigure(0, weight=1)
-
-# Erstellen eines weiteren Frames "Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
-current_control_frame = ttk.LabelFrame(middle_frame, text="Current Control EuT-Side")
-current_control_frame.grid(row=9, column=0, padx=10, pady=10, sticky="nsew")
-#current_control_frame.columnconfigure(0, weight=1)
 
 # Erstellen eines Frames für den RECHTEN Bereich "Charge Process" (Tab3)
 right_frame = ttk.LabelFrame(text="Charge Process")
@@ -1040,81 +1193,6 @@ unit_label_current_total.grid(row=10, column=5, padx=5, pady=5)
 power_total_label_fix.grid(row=14, column=3, padx=5, pady=5)
 power_total_label.grid(row=14, column=4, padx=5, pady=5)
 unit_label_power_total.grid(row=14, column=5, padx=5, pady=5)
-
-
-# Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
-voltage_static_var = tk.StringVar()
-voltage_static_button = ttk.Button(voltage_control_frame, text="Voltage [static]", command=enable_voltage_static)
-voltage_static_button.config(state="disabled")
-voltage_static_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_static_var, values=["350 V", "400 V", "450 V"], state="readonly")
-voltage_static_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
-voltage_static_button.grid(row=3, column=0, padx=5, pady=5)
-voltage_static_combo.grid(row=3, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Voltage [static] an die entsprechende Funktion im MITTLEREN Frame
-voltage_static_combo.bind("<<ComboboxSelected>>", voltage_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Voltage [automatic]" im MITTLEREN Frame
-voltage_automatic_var = tk.StringVar()
-voltage_automatic_button = ttk.Button(voltage_control_frame, text="Voltage [automatic]", command=enable_voltage_automatic)
-voltage_automatic_button.config(state="disabled")
-voltage_automatic_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
-voltage_automatic_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
-voltage_automatic_button.grid(row=4, column=0, padx=5, pady=5)
-voltage_automatic_combo.grid(row=4, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
-voltage_automatic_combo.bind("<<ComboboxSelected>>", voltage_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
-current_static_var = tk.StringVar()
-current_static_button = ttk.Button(current_control_frame, text="Current [static]", command=enable_current_static)
-current_static_button.config(state="disabled")
-current_static_combo = ttk.Combobox(current_control_frame, textvariable=current_static_var, values=["6 A", "8 A", "10 A", "13 A", "16 A"], state="readonly")
-current_static_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Current [static]" im MITTLEREN Frame
-current_static_button.grid(row=10, column=0, padx=5, pady=5)
-current_static_combo.grid(row=10, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
-current_static_combo.bind("<<ComboboxSelected>>", current_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Current [automatic]" im MITTLEREN Frame
-current_automatic_var = tk.StringVar()
-current_automatic_button = ttk.Button(current_control_frame, text="Current [automatic]", command=enable_current_automatic)
-current_automatic_button.config(state="disabled")
-current_automatic_combo = ttk.Combobox(current_control_frame, textvariable=current_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
-current_automatic_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
-current_automatic_button.grid(row=11, column=0, padx=5, pady=5)
-current_automatic_combo.grid(row=11, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
-current_automatic_combo.bind("<<ComboboxSelected>>", current_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Control Operation" im MITTLEREN Frame
-control_operation_var = tk.StringVar()
-control_operation_label = ttk.Label(no_header_middle_frame, text="Control Operation:")
-control_operation_combo = ttk.Combobox(no_header_middle_frame, textvariable=control_operation_var, values=["Laden", "Entladen"], state="readonly")
-update_button_and_combo_states()
-
-# Verknüpfung der Dropdown-Auswahl der Control Operation an die entsprechende Funktion im MITTLEREN Frame
-control_operation_combo.bind("<<ComboboxSelected>>", control_operation_selected)  # Durch bind-Methode wird Fkt "control_operation_selected(event)" jedes Mal bei Benutzung des Dropdown-Menüs aufgerufen (-->EVENT!!!)
-
-
-# Positionieren des Labels und des Dropdown-Menüs "Control Operation" im MITTLEREN Frame
-control_operation_label.grid(row=1, column=0, padx=8, pady=5)
-control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
 
 
 

@@ -258,37 +258,21 @@ def update_button_and_combo_states():
 
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
-    if selected_operation == "Power":
-        power_static_button.config(state="normal")
-        power_automatic_button.config(state="normal")
-        power_manual_button.config(state="normal")
+    if selected_operation == "Laden":
+        voltage_static_button.config(state="normal")
+        voltage_automatic_button.config(state="normal")
         current_static_button.config(state="disabled")
         current_automatic_button.config(state="disabled")
-        current_manual_button.config(state="disabled")
-        on_off_4_switch.config(state="disabled")
-        on_off_5_switch.config(state="disabled")
-        on_off_6_switch.config(state="disabled")
         current_static_combo.config(state="disabled")
         current_automatic_combo.config(state="disabled")
-        current_manual_entry_1.config(state="disabled")
-        current_manual_entry_2.config(state="disabled")
-        current_manual_entry_3.config(state="disabled")
 
-    elif selected_operation == "Current":
+    elif selected_operation == "Entladen":
         current_static_button.config(state="normal")
         current_automatic_button.config(state="normal")
-        current_manual_button.config(state="normal")
-        power_static_button.config(state="disabled")
-        power_automatic_button.config(state="disabled")
-        power_manual_button.config(state="disabled")
-        on_off_1_switch.config(state="disabled")
-        on_off_2_switch.config(state="disabled")
-        on_off_3_switch.config(state="disabled")
-        power_static_combo.config(state="disabled")
-        power_automatic_combo.config(state="disabled")
-        power_manual_entry_1.config(state="disabled")
-        power_manual_entry_2.config(state="disabled")
-        power_manual_entry_3.config(state="disabled")
+        voltage_static_button.config(state="disabled")
+        voltage_automatic_button.config(state="disabled")
+        voltage_static_combo.config(state="disabled")
+        voltage_automatic_combo.config(state="disabled")
 
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
@@ -410,17 +394,11 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 
 ### SCHALTFLÄCHEN 2 ###
 
-# Funktion, die durch Betätigung der Schaltfläche "Power [static]" aufgerufen wird
-def enable_power_static():
-    print("Schaltfläche Power [static] betätigt")
-    power_static_combo.config(state="normal")
-    power_automatic_combo.config(state="disabled")
-    power_manual_entry_1.config(state="disabled")
-    power_manual_entry_2.config(state="disabled")
-    power_manual_entry_3.config(state="disabled")
-    on_off_1_switch.config(state="disabled")
-    on_off_2_switch.config(state="disabled")
-    on_off_3_switch.config(state="disabled")
+# Funktion, die durch Betätigung der Schaltfläche "Voltage [static]" aufgerufen wird
+def enable_voltage_static():
+    print("Schaltfläche Voltage [static] betätigt")
+    voltage_static_combo.config(state="normal")
+    voltage_automatic_combo.config(state="disabled")
     global power_static_state
     power_static_state = 1 # Notwendig für if-Bedingung von Funktion "start_charging"
     global power_automatic_state
@@ -429,17 +407,11 @@ def enable_power_static():
     power_manual_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
 
 
-# Funktion, die durch Betätigung der Schaltfläche "Power [automatic]" aufgerufen wird
-def enable_power_automatic():
-    print("Schaltfläche Power [automatic] betätigt")
-    power_automatic_combo.config(state="normal")
-    power_static_combo.config(state="disabled")
-    power_manual_entry_1.config(state="disabled")
-    power_manual_entry_2.config(state="disabled")
-    power_manual_entry_3.config(state="disabled")
-    on_off_1_switch.config(state="disabled")
-    on_off_2_switch.config(state="disabled")
-    on_off_3_switch.config(state="disabled")
+# Funktion, die durch Betätigung der Schaltfläche "Voltage [automatic]" aufgerufen wird
+def enable_voltage_automatic():
+    print("Schaltfläche Voltage [automatic] betätigt")
+    voltage_automatic_combo.config(state="normal")
+    voltage_static_combo.config(state="disabled")
     global power_static_state
     power_static_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
     global power_automatic_state
@@ -448,120 +420,11 @@ def enable_power_automatic():
     power_manual_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
 
 
-# Funktion, die durch Betätigung der Schaltfläche "Power [manual]" aufgerufen wird
-def enable_power_manual():
-    """
-    print("Schaltfläche Power [manual] betätigt")
-    # Einzelne Phasen werden je nach Zustand der Kontrollkästchen auf der GUI ein- bzw. ausgeschaltet
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4: # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-        if on_off_1_var.get() == 1:
-            # Phase U einschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Power entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_1_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Power entsprechend Stellung Kippschalter ausgeschaltet")
-
-
-        if on_off_2_var.get() == 1:
-            # Phase V einschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Power entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_2_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Power entsprechend Stellung Kippschalter ausgeschaltet")
-
-
-        if on_off_3_var.get() == 1:
-            # Phase W einschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Power entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_3_var.get() == 0:
-            # Phase W ausschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Power entsprechend Stellung Kippschalter ausgeschaltet")
-            """
-
-    power_manual_entry_1.config(state="normal")
-    power_manual_entry_2.config(state="normal")
-    power_manual_entry_3.config(state="normal")
-    on_off_1_switch.config(state="normal")
-    on_off_2_switch.config(state="normal")
-    on_off_3_switch.config(state="normal")
-    power_static_combo.config(state="disabled")
-    power_automatic_combo.config(state="disabled")
-    global power_static_state
-    power_static_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global power_automatic_state
-    power_automatic_state = 0 # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global power_manual_state
-    power_manual_state = 1 # Notwendig für if-Bedingung von Funktion "start_charging"
-
-
 # Funktion, die durch Betätigung der Schaltfläche "Current [static]" aufgerufen wird
 def enable_current_static():
     print("Schaltfläche Current [static] betätigt")
     current_static_combo.config(state="normal")
     current_automatic_combo.config(state="disabled")
-    current_manual_entry_1.config(state="disabled")
-    current_manual_entry_2.config(state="disabled")
-    current_manual_entry_3.config(state="disabled")
-    on_off_4_switch.config(state="disabled")
-    on_off_5_switch.config(state="disabled")
-    on_off_6_switch.config(state="disabled")
     global current_static_state
     current_static_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
     global current_automatic_state
@@ -575,12 +438,6 @@ def enable_current_automatic():
     print("Schaltfläche Current [automatic] betätigt")
     current_automatic_combo.config(state="normal")
     current_static_combo.config(state="disabled")
-    current_manual_entry_1.config(state="disabled")
-    current_manual_entry_2.config(state="disabled")
-    current_manual_entry_3.config(state="disabled")
-    on_off_4_switch.config(state="disabled")
-    on_off_5_switch.config(state="disabled")
-    on_off_6_switch.config(state="disabled")
     global current_static_state
     current_static_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
     global current_automatic_state
@@ -589,120 +446,15 @@ def enable_current_automatic():
     current_manual_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
 
 
-# Funktion, die durch Betätigung der Schaltfläche "Current [manual]" aufgerufen wird
-def enable_current_manual():
-    """
-    print("Schaltfläche Current [manual] betätigt")
-    # Einzelne Phasen werden je nach Zustand der Kontrollkästchen auf der GUI ein- bzw. ausgeschaltet
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4:  # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-        if on_off_4_var.get() == 1:
-            # Phase U einschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Current entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_4_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Current entsprechend Stellung Kippschalter ausgeschaltet")
-
-
-        if on_off_5_var.get() == 1:
-            # Phase V einschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Current entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_5_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Current entsprechend Stellung Kippschalter ausgeschaltet")
-
-
-        if on_off_6_var.get() == 1:
-            # Phase W einschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Current entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_6_var.get() == 0:
-            # Phase W ausschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Current entsprechend Stellung Kippschalter ausgeschaltet")
-            """
-
-    current_manual_entry_1.config(state="normal")
-    current_manual_entry_2.config(state="normal")
-    current_manual_entry_3.config(state="normal")
-    on_off_4_switch.config(state="normal")
-    on_off_5_switch.config(state="normal")
-    on_off_6_switch.config(state="normal")
-    current_static_combo.config(state="disabled")
-    current_automatic_combo.config(state="disabled")
-    global current_static_state
-    current_static_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global current_automatic_state
-    current_automatic_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global current_manual_state
-    current_manual_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
-
-
-
-
 ### DROPDOWN-MENÜS + EINGABEFELDER ###
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def power_static_combo_selected(event):
-    print("Dropdown-Menü von Power [static] betätigt")
+def voltage_static_combo_selected(event):
+    print("Dropdown-Menü von Voltage [static] betätigt")
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def power_automatic_combo_selected(event):
-    print("Dropdown-Menü von Power [automatic] betätigt")
+def voltage_automatic_combo_selected(event):
+    print("Dropdown-Menü von Voltage [automatic] betätigt")
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_static_combo_selected(event):
@@ -713,744 +465,13 @@ def current_automatic_combo_selected(event):
     print("Dropdown-Menü von Current [automatic] betätigt")
 
 
-# Anzeige Betätigung Eingabefelder POWER
-def power_manual_entry_1_selected(event):
-    print("Eingabefeld Power [manual] Phase U verwendet")
-
-def power_manual_entry_2_selected(event):
-    print("Eingabefeld Power [manual] Phase V verwendet")
-
-def power_manual_entry_3_selected(event):
-    print("Eingabefeld Power [manual] Phase W verwendet")
-
-
-# Anzeige Betätigung Eingabefelder CURRENT
-def current_manual_entry_1_selected(event):
-    print("Eingabefeld Current [manual] Phase U verwendet")
-
-def current_manual_entry_2_selected(event):
-    print("Eingabefeld Current [manual] Phase V verwendet")
-
-def current_manual_entry_3_selected(event):
-    print("Eingabefeld Current [manual] Phase W verwendet")
-
-
-
-
-
-### KIPPSCHALTER DER PHASEN ###
-
-
-# Funktion des On/Off Kippschalters (Toggles)
-def on_off_toggle_power_ph_u():
-    """
-    # Aktuellen Wert des Kippschalters abrufen
-    present_value = on_off_1_var.get()
-    # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4: # Damit während Status "Run" NICHT bei Betätigung des Kästchens direkt umgeschalten wird!
-        if present_value == 1:
-            # Phase U einschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_U Power ist auf 'On'")
-
-        if present_value == 0:
-            # Phase U ausschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_U Power ist auf 'Off'")
-            """
-    return
-
-
-# Funktion des On/Off Kippschalters (Toggles)
-def on_off_toggle_power_ph_v():
-    """
-    # Aktuellen Wert des Kippschalters abrufen
-    present_value = on_off_2_var.get()
-    # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4:  # Damit während Status "Run" NICHT bei Betätigung des Kästchens direkt umgeschalten wird!
-        if present_value == 1:
-            # Phase V einschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_V Power ist auf 'On'")
-
-        if present_value == 0:
-            # Phase V ausschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_V Power ist auf 'Off'")
-            """
-    return
-
-
-# Funktion des On/Off Kippschalters (Toggles)
-def on_off_toggle_power_ph_w():
-    """
-    # Aktuellen Wert des Kippschalters abrufen
-    present_value = on_off_3_var.get()
-    # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4:  # Damit während Status "Run" NICHT bei Betätigung des Kästchens direkt umgeschalten wird!
-        if present_value == 1:
-            # Phase U einschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_W Power ist auf 'On'")
-
-        if present_value == 0:
-            # Phase U ausschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_W Power ist auf 'Off'")
-            """
-    return
-
-
-# Funktion des On/Off Kippschalters (Toggles)
-def on_off_toggle_current_ph_u():
-    """
-    # Aktuellen Wert des Kippschalters abrufen
-    present_value = on_off_4_var.get()
-    # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4: # Damit während Status "Run" NICHT bei Betätigung des Kästchens direkt umgeschalten wird!
-        if present_value == 1:
-            # Phase U einschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_U Current ist auf 'On'")
-
-        if present_value == 0:
-            # Phase U ausschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_U Current ist auf 'Off'")
-            """
-    return
-
-
-# Funktion des On/Off Kippschalters (Toggles)
-def on_off_toggle_current_ph_v():
-    """
-    # Aktuellen Wert des Kippschalters abrufen
-    present_value = on_off_5_var.get()
-    # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4: # Damit während Status "Run" NICHT bei Betätigung des Kästchens direkt umgeschalten wird!
-        if present_value == 1:
-            # Phase U einschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_V Current ist auf 'On'")
-
-        if present_value == 0:
-            # Phase U ausschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_V Current ist auf 'Off'")
-            """
-    return
-
-
-# Funktion des On/Off Kippschalters (Toggles)
-def on_off_toggle_current_ph_w():
-    """
-    # Aktuellen Wert des Kippschalters abrufen
-    present_value = on_off_6_var.get()
-    # Status 2 = StandBy, Status 3 = PreCharge, Status 4 = Ready
-    if grafcet_status == 2 or grafcet_status == 3 or grafcet_status == 4: # Damit während Status "Run" NICHT bei Betätigung des Kästchens direkt umgeschalten wird!
-        if present_value == 1:
-            # Phase U einschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_W Current ist auf 'On'")
-
-        if present_value == 0:
-            # Phase U ausschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Kippschalter Ph_W Current ist auf 'Off'")
-            """
-    return
-
-
-
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
 
-# Charge Control Auswahl "POWER"
-def charge_control_power_static():
-    """
-
-    print("Aufruf Fkt charge_control_power_static()")
-
-
-    if power_static_var.get() == "3.7 kW":
-        print("Dropdown-Auswahl: 3.7 kW")
-        # Phase U einschalten
-        on_off_ph_u_register = 17010
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Phase V ausschalten
-        on_off_ph_v_register = 17012
-
-        value_to_write = 0
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Phase W ausschalten
-        on_off_ph_w_register = 17014
-
-        value_to_write = 0
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat Phasen zu schalten
-
-        # Leistungsvorgabe Phase U
-        power_active_ph_u_register = 27724
-        value_to_write = -3700.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Leistungsvorgabe Phase V
-        power_active_ph_v_register = 27726
-        value_to_write = 0.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Leistungsvorgabe Phase W
-        power_active_ph_w_register = 27728
-        value_to_write = 0.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-
-    if power_static_var.get() == "7.4 kW":
-        print("Dropdown-Auswahl: 7.4 kW")
-        # Phase U einschalten
-        on_off_ph_u_register = 17010
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Phase V einschalten
-        on_off_ph_v_register = 17012
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Phase W ausschalten
-        on_off_ph_w_register = 17014
-
-        value_to_write = 0
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat Phasen zu schalten
-
-        # Leistungsvorgabe Phase U
-        power_active_ph_u_register = 27724
-        value_to_write = -3700.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Leistungsvorgabe Phase V
-        power_active_ph_v_register = 27726
-        value_to_write = -3700.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Leistungsvorgabe Phase W
-        power_active_ph_w_register = 27728
-        value_to_write = 0.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-
-    if power_static_var.get() == "11 kW":
-        print("Dropdown-Auswahl: 11 kW")
-        # Phase U einschalten
-        on_off_ph_u_register = 17010
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Phase V einschalten
-        on_off_ph_v_register = 17012
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Phase W einschalten
-        on_off_ph_w_register = 17014
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat Phasen zu schalten
-
-        # Leistungsvorgabe Phase U
-        power_active_ph_u_register = 27724
-        value_to_write = -3700.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Leistungsvorgabe Phase V
-        power_active_ph_v_register = 27726
-        value_to_write = -3700.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Leistungsvorgabe Phase W
-        power_active_ph_w_register = 27728
-        value_to_write = -3700.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(power_active_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    # Leistungsvorgabe senden
-    trigger_config_register = 17020
-
-    value_to_write = 1
-
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-    """
-    return
-
-def charge_control_power_automatic():
-    print("Aufruf Fkt charge_control_power_automatic()")
+def charge_control_voltage_automatic():
+    print("Aufruf Fkt charge_control_voltage_automatic()")
     pass
 
-def charge_control_power_manual():
-    """
-    print("Aufruf Fkt charge_control_power_manual()")
-    if grafcet_status == 5: # --> Nur notwendig, wenn CNG auf Status 5 = Run steht; Ansonsten, wenn Status < 5 ist, werden Phasen direkt bei Betätigung der Kippschalter auf GUI geschalten!!!
 
-    ### Jede Phase je nach Zustand des Auswahl-Kästchens auf der GUI ein- bzw. ausschalten
-        if on_off_1_var.get() == 1:
-            # Phase U einschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Power entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_1_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Power entsprechend Stellung Kippschalter ausgeschaltet")
-
-        if on_off_2_var.get() == 1:
-            # Phase V einschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Power entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_2_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Power entsprechend Stellung Kippschalter ausgeschaltet")
-
-        if on_off_3_var.get() == 1:
-            # Phase W einschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Power entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_3_var.get() == 0:
-            # Phase W ausschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Power entsprechend Stellung Kippschalter ausgeschaltet")
-
-    ### PHASE U ###
-
-    # Leistungsvorgabe Phase U
-    power_active_ph_u_register = 27724
-    value_to_write = float(power_manual_var_1.get()) # Wert aus Eingabefeld Phase U
-    print("Eingabewert Power Phase U: ", power_manual_var_1.get())
-
-    # Vorzeichen von Eingabewert umwandeln, falls dieses NEGATIV ist!
-    if value_to_write < 0:
-        value_to_write = value_to_write * -1
-        print("Vorzeichen von negativem Eingabewert umgekehrt")
-
-    if value_to_write >= 3700.0: # Hier Maximalwert für Leistung pro Phase eintragen!!!!
-        value_to_write = 3700.0  # Maximalwert Leistung pro Phase
-        print("Eingabewert Power Phase U auf Maximalwert: ", value_to_write, " angepasst, da Eingabewert zu hoch!")
-
-
-    # Positives Vorzeichen von Eingabewert umkehren. Wert für Register muss NEGATIV sein, da hier LAST!
-    if value_to_write >= 0:
-        value_to_write = value_to_write * -1
-        print("Wert, der in Register geschrieben wird: ", value_to_write)
-
-
-    # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(power_active_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    ### PHASE V ###
-
-    # Leistungsvorgabe Phase V
-    power_active_ph_v_register = 27726
-    value_to_write = float(power_manual_var_2.get())  # Wert aus Eingabefeld Phase V
-    print("Eingabewert Power Phase V: ", power_manual_var_2.get())
-
-    # Vorzeichen von Eingabewert umwandeln, falls dieses NEGATIV ist!
-    if value_to_write < 0:
-        value_to_write = value_to_write * -1
-        print("Vorzeichen von negativem Eingabewert umgekehrt")
-
-    if value_to_write >= 3700.0:  # Hier Maximalwert für Leistung pro Phase eintragen!!!!
-        value_to_write = 3700.0  # Maximalwert Leistung pro Phase
-        print("Eingabewert Power Phase V auf Maximalwert: ", value_to_write, " angepasst, da Eingabewert zu hoch!")
-
-    # Positives Vorzeichen von Eingabewert umkehren. Wert für Register muss NEGATIV sein, da hier LAST!
-    if value_to_write >= 0:
-        value_to_write = value_to_write * -1
-        print("Wert, der in Register geschrieben wird: ", value_to_write)
-
-    # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(power_active_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    ### PHASE W ###
-
-    # Leistungsvorgabe Phase W
-    power_active_ph_w_register = 27728
-    value_to_write = float(power_manual_var_3.get())  # Wert aus Eingabefeld Phase W
-    print("Eingabewert Power Phase W: ", power_manual_var_3.get())
-
-    # Vorzeichen von Eingabewert umwandeln, falls dieses NEGATIV ist!
-    if value_to_write < 0:
-        value_to_write = value_to_write * -1
-        print("Vorzeichen von negativem Eingabewert umgekehrt")
-
-    if value_to_write >= 3700.0:  # Hier Maximalwert für Leistung pro Phase eintragen!!!!
-        value_to_write = 3700.0  # Maximalwert Leistung pro Phase
-        print("Eingabewert Power Phase W auf Maximalwert: ", value_to_write, " angepasst, da Eingabewert zu hoch!")
-
-    # Positives Vorzeichen von Eingabewert umkehren. Wert für Register muss NEGATIV sein, da hier LAST!
-    if value_to_write >= 0:
-        value_to_write = value_to_write * -1
-        print("Wert, der in Register geschrieben wird: ", value_to_write)
-
-    # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(power_active_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    ### Manuelle Leistungsvorgaben der einzelnen Phasen senden ###
-
-    # Leistungsvorgabe senden
-    trigger_config_register = 17020
-
-    value_to_write = 1
-
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-    """
-    return
-
-
-# Charge Control Auswahl "CURRENT"
 def charge_control_current_static():
     """
     print("Aufruf Fkt charge_control_current_static()")
@@ -1774,214 +795,6 @@ def charge_control_current_automatic():
     print("Aufruf Fkt charge_control_current_automatic()")
     pass
 
-def charge_control_current_manual():
-    """
-    print("Aufruf Fkt charge_control_current_manual()")
-    if grafcet_status == 5:  # --> Nur notwendig, wenn CNG auf Status 5 = Run steht; Ansonsten, wenn Status < 5 ist, werden Phasen direkt bei Betätigung der Kippschalter auf GUI geschalten!!!
-
-        ### Jede Phase je nach Zustand des Auswahl-Kästchens auf der GUI ein- bzw. ausschalten
-        if on_off_4_var.get() == 1:
-            # Phase U einschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Current entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_4_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_u_register = 17010
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_U Current entsprechend Stellung Kippschalter ausgeschaltet")
-
-
-        if on_off_5_var.get() == 1:
-            # Phase V einschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Current entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_5_var.get() == 0:
-            # Phase U ausschalten
-            on_off_ph_v_register = 17012
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_V Current entsprechend Stellung Kippschalter ausgeschaltet")
-
-
-        if on_off_6_var.get() == 1:
-            # Phase W einschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 1
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Current entsprechend Stellung Kippschalter eingeschaltet")
-
-        if on_off_6_var.get() == 0:
-            # Phase W ausschalten
-            on_off_ph_w_register = 17014
-
-            value_to_write = 0
-            byte0 = (value_to_write >> 24) & 0xFF
-            byte1 = (value_to_write >> 16) & 0xFF
-            byte2 = (value_to_write >> 8) & 0xFF
-            byte3 = value_to_write & 0xFF
-
-            client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-            print("Ph_W Current entsprechend Stellung Kippschalter ausgeschaltet")
-
-    ### PHASE U ###
-
-    # Leistungsvorgabe Phase U
-    current_fundamental_ac_ph_u_register = 27072
-    value_to_write = float(current_manual_var_1.get()) # Wert aus Eingabefeld Phase U
-    print("Eingabewert Current Phase U: ", current_manual_var_1.get())
-
-    # Vorzeichen von Eingabewert umwandeln, falls dieses NEGATIV ist!
-    if value_to_write < 0:
-        value_to_write = value_to_write * -1
-        print("Vorzeichen von negativem Eingabewert umgekehrt")
-
-    if value_to_write >= 16.0: # Hier Maximalwert für Strom pro Phase eintragen!!!!
-        value_to_write = 16.0  # Maximalwert Strom pro Phase
-        print("Eingabewert Current Phase U auf Maximalwert: ", value_to_write, " angepasst, da Eingabewert zu hoch!")
-
-
-    # Positives Vorzeichen von Eingabewert umkehren. Wert für Register muss NEGATIV sein, da hier LAST!
-    if value_to_write >= 0:
-        value_to_write = value_to_write * -1
-        print("Wert, der in Register geschrieben wird: ", value_to_write)
-
-
-    # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(current_fundamental_ac_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    ### PHASE V ###
-
-    # Leistungsvorgabe Phase V
-    current_fundamental_ac_ph_v_register = 27080
-    value_to_write = float(current_manual_var_2.get())  # Wert aus Eingabefeld Phase V
-    print("Eingabewert Current Phase V: ", current_manual_var_2.get())
-
-    # Vorzeichen von Eingabewert umwandeln, falls dieses NEGATIV ist!
-    if value_to_write < 0:
-        value_to_write = value_to_write * -1
-        print("Vorzeichen von negativem Eingabewert umgekehrt")
-
-    if value_to_write >= 16.0:  # Hier Maximalwert für Strom pro Phase eintragen!!!!
-        value_to_write = 16.0  # Maximalwert Strom pro Phase
-        print("Eingabewert Current Phase V auf Maximalwert: ", value_to_write, " angepasst, da Eingabewert zu hoch!")
-
-    # Positives Vorzeichen von Eingabewert umkehren. Wert für Register muss NEGATIV sein, da hier LAST!
-    if value_to_write >= 0:
-        value_to_write = value_to_write * -1
-        print("Wert, der in Register geschrieben wird: ", value_to_write)
-
-    # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(current_fundamental_ac_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    ### PHASE W ###
-
-    # Leistungsvorgabe Phase W
-    current_fundamental_ac_ph_w_register = 27088
-    value_to_write = float(current_manual_var_3.get())  # Wert aus Eingabefeld Phase V
-    print("Eingabewert Current Phase W: ", current_manual_var_3.get())
-
-    # Vorzeichen von Eingabewert umwandeln, falls dieses NEGATIV ist!
-    if value_to_write < 0:
-        value_to_write = value_to_write * -1
-        print("Vorzeichen von negativem Eingabewert umgekehrt")
-
-    if value_to_write >= 16.0:  # Hier Maximalwert für Strom pro Phase eintragen!!!!
-        value_to_write = 16.0  # Maximalwert Strom pro Phase
-        print("Eingabewert Current Phase V auf Maximalwert: ", value_to_write, " angepasst, da Eingabewert zu hoch!")
-
-    # Positives Vorzeichen von Eingabewert umkehren. Wert für Register muss NEGATIV sein, da hier LAST!
-    if value_to_write >= 0:
-        value_to_write = value_to_write * -1
-        print("Wert, der in Register geschrieben wird: ", value_to_write)
-
-    # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(current_fundamental_ac_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    ### Manuelle Leistungsvorgaben der einzelnen Phasen senden ###
-
-    # Leistungsvorgabe senden
-    trigger_config_register = 17020
-
-    value_to_write = 1
-
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-    """
-    return
-
-
-
 
 
 ### SCHALTFLÄCHEN 3 ###
@@ -2057,6 +870,24 @@ def stop_charging():
 root = tk.Tk()
 root.title("EV-Emulator")
 
+"""
+get the screen dimension
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+window_width = screen_width
+window_height = screen_height
+# find the center point
+center_x = int(screen_width/2 - window_width / 2)
+center_y = int(screen_height/2 - window_height / 2)
+
+# set the position of the window to the center of the screen
+root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+root.resizable(False, False)
+root.attributes('-topmost', 1)
+"""
+
+"""
 # Erstellen eines Tab-Widgets
 notebook = ttk.Notebook(root)
 
@@ -2090,12 +921,14 @@ tab2.grid_rowconfigure(0, weight=1)
 tab3.grid_rowconfigure(0, weight=1)
 tab3.grid_columnconfigure(0, weight=1)
 tab3.grid_columnconfigure(1, weight=1)
+"""
 
 
-
-# Erstellen des Frames für den LINKEN Bereich "Controllable Load"
-left_frame = ttk.LabelFrame(tab3, text="Controllable Load")
+# Erstellen des Frames für den LINKEN Bereich "Controllable Load" (Tab3)
+left_frame = ttk.LabelFrame(text="Controllable Load")
 left_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+right_frame = ttk.LabelFrame(text="Controllable Load")
+right_frame.grid(row=4, column=1, padx=10, pady=10, sticky="nsew")
 
 # Erstellen des Frames für den LINKEN Bereich "Controllable Load"
 control_left_frame = ttk.LabelFrame(left_frame, text="Control Cinergia")
@@ -2107,20 +940,20 @@ control_left_frame.columnconfigure(1, weight=1)
 control_left_frame.columnconfigure(2, weight=1)
 
 # Erstellen eines weiteren Frames "Voltage EuT-Side" innerhalb des Frames "Controllable Load"
-voltage_display_frame = ttk.LabelFrame(left_frame, text="Voltage EuT-Side")
+voltage_display_frame = ttk.LabelFrame(right_frame, text="Voltage EuT-Side")
 voltage_display_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen eines weiteren Frames "Current EuT-Side" innerhalb des Frames "Controllable Load"
-current_display_frame = ttk.LabelFrame(left_frame, text="Current EuT-Side")
+current_display_frame = ttk.LabelFrame(right_frame, text="Current EuT-Side")
 current_display_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen eines weiteren Frames "Power EuT-Side" innerhalb des Frames "Controllable Load"
-power_display_frame = ttk.LabelFrame(left_frame, text="Power EuT-Side")
+power_display_frame = ttk.LabelFrame(right_frame, text="Power EuT-Side")
 power_display_frame.grid(row=12, column=0, padx=10, pady=10, sticky="nsew")
 
 
-# Erstellen eines Frames für den MITTLEREN Bereich "Charge Parameter"
-middle_frame = ttk.LabelFrame(tab2, text="Charge Parameter")
+# Erstellen eines Frames für den MITTLEREN Bereich "Charge Parameter" (Tab2)
+middle_frame = ttk.LabelFrame(text="Charge Parameter")
 middle_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 #middle_frame.columnconfigure(0, weight=1)
 
@@ -2129,18 +962,18 @@ no_header_middle_frame = ttk.LabelFrame(middle_frame, text="")
 no_header_middle_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 #no_header_middle_frame.columnconfigure(0, weight=1)
 
-# Erstellen eines weiteren Frames "Power Control EuT-Side" innerhalb des Frames "Charge Parameter"
-power_control_frame = ttk.LabelFrame(middle_frame, text="Power Control EuT-Side")
-power_control_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
-#power_control_frame.columnconfigure(0, weight=1)
+# Erstellen eines weiteren Frames "Voltage Control EuT-Side" innerhalb des Frames "Charge Parameter"
+voltage_control_frame = ttk.LabelFrame(middle_frame, text="Voltage Control EuT-Side")
+voltage_control_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+#voltage_control_frame.columnconfigure(0, weight=1)
 
 # Erstellen eines weiteren Frames "Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
 current_control_frame = ttk.LabelFrame(middle_frame, text="Current Control EuT-Side")
 current_control_frame.grid(row=9, column=0, padx=10, pady=10, sticky="nsew")
 #current_control_frame.columnconfigure(0, weight=1)
 
-# Erstellen eines Frames für den RECHTEN Bereich "Charge Process"
-right_frame = ttk.LabelFrame(tab3, text="Charge Process")
+# Erstellen eines Frames für den RECHTEN Bereich "Charge Process" (Tab3)
+right_frame = ttk.LabelFrame(text="Charge Process")
 right_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
 
 # Erstellen des Frames für den RECHTEN Bereich "Charge Process"
@@ -2209,73 +1042,34 @@ power_total_label.grid(row=14, column=4, padx=5, pady=5)
 unit_label_power_total.grid(row=14, column=5, padx=5, pady=5)
 
 
+# Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
+voltage_static_var = tk.StringVar()
+voltage_static_button = ttk.Button(voltage_control_frame, text="Voltage [static]", command=enable_voltage_static)
+voltage_static_button.config(state="disabled")
+voltage_static_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_static_var, values=["350 V", "400 V", "450 V"], state="readonly")
+voltage_static_combo.config(state="disabled")
 
-# Erstellen des Dropdown-Menüs für "Power [static]" im MITTLEREN Frame
-power_static_var = tk.StringVar()
-power_static_button = ttk.Button(power_control_frame, text="Power [static]", command=enable_power_static)
-power_static_button.config(state="disabled")
-power_static_combo = ttk.Combobox(power_control_frame, textvariable=power_static_var, values=["3.7 kW", "7.4 kW", "11 kW"], state="readonly")
-power_static_combo.config(state="disabled")
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
+voltage_static_button.grid(row=3, column=0, padx=5, pady=5)
+voltage_static_combo.grid(row=3, column=1, padx=5, pady=5)
 
-# Positionieren des Labels und des Dropdown-Menüs "Power [static]" im MITTLEREN Frame
-power_static_button.grid(row=3, column=0, padx=5, pady=5)
-power_static_combo.grid(row=3, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Power [static] an die entsprechende Funktion im MITTLEREN Frame
-power_static_combo.bind("<<ComboboxSelected>>", power_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Power [automatic]" im MITTLEREN Frame
-power_automatic_var = tk.StringVar()
-power_automatic_button = ttk.Button(power_control_frame, text="Power [automatic]", command=enable_power_automatic)
-power_automatic_button.config(state="disabled")
-power_automatic_combo = ttk.Combobox(power_control_frame, textvariable=power_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
-power_automatic_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Power [automatic]" im MITTLEREN Frame
-power_automatic_button.grid(row=4, column=0, padx=5, pady=5)
-power_automatic_combo.grid(row=4, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Power [automatic] an die entsprechende Funktion im MITTLEREN Frame
-power_automatic_combo.bind("<<ComboboxSelected>>", power_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+# Verknüpfung der Dropdown-Auswahl der Voltage [static] an die entsprechende Funktion im MITTLEREN Frame
+voltage_static_combo.bind("<<ComboboxSelected>>", voltage_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
 
-# Erstellen des Dropdown-Menüs für "Power [manual]" im MITTLEREN Frame
-power_manual_button = ttk.Button(power_control_frame, text="Power [manual]", command=enable_power_manual)
-power_manual_button.config(state="disabled")
-power_manual_label_1 = ttk.Label(power_control_frame, text="Ph_U:")
-power_manual_var_1 = tk.DoubleVar() # DoubleVar() für Datentyp float
-power_manual_entry_1 = ttk.Entry(power_control_frame, textvariable=power_manual_var_1)
-unit_label_1 = ttk.Label(power_control_frame, text="[W]")
-power_manual_label_2 = ttk.Label(power_control_frame, text="Ph_V:")
-power_manual_var_2 = tk.DoubleVar() # DoubleVar() für Datentyp float
-power_manual_entry_2 = ttk.Entry(power_control_frame, textvariable=power_manual_var_2)
-unit_label_2 = ttk.Label(power_control_frame, text="[W]")
-power_manual_label_3 = ttk.Label(power_control_frame, text="Ph_W:")
-power_manual_var_3 = tk.DoubleVar() # DoubleVar() für Datentyp float
-power_manual_entry_3 = ttk.Entry(power_control_frame, textvariable=power_manual_var_3)
-unit_label_3 = ttk.Label(power_control_frame, text="[W]")
-power_manual_entry_1.config(state="disabled")
-power_manual_entry_2.config(state="disabled")
-power_manual_entry_3.config(state="disabled")
+# Erstellen des Dropdown-Menüs für "Voltage [automatic]" im MITTLEREN Frame
+voltage_automatic_var = tk.StringVar()
+voltage_automatic_button = ttk.Button(voltage_control_frame, text="Voltage [automatic]", command=enable_voltage_automatic)
+voltage_automatic_button.config(state="disabled")
+voltage_automatic_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
+voltage_automatic_combo.config(state="disabled")
 
-# Positionieren des Labels und des Dropdown-Menüs "Power [manual]" im MITTLEREN Frame
-power_manual_button.grid(row=5, column=0, padx=5, pady=5)
-power_manual_label_1.grid(row=6, column=0, padx=5, pady=5)
-power_manual_entry_1.grid(row=6, column=1, padx=5, pady=5)
-unit_label_1.grid(row=6, column=2, padx=5, pady=5)
-power_manual_label_2.grid(row=7, column=0, padx=5, pady=5)
-power_manual_entry_2.grid(row=7, column=1, padx=5, pady=5)
-unit_label_2.grid(row=7, column=2, padx=5, pady=5)
-power_manual_label_3.grid(row=8, column=0, padx=5, pady=5)
-power_manual_entry_3.grid(row=8, column=1, padx=5, pady=5)
-unit_label_3.grid(row=8, column=2, padx=5, pady=5)
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
+voltage_automatic_button.grid(row=4, column=0, padx=5, pady=5)
+voltage_automatic_combo.grid(row=4, column=1, padx=5, pady=5)
 
-# Verknüpfung der Eingabefeld-Aktualisierung mit einer Funktion im MITTLEREN Frame
-power_manual_entry_1.bind("<FocusOut>", power_manual_entry_1_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-power_manual_entry_2.bind("<FocusOut>", power_manual_entry_2_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-power_manual_entry_3.bind("<FocusOut>", power_manual_entry_3_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
+voltage_automatic_combo.bind("<<ComboboxSelected>>", voltage_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
@@ -2300,91 +1094,18 @@ current_automatic_button.config(state="disabled")
 current_automatic_combo = ttk.Combobox(current_control_frame, textvariable=current_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
 current_automatic_combo.config(state="disabled")
 
-# Positionieren des Labels und des Dropdown-Menüs "Power [automatic]" im MITTLEREN Frame
+# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
 current_automatic_button.grid(row=11, column=0, padx=5, pady=5)
 current_automatic_combo.grid(row=11, column=1, padx=5, pady=5)
 
-# Verknüpfung der Dropdown-Auswahl der Power [automatic] an die entsprechende Funktion im MITTLEREN Frame
+# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
 current_automatic_combo.bind("<<ComboboxSelected>>", current_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Current [manual]" im MITTLEREN Frame
-current_manual_button = ttk.Button(current_control_frame, text="Current [manual]", command=enable_current_manual)
-current_manual_button.config(state="disabled")
-current_manual_label_1 = ttk.Label(current_control_frame, text="Ph_U:")
-current_manual_var_1 = tk.DoubleVar() # DoubleVar() für Datentyp float
-current_manual_entry_1 = ttk.Entry(current_control_frame, textvariable=current_manual_var_1)
-unit_label_4 = ttk.Label(current_control_frame, text="[A_rms]")
-current_manual_label_2 = ttk.Label(current_control_frame, text="Ph_V:")
-current_manual_var_2 = tk.DoubleVar() # DoubleVar() für Datentyp float
-current_manual_entry_2 = ttk.Entry(current_control_frame, textvariable=current_manual_var_2)
-unit_label_5 = ttk.Label(current_control_frame, text="[A_rms]")
-current_manual_label_3 = ttk.Label(current_control_frame, text="Ph_W:")
-current_manual_var_3 = tk.DoubleVar() # DoubleVar() für Datentyp float
-current_manual_entry_3 = ttk.Entry(current_control_frame, textvariable=current_manual_var_3)
-unit_label_6 = ttk.Label(current_control_frame, text="[A_rms]")
-current_manual_entry_1.config(state="disabled")
-current_manual_entry_2.config(state="disabled")
-current_manual_entry_3.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Current [manual]" im MITTLEREN Frame
-current_manual_button.grid(row=12, column=0, padx=5, pady=5)
-current_manual_label_1.grid(row=13, column=0, padx=5, pady=5)
-current_manual_entry_1.grid(row=13, column=1, padx=5, pady=5)
-unit_label_4.grid(row=13, column=2, padx=5, pady=5)
-current_manual_label_2.grid(row=14, column=0, padx=5, pady=5)
-current_manual_entry_2.grid(row=14, column=1, padx=5, pady=5)
-unit_label_5.grid(row=14, column=2, padx=5, pady=5)
-current_manual_label_3.grid(row=15, column=0, padx=5, pady=5)
-current_manual_entry_3.grid(row=15, column=1, padx=5, pady=5)
-unit_label_6.grid(row=15, column=2, padx=5, pady=5)
-
-# Verknüpfung der Eingabefeld-Aktualisierung mit einer Funktion im MITTLEREN Frame
-current_manual_entry_1.bind("<FocusOut>", current_manual_entry_1_selected)
-current_manual_entry_2.bind("<FocusOut>", current_manual_entry_2_selected)
-current_manual_entry_3.bind("<FocusOut>", current_manual_entry_3_selected)
-
-
-# Erstellen der Kippschalter für "On/Off" der einzelnen Phasen für Power [manual] im MITTLEREN Frame
-on_off_1_var = tk.IntVar()
-on_off_1_switch = ttk.Checkbutton(power_control_frame, text="On/Off", variable=on_off_1_var, onvalue=1, offvalue=0, command=on_off_toggle_power_ph_u)
-on_off_2_var = tk.IntVar()
-on_off_2_switch = ttk.Checkbutton(power_control_frame, text="On/Off", variable=on_off_2_var, onvalue=1, offvalue=0, command=on_off_toggle_power_ph_v)
-on_off_3_var = tk.IntVar()
-on_off_3_switch = ttk.Checkbutton(power_control_frame, text="On/Off", variable=on_off_3_var, onvalue=1, offvalue=0, command=on_off_toggle_power_ph_w)
-on_off_1_switch.config(state="disabled")
-on_off_2_switch.config(state="disabled")
-on_off_3_switch.config(state="disabled")
-
-# Positionieren des Kippschalters "On/Off" für Power [manual] im MITTLEREN Frame
-on_off_1_switch.grid(row=6, column=3, columnspan=2, padx=5, pady=5)
-on_off_2_switch.grid(row=7, column=3, columnspan=2, padx=5, pady=5)
-on_off_3_switch.grid(row=8, column=3, columnspan=2, padx=5, pady=5)
-
-
-# Erstellen der Kippschalter für "On/Off" der einzelnen Phasen für Current [manual] im MITTLEREN Frame
-on_off_4_var = tk.IntVar()
-on_off_4_switch = ttk.Checkbutton(current_control_frame, text="On/Off", variable=on_off_4_var, onvalue=1, offvalue=0, command=on_off_toggle_current_ph_u)
-on_off_5_var = tk.IntVar()
-on_off_5_switch = ttk.Checkbutton(current_control_frame, text="On/Off", variable=on_off_5_var, onvalue=1, offvalue=0, command=on_off_toggle_current_ph_v)
-on_off_6_var = tk.IntVar()
-on_off_6_switch = ttk.Checkbutton(current_control_frame, text="On/Off", variable=on_off_6_var, onvalue=1, offvalue=0, command=on_off_toggle_current_ph_w)
-on_off_4_switch.config(state="disabled")
-on_off_5_switch.config(state="disabled")
-on_off_6_switch.config(state="disabled")
-
-# Positionieren des Kippschalters "On/Off" für Current [manual] im MITTLEREN Frame
-on_off_4_switch.grid(row=13, column=3, columnspan=2, padx=5, pady=5)
-on_off_5_switch.grid(row=14, column=3, columnspan=2, padx=5, pady=5)
-on_off_6_switch.grid(row=15, column=3, columnspan=2, padx=5, pady=5)
-
-
 
 
 # Erstellen des Dropdown-Menüs für "Control Operation" im MITTLEREN Frame
 control_operation_var = tk.StringVar()
 control_operation_label = ttk.Label(no_header_middle_frame, text="Control Operation:")
-control_operation_combo = ttk.Combobox(no_header_middle_frame, textvariable=control_operation_var, values=["Power", "Current"], state="readonly")
+control_operation_combo = ttk.Combobox(no_header_middle_frame, textvariable=control_operation_var, values=["Laden", "Entladen"], state="readonly")
 update_button_and_combo_states()
 
 # Verknüpfung der Dropdown-Auswahl der Control Operation an die entsprechende Funktion im MITTLEREN Frame

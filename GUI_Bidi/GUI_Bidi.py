@@ -260,19 +260,13 @@ def update_button_and_combo_states():
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Laden":
         current_ch_static_button.config(state="normal")
-        current_ch_automatic_button.config(state="normal")
         current_dch_static_button.config(state="disabled")
-        current_dch_automatic_button.config(state="disabled")
         current_dch_static_combo.config(state="disabled")
-        current_dch_automatic_combo.config(state="disabled")
 
     elif selected_operation == "Entladen":
         current_dch_static_button.config(state="normal")
-        current_dch_automatic_button.config(state="normal")
         current_ch_static_button.config(state="disabled")
-        current_ch_automatic_button.config(state="disabled")
         current_ch_static_combo.config(state="disabled")
-        current_ch_automatic_combo.config(state="disabled")
 
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
@@ -423,7 +417,6 @@ def enable_voltage_automatic():
 def enable_current_ch_static():
     print("Schaltfläche Current [static] betätigt")
     current_ch_static_combo.config(state="normal")
-    current_ch_automatic_combo.config(state="disabled")
     global current_static_state
     current_static_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
     global current_automatic_state
@@ -436,37 +429,10 @@ def enable_current_ch_static():
 def enable_current_dch_static():
     print("Schaltfläche Current [static] betätigt")
     current_dch_static_combo.config(state="normal")
-    current_dch_automatic_combo.config(state="disabled")
     global current_static_state
     current_static_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
     global current_automatic_state
     current_automatic_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global current_manual_state
-    current_manual_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-
-
-# Funktion, die durch Betätigung der Schaltfläche "Current [automatic]" aufgerufen wird
-def enable_current_ch_automatic():
-    print("Schaltfläche Current [automatic] betätigt")
-    current_ch_automatic_combo.config(state="normal")
-    current_ch_static_combo.config(state="disabled")
-    global current_static_state
-    current_static_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global current_automatic_state
-    current_automatic_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
-    global current_manual_state
-    current_manual_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-
-
-# Funktion, die durch Betätigung der Schaltfläche "Current [automatic]" aufgerufen wird
-def enable_current_dch_automatic():
-    print("Schaltfläche Current [automatic] betätigt")
-    current_dch_automatic_combo.config(state="normal")
-    current_dch_static_combo.config(state="disabled")
-    global current_static_state
-    current_static_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
-    global current_automatic_state
-    current_automatic_state = 1  # Notwendig für if-Bedingung von Funktion "start_charging"
     global current_manual_state
     current_manual_state = 0  # Wichtig hier Variable auf 0 zu setzen, damit nur eine if-Bedingung von Funktion "start_charging" erfüllt ist!
 
@@ -489,13 +455,6 @@ def current_ch_static_combo_selected(event):
 def current_dch_static_combo_selected(event):
     print("Dropdown-Menü von Current [static] betätigt")
 
-# Anzeige, dass Dropdown-Menü betätigt wurde
-def current_ch_automatic_combo_selected(event):
-    print("Dropdown-Menü von Current [automatic] betätigt")
-
-# Anzeige, dass Dropdown-Menü betätigt wurde
-def current_dch_automatic_combo_selected(event):
-    print("Dropdown-Menü von Current [automatic] betätigt")
 
 
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
@@ -1041,21 +1000,6 @@ current_ch_static_combo.grid(row=6, column=1, padx=5, pady=5)
 # Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
 current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
-
-# Erstellen des Dropdown-Menüs für "Current [automatic]" im MITTLEREN Frame
-current_ch_automatic_var = tk.StringVar()
-current_ch_automatic_button = ttk.Button(current_ch_control_frame, text="Current [automatic]", command=enable_current_ch_automatic)
-current_ch_automatic_button.config(state="disabled")
-current_ch_automatic_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
-current_ch_automatic_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
-current_ch_automatic_button.grid(row=7, column=0, padx=5, pady=5)
-current_ch_automatic_combo.grid(row=7, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
-current_ch_automatic_combo.bind("<<ComboboxSelected>>", current_ch_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
 #
 
 # Erstellen eines weiteren Frames "Discharge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
@@ -1076,21 +1020,6 @@ current_dch_static_combo.grid(row=9, column=1, padx=5, pady=5)
 
 # Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
 current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-
-# Erstellen des Dropdown-Menüs für "Current [automatic]" im MITTLEREN Frame
-current_automatic_var = tk.StringVar()
-current_dch_automatic_button = ttk.Button(current_dch_control_frame, text="Current [automatic]", command=enable_current_dch_automatic)
-current_dch_automatic_button.config(state="disabled")
-current_dch_automatic_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_automatic_var, values=[".csv-File", ".xlsx-File"], state="readonly")
-current_dch_automatic_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [automatic]" im MITTLEREN Frame
-current_dch_automatic_button.grid(row=10, column=0, padx=5, pady=5)
-current_dch_automatic_combo.grid(row=10, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Voltage [automatic] an die entsprechende Funktion im MITTLEREN Frame
-current_dch_automatic_combo.bind("<<ComboboxSelected>>", current_dch_automatic_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 
 #
 #

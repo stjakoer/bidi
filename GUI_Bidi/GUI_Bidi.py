@@ -251,27 +251,39 @@ def reset_alarm_warning():
 ### DROPDOWN-MENÜ "CONTROL OPERATION" ###
 
 # Funktion, die INDIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
-def update_button_and_combo_states():
+def update_operation_button_and_combo_states():
 
     global selected_operation  # Globale Variable, die für Fkt "control_operation_selected(event)" und für Schaltfläche "Start Charging" als if-Bedingung verwendet wird
     selected_operation = control_operation_var.get()
+    print("Die Operation-Variable lautet:")
+    print(selected_operation)
 
+def update_voltage_button_and_combo_states():
+
+    global selected_voltage
+    selected_voltage = voltage_static_var.get()
+    print("Die Voltage-Variable lautet:")
+    print(selected_voltage)
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
-    if selected_operation == "Laden":
+    if selected_operation == "Laden" and selected_voltage:
         current_ch_static_button.config(state="normal")
         current_dch_static_button.config(state="disabled")
         current_dch_static_combo.config(state="disabled")
 
-    elif selected_operation == "Entladen":
+    elif selected_operation == "Entladen" and selected_voltage:
         current_dch_static_button.config(state="normal")
         current_ch_static_button.config(state="disabled")
         current_ch_static_combo.config(state="disabled")
 
+def voltage_static_combo_selected(event):  # event-Argument hier wichtig, damit Fkt bei jeder Betätigung des Dropdown-Menüs aufgerufen wird!
+    update_voltage_button_and_combo_states() # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
+    print("Dropdown-Menü von Voltage [static] betätigt")
+
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
 def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt bei jeder Betätigung des Dropdown-Menüs aufgerufen wird!
-    update_button_and_combo_states() # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
+    update_operation_button_and_combo_states()  # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
 
     mode_translation = {
         1: "Current",
@@ -297,40 +309,6 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
         print(f"Control Operation Ph U: {mode_translation.get(control_operation, 'Unbekannt')}")
 
 
-        control_operation_ph_v_register = 17006
-
-        value_to_write = 2
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(control_operation_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        control_operation_ph_v_read_register = 16024
-        operation_bytes = client.read_holding_registers(control_operation_ph_v_read_register,2)  # Lesen von 2 16-Bit-Registern
-
-        control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
-        print(f"Control Operation Ph V: {mode_translation.get(control_operation, 'Unbekannt')}")
-
-
-        control_operation_ph_w_register = 17008
-
-        value_to_write = 2
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(control_operation_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        control_operation_ph_w_read_register = 16026
-        operation_bytes = client.read_holding_registers(control_operation_ph_w_read_register, 2)  # Lesen von 2 16-Bit-Registern
-
-        control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
-        print(f"Control Operation Ph W: {mode_translation.get(control_operation, 'Unbekannt')}")
-
-
     elif selected_operation == "Current":
         control_operation_ph_u_register = 17004
 
@@ -347,40 +325,6 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 
         control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
         print(f"Control Operation Ph U: {mode_translation.get(control_operation, 'Unbekannt')}")
-
-
-        control_operation_ph_v_register = 17006
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(control_operation_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        control_operation_ph_v_read_register = 16024
-        operation_bytes = client.read_holding_registers(control_operation_ph_v_read_register, 2)  # Lesen von 2 16-Bit-Registern
-
-        control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
-        print(f"Control Operation Ph V: {mode_translation.get(control_operation, 'Unbekannt')}")
-
-
-        control_operation_ph_w_register = 17008
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(control_operation_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        control_operation_ph_w_read_register = 16026
-        operation_bytes = client.read_holding_registers(control_operation_ph_w_read_register,2)  # Lesen von 2 16-Bit-Registern
-
-        control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
-        print(f"Control Operation Ph W: {mode_translation.get(control_operation, 'Unbekannt')}")
         """
     return
 
@@ -440,10 +384,6 @@ def enable_current_dch_static():
 ### DROPDOWN-MENÜS + EINGABEFELDER ###
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def voltage_static_combo_selected(event):
-    print("Dropdown-Menü von Voltage [static] betätigt")
-
-# Anzeige, dass Dropdown-Menü betätigt wurde
 def voltage_automatic_combo_selected(event):
     print("Dropdown-Menü von Voltage [automatic] betätigt")
 
@@ -480,29 +420,6 @@ def charge_control_current_static():
     byte3 = value_to_write & 0xFF
 
     client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-    # Phase V einschalten
-    on_off_ph_v_register = 17012
-
-    value_to_write = 1
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-    # Phase W einschalten
-    on_off_ph_w_register = 17014
-
-    value_to_write = 1
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
     time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat alle Phasen einzuschalten
 
 
@@ -527,40 +444,6 @@ def charge_control_current_static():
         client.write_multiple_registers(current_fundamental_ac_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
 
 
-        # Stromvorgabe Phase V
-        current_fundamental_ac_ph_v_register = 27080
-        value_to_write = -6.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-        # Stromvorgabe Phase W
-        current_fundamental_ac_ph_w_register = 27088
-        value_to_write = -6.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
     if current_static_var.get() == "8 A":
         print("Dropdown-Auswahl: 8 A")
 
@@ -580,37 +463,6 @@ def charge_control_current_static():
         # Schreiben der Bytes in die Register
         client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
 
-        # Stromvorgabe Phase V
-        current_fundamental_ac_ph_v_register = 27080
-        value_to_write = -8.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_v_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Stromvorgabe Phase W
-        current_fundamental_ac_ph_w_register = 27088
-        value_to_write = -8.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_w_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
 
     if current_static_var.get() == "10 A":
         print("Dropdown-Auswahl: 10 A")
@@ -630,38 +482,6 @@ def charge_control_current_static():
 
         # Schreiben der Bytes in die Register
         client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Stromvorgabe Phase V
-        current_fundamental_ac_ph_v_register = 27080
-        value_to_write = -10.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_v_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Stromvorgabe Phase W
-        current_fundamental_ac_ph_w_register = 27088
-        value_to_write = -10.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_w_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
 
 
     if current_static_var.get() == "13 A":
@@ -683,38 +503,6 @@ def charge_control_current_static():
         # Schreiben der Bytes in die Register
         client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
 
-        # Stromvorgabe Phase V
-        current_fundamental_ac_ph_v_register = 27080
-        value_to_write = -13.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_v_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Stromvorgabe Phase W
-        current_fundamental_ac_ph_w_register = 27088
-        value_to_write = -13.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_w_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
 
     if current_static_var.get() == "16 A":
         print("Dropdown-Auswahl: 16 A")
@@ -734,39 +522,6 @@ def charge_control_current_static():
 
         # Schreiben der Bytes in die Register
         client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Stromvorgabe Phase V
-        current_fundamental_ac_ph_v_register = 27080
-        value_to_write = -16.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_v_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        # Stromvorgabe Phase W
-        current_fundamental_ac_ph_w_register = 27088
-        value_to_write = -16.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_w_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
 
 
     # Selektierte Stromvorgabe senden
@@ -879,42 +634,6 @@ root.resizable(False, False)
 root.attributes('-topmost', 1)
 """
 
-"""
-# Erstellen eines Tab-Widgets
-notebook = ttk.Notebook(root)
-
-# Konfigurieren aller Tab-Widgets
-notebook.pack(fill="both", expand=True)
-
-# Tab "WB communication"
-tab1 = ttk.Frame(notebook)
-notebook.add(tab1, text="WB communication")
-
-# Tab "Charge Parameter"
-tab2 = ttk.Frame(notebook)
-notebook.add(tab2, text="Charge Parameter")
-
-# Tab "Charge Manager"
-tab3 = ttk.Frame(notebook)
-notebook.add(tab3, text="Charge Manager")
-
-
-# Gewichtung der Spalten und Zeilen im Tab1-Widget
-tab1.grid_rowconfigure(0, weight=1)
-tab1.grid_columnconfigure(0, weight=1)
-tab1.grid_columnconfigure(1, weight=1)
-
-# Gewichtung der Spalten und Zeilen im Tab2-Widget
-tab2.grid_rowconfigure(0, weight=1)
-#tab2.grid_columnconfigure(0, weight=1)
-
-
-# Gewichtung der Spalten und Zeilen im Tab3-Widget
-tab3.grid_rowconfigure(0, weight=1)
-tab3.grid_columnconfigure(0, weight=1)
-tab3.grid_columnconfigure(1, weight=1)
-"""
-
 
 # Erstellen eines Frames für den 1. Bereich von links, "Charge Parameter"
 frame_0_0 = ttk.LabelFrame(text="Charge Parameter")
@@ -932,7 +651,7 @@ no_header_frame_0_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 control_operation_var = tk.StringVar()
 control_operation_label = ttk.Label(no_header_frame_0_0, text="Control Operation:")
 control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Laden", "Entladen"], state="readonly")
-update_button_and_combo_states()
+update_operation_button_and_combo_states()
 
 # Positionieren des Labels und des Dropdown-Menüs "Control Operation" im MITTLEREN Frame
 control_operation_label.grid(row=1, column=0, padx=5, pady=5)
@@ -950,10 +669,10 @@ voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
 
 # Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
-voltage_static_var = tk.StringVar()
 voltage_static_button = ttk.Button(voltage_control_frame, text="Voltage [static]", command=enable_voltage_static)
-voltage_static_button.config(state="disabled")
-voltage_static_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_static_var, values=["350 V", "400 V", "450 V"], state="readonly")
+voltage_static_button.config(state="normal")
+voltage_static_var = tk.StringVar()
+voltage_static_combo = ttk.Combobox(voltage_control_frame, textvariable=voltage_static_var, values=["400 V"], state="readonly")
 voltage_static_combo.config(state="disabled")
 
 # Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame

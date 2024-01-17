@@ -251,12 +251,11 @@ def reset_alarm_warning():
 ### DROPDOWN-MENÜ "CONTROL OPERATION" ###
 
 # Funktion, die INDIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
-def update_button_and_combo_states():
+def update_operation_combo_states():
 
     global selected_operation  # Globale Variable, die für Fkt "control_operation_selected(event)" und für Schaltfläche "Start Charging" als if-Bedingung verwendet wird
     selected_operation = control_operation_var.get()
-    print("Die Operation-Variable lautet:")
-    print(selected_operation)
+    print("Die Operation-Variable lautet:", selected_operation, "; Datentyp:", type(selected_operation))
 
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
@@ -271,7 +270,7 @@ def update_button_and_combo_states():
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
 def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt bei jeder Betätigung des Dropdown-Menüs aufgerufen wird!
-    update_button_and_combo_states()  # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
+    update_operation_combo_states()  # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
 
     mode_translation = {
         1: "Current",
@@ -317,18 +316,28 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
     return
 
 
-
 ### SCHALTFLÄCHEN 2 ###
 
 ### DROPDOWN-MENÜS + EINGABEFELDER ###
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_ch_static_combo_selected(event):
-    print("Dropdown-Menü von Current [static] betätigt")
+    global current_ch
+    global current_ch_int
+    current_ch = current_ch_static_var.get()
+    print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
+    current_ch_int = int(current_ch)
+    print("---current_ch_int =", current_ch_int, "; Datentyp:", type(current_ch_int))
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_dch_static_combo_selected(event):
-    print("Dropdown-Menü von Current [static] betätigt")
+    global current_dch
+    global current_dch_int
+    current_dch = current_dch_static_var.get()
+    print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
+    current_dch_int = int(current_dch)
+    print("---current_dch_int =", current_dch_int, "; Datentyp:", type(current_dch_int))
+
 
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
 
@@ -585,7 +594,7 @@ control_operation_combo.bind("<<ComboboxSelected>>", control_operation_selected)
 #
 
 # Erstellen eines weiteren Frames "Voltage Control EuT-Side" innerhalb des Frames "Charge Parameter"
-voltage_control_frame = ttk.LabelFrame(frame_0_0, text="Voltage Control EuT-Side")
+voltage_control_frame = ttk.LabelFrame(frame_0_0, text="Voltage Control --> Cinergia")
 voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 #voltage_control_frame.columnconfigure(0, weight=1)
 
@@ -600,7 +609,7 @@ voltage_static_label.grid(row=3, column=0, padx=5, pady=5)
 #
 
 # Erstellen eines weiteren Frames "Charge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
-current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="")
+current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current --> CMS")
 current_ch_control_frame.grid(row=5, column=0, padx=10, pady=10, sticky="nsew")
 #current_dch_control_frame.columnconfigure(0, weight=1)
 
@@ -627,7 +636,7 @@ current_dch_control_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
 current_dch_static_var = tk.StringVar()
-current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current in A:" )
+current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current --> CMS" )
 current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["6", "8", "10", "13", "16"], state="readonly")
 current_dch_static_combo.config(state="disabled")
 

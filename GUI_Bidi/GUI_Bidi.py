@@ -263,9 +263,11 @@ def update_operation_combo_states():
         current_ch_static_combo.config(state="normal")
         current_dch_static_combo.config(state="disabled")
 
+
     elif selected_operation == "Entladen":
         current_dch_static_combo.config(state="normal")
         current_ch_static_combo.config(state="disabled")
+
 
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
@@ -323,20 +325,14 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_ch_static_combo_selected(event):
     global current_ch
-    global current_ch_int
     current_ch = current_ch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
-    current_ch_int = int(current_ch)
-    print("---current_ch_int =", current_ch_int, "; Datentyp:", type(current_ch_int))
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_dch_static_combo_selected(event):
     global current_dch
-    global current_dch_int
     current_dch = current_dch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
-    current_dch_int = int(current_dch)
-    print("---current_dch_int =", current_dch_int, "; Datentyp:", type(current_dch_int))
 
 
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
@@ -615,7 +611,7 @@ current_ch_control_frame.grid(row=5, column=0, padx=10, pady=10, sticky="nsew")
 
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
-current_ch_static_var = tk.StringVar()
+current_ch_static_var = tk.IntVar()
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current in A:" )
 current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["6", "8", "10", "13", "16"], state="readonly")
 current_ch_static_combo.config(state="disabled")
@@ -635,7 +631,7 @@ current_dch_control_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
 #current_dch_control_frame.columnconfigure(0, weight=1)
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
-current_dch_static_var = tk.StringVar()
+current_dch_static_var = tk.IntVar()
 current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current --> CMS" )
 current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["6", "8", "10", "13", "16"], state="readonly")
 current_dch_static_combo.config(state="disabled")

@@ -17,6 +17,8 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 from matplotlib import dates as mdates
 
+global CMS_current_set
+global CNG_voltage_set
 
 """
 # Verbindung zum Modbus-Server herstellen
@@ -254,6 +256,8 @@ def reset_alarm_warning():
 def update_operation_combo_states():
 
     global selected_operation  # Globale Variable, die für Fkt "control_operation_selected(event)" und für Schaltfläche "Start Charging" als if-Bedingung verwendet wird
+    global current_ch
+    global current_dch
     selected_operation = control_operation_var.get()
     print("Die Operation-Variable lautet:", selected_operation, "; Datentyp:", type(selected_operation))
 
@@ -261,11 +265,16 @@ def update_operation_combo_states():
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Laden":
         current_ch_static_combo.config(state="normal")
+        current_dch = 0
+        current_dch_static_combo.set("0")
         current_dch_static_combo.config(state="disabled")
+
 
 
     elif selected_operation == "Entladen":
         current_dch_static_combo.config(state="normal")
+        current_ch = 0
+        current_ch_static_combo.set("0")
         current_ch_static_combo.config(state="disabled")
 
 
@@ -324,16 +333,17 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_ch_static_combo_selected(event):
-    global current_ch
     current_ch = current_ch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
+    CMS_current = current_ch - current_dch
+    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_dch_static_combo_selected(event):
-    global current_dch
     current_dch = current_dch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
-
+    CMS_current = current_ch - current_dch
+    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
 
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
 
@@ -544,6 +554,7 @@ def stop_charging():
 # Erstellen des GUI-Hauptfensters
 root = tk.Tk()
 root.title("EV-Emulator")
+root.iconbitmap("Logo_Bidi.ico")
 
 """
 get the screen dimension
@@ -561,6 +572,7 @@ root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
 root.resizable(False, False)
 root.attributes('-topmost', 1)
 """
+
 
 
 # Erstellen eines Frames für den 1. Bereich von links, "Charge Parameter"
@@ -596,7 +608,9 @@ voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
 
 # Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
-voltage_static_label = ttk.Label(voltage_control_frame, text="Voltage [static] fixed on 400V.")
+voltage_static_label = ttk.Label(voltage_control_frame, text="Voltage fixed on 400V.")
+CNG_voltage_set = 400
+print(CNG_voltage_set)
 voltage_static_label.config(state="normal")
 
 # Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
@@ -606,19 +620,19 @@ voltage_static_label.grid(row=3, column=0, padx=5, pady=5)
 
 # Erstellen eines weiteren Frames "Charge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
 current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current --> CMS")
-current_ch_control_frame.grid(row=5, column=0, padx=10, pady=10, sticky="nsew")
-#current_dch_control_frame.columnconfigure(0, weight=1)
+current_ch_control_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
+#current_ch_control_frame.columnconfigure(0, weight=1)
 
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
 current_ch_static_var = tk.IntVar()
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current in A:" )
-current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["6", "8", "10", "13", "16"], state="readonly")
+current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
 current_ch_static_combo.config(state="disabled")
 
 # Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
-current_ch_static_label.grid(row=6, column=0, padx=5, pady=5)
-current_ch_static_combo.grid(row=6, column=1, padx=5, pady=5)
+current_ch_static_label.grid(row=5, column=0, padx=5, pady=5)
+current_ch_static_combo.grid(row=5, column=1, padx=5, pady=5)
 
 # Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
 current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
@@ -626,22 +640,24 @@ current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_sel
 #
 
 # Erstellen eines weiteren Frames "Discharge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
-current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="")
-current_dch_control_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
+current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current --> CMS")
+current_dch_control_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
 #current_dch_control_frame.columnconfigure(0, weight=1)
 
 # Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
 current_dch_static_var = tk.IntVar()
-current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current --> CMS" )
-current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["6", "8", "10", "13", "16"], state="readonly")
+current_dch_static_label = ttk.Label(current_dch_control_frame, text="Charge Current in A:" )
+current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
 current_dch_static_combo.config(state="disabled")
 
 # Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
-current_dch_static_label.grid(row=9, column=0, padx=5, pady=5)
-current_dch_static_combo.grid(row=9, column=1, padx=5, pady=5)
+current_dch_static_label.grid(row=7, column=0, padx=5, pady=5)
+current_dch_static_combo.grid(row=7, column=1, padx=5, pady=5)
 
 # Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
 current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+
+#current_static_label.grid(row=7, column=0, padx=5, pady=5)
 
 #
 #

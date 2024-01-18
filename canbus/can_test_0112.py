@@ -6,6 +6,7 @@ def receive_can_messages(can_bus):
     # Lade die DBC-Datei
     database_dbc1 = cantools.db.load_file("ISC_CMS_Automotive.dbc")
     for i in range(100):
+
         # Empfange die nächste CAN-Nachricht
         message = can_bus.recv()
         if message is not None:

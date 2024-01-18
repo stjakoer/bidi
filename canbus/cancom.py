@@ -37,7 +37,7 @@ def cms_charge_loop(can_tester):
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Default'},
                              timeout=3) is not None, "CME not unplugged?"
 
-    print('Steck ihn rein Jogi!!!!')
+    print('Bitte Ladestecker einstecken....')
 
     can_tester.flush_input()
     assert can_tester.expect('ChargeInfo', {'ControlPilotState': 'B'}), "Didn't detect plug-in within 10s"

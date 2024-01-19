@@ -20,17 +20,103 @@ from matplotlib import dates as mdates
 global CMS_current_set
 global CNG_voltage_set
 
-"""
+
 # Verbindung zum Modbus-Server herstellen
 client = ModbusClient(host='192.168.2.149', port=502)
 client.open()
-"""
+
+
+### SICHERHEITSABFRAGEN
+
+def update_output_connection():
+
+    if client.open():
+        output_connection_register = 16014 # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
+
+        status_bytes = client.read_holding_registers(output_connection_register, 2)
+        if status_bytes:
+            global output_connection  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            output_connection = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "Independent 3 channel",
+                1: "Parallel 1 channel",
+            }
+            output_connection_status_label.config(text=f"Status:   {status_translation.get(output_connection, 'Unbekannt')}")
+
+            if output_connection == 0:
+                ("output_connection =", output_connection)
+                #enable_button.config(state="normal")
+                #disable_button.config(state="disable")
+                #start_charging_button.config(state="disable")
+                #reset_button.config(state="disable")
+                #stop_charging_button.config(state="disable")
+
+            elif output_connection == 1:
+                print("output_connection =",output_connection)
+                #disable_button.config(state="normal")
+                #enable_button.config(state="disable")
+                #start_charging_button.config(state="normal")
+                #reset_button.config(state="disable")
+                #stop_charging_button.config(state="disable")
+
+        else:
+            output_connection_status_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        output_connection_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
+    root.after(1000, update_output_connection)
+
+    return
+
+def update_bipolar():
+
+    if client.open():
+        bipolar_register = 16018 # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
+
+        status_bytes = client.read_holding_registers(bipolar_register, 2)
+        if status_bytes:
+            global bipolar  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            bipolar = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "Unipolar",
+                1: "Bipolar",
+            }
+            bipolar_status_label.config(text=f"Status:   {status_translation.get(bipolar, 'Unbekannt')}")
+
+            if bipolar == 0:
+                print("bipolar =", bipolar)
+                #enable_button.config(state="normal")
+                #disable_button.config(state="disable")
+                #start_charging_button.config(state="disable")
+                #reset_button.config(state="disable")
+                #stop_charging_button.config(state="disable")
+
+            elif bipolar == 1:
+                print("bipolar =", bipolar)
+                #disable_button.config(state="normal")
+                #enable_button.config(state="disable")
+                #start_charging_button.config(state="normal")
+                #reset_button.config(state="disable")
+                #stop_charging_button.config(state="disable")
+
+        else:
+            output_connection_status_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        output_connection_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
+    root.after(1000, update_output_connection)
+
+    return
 
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
 
 # Funktion für den aktuellen Status der CNG
 def update_status():
-    """
+
     if client.open():
         grafcet_status_register = 16000
 
@@ -47,7 +133,7 @@ def update_status():
                 6: "Warning",
                 7: "Alarm"
             }
-            status_label.config(text=f"Status:   {status_translation.get(grafcet_status, 'Unbekannt')}")
+            grafcet_status_label.config(text=f"Status:   {status_translation.get(grafcet_status, 'Unbekannt')}")
 
             if grafcet_status == 2:
                 enable_button.config(state="normal")
@@ -77,19 +163,19 @@ def update_status():
                   stop_charging_button.config(state="disable")
 
         else:
-            status_label.config(text="Fehler beim Lesen der Register.")
+            grafcet_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
     else:
-        status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+        grafcet_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_status)
-    """
+
     return
 
 
 # Funktion zum Auslesen der aktuellen Spannung zw. U und N (EuT-Side)
 def update_voltage_un():
-    """
+
     if client.open():
         voltage_un_register = 26094
 
@@ -114,8 +200,8 @@ def update_voltage_un():
         voltage_un_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
         # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_voltage_un)
-    """
+    root.after(100, update_voltage_un)
+
     return
 
 
@@ -189,7 +275,7 @@ def update_power_total():
 
 # Funktionen für die Schaltflächen
 def enable_cng():
-    """
+
     if client.open() and grafcet_status == 2:
         enable_disable_cng_register = 17000
 
@@ -201,12 +287,12 @@ def enable_cng():
 
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
         print("Schaltfläche Enable_CNG betätigt")
-        """
+
     return
 
 
 def disable_cng():
-    """
+
     if client.open() and grafcet_status >= 4:
         enable_disable_cng_register = 17000
 
@@ -218,7 +304,7 @@ def disable_cng():
 
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     print("Schaltfläche Disable_CNG betätigt")
-    """
+
     return
 
 
@@ -263,7 +349,7 @@ def update_operation_combo_states():
 
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
-    if selected_operation == "Laden":
+    if selected_operation == "Charge":
         current_ch_static_combo.config(state="normal")
         current_dch = 0
         current_dch_static_combo.set("0")
@@ -271,7 +357,7 @@ def update_operation_combo_states():
 
 
 
-    elif selected_operation == "Entladen":
+    elif selected_operation == "Discharge":
         current_dch_static_combo.config(state="normal")
         current_ch = 0
         current_ch_static_combo.set("0")
@@ -549,15 +635,15 @@ def stop_charging():
     """
     return
 
-
-
+#
+#
 # Erstellen des GUI-Hauptfensters
 root = tk.Tk()
 root.title("EV-Emulator")
 root.iconbitmap("Logo_Bidi.ico")
 
 """
-get the screen dimension
+#get the screen dimension
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
@@ -573,195 +659,172 @@ root.resizable(False, False)
 root.attributes('-topmost', 1)
 """
 
+#
+#
+### ERSTE SPALTE:
 
-
-# Erstellen eines Frames für den 1. Bereich von links, "Charge Parameter"
+# Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
 frame_0_0 = ttk.LabelFrame(text="Charge Parameter")
 frame_0_0.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-#frame_0_0.columnconfigure(0, weight=1)
+frame_0_0.columnconfigure(0, weight=1)
 
-#
-
-# Erstellen eines weiteren Frames ohne Überschrift innerhalb des Frames "Charge Parameter"
+# Erstellen eines Frames im Frame_0_0 für "Control Operation"
 no_header_frame_0_0 = ttk.LabelFrame(frame_0_0, text="")
 no_header_frame_0_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-#no_header_frame_0_0.columnconfigure(0, weight=1)
-
-# Erstellen des Dropdown-Menüs für "Control Operation" im MITTLEREN Frame
+# Erstellen des Dropdown-Menüs im "no_header_frame_0_0", sowie Positionierung
 control_operation_var = tk.StringVar()
 control_operation_label = ttk.Label(no_header_frame_0_0, text="Control Operation:")
-control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Laden", "Entladen"], state="readonly")
-
-# Positionieren des Labels und des Dropdown-Menüs "Control Operation" im MITTLEREN Frame
 control_operation_label.grid(row=1, column=0, padx=5, pady=5)
+control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Charge", "Discharge"], state="readonly")
 control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
+# Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
+# Bind-Methode ruft die Fkt "control_operation_selected(event)" immer bei Benutzung des Dropdown-Menüs auf
+control_operation_combo.bind("<<ComboboxSelected>>", control_operation_selected)
+no_header_frame_0_0.columnconfigure(0, weight=1)
+no_header_frame_0_0.columnconfigure(1, weight=1)
 
-# Verknüpfung der Dropdown-Auswahl der Control Operation an die entsprechende Funktion im MITTLEREN Frame
-control_operation_combo.bind("<<ComboboxSelected>>", control_operation_selected)  # Durch bind-Methode wird Fkt "control_operation_selected(event)" jedes Mal bei Benutzung des Dropdown-Menüs aufgerufen (-->EVENT!!!)
-
-#
-
-# Erstellen eines weiteren Frames "Voltage Control EuT-Side" innerhalb des Frames "Charge Parameter"
+# Erstellen des Frames "Voltage Control" im Frame_0_0
 voltage_control_frame = ttk.LabelFrame(frame_0_0, text="Voltage Control --> Cinergia")
 voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
-#voltage_control_frame.columnconfigure(0, weight=1)
-
-
-# Erstellen des Dropdown-Menüs für "Voltage [static]" im MITTLEREN Frame
-voltage_static_label = ttk.Label(voltage_control_frame, text="Voltage fixed on 400V.")
-CNG_voltage_set = 400
+# Erstellen der Spannungsausgabe im "voltage_control_frame", sowie Positionierung
+CNG_voltage_set = 400  # Spannung zunächst fest auf 400V eingestellt
 print(CNG_voltage_set)
+voltage_static_label = ttk.Label(voltage_control_frame, text="Voltage fixed on 400V.")
+voltage_static_label.grid(row=3, column=0, padx=5, pady=5)
 voltage_static_label.config(state="normal")
 
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
-voltage_static_label.grid(row=3, column=0, padx=5, pady=5)
-
-#
-
-# Erstellen eines weiteren Frames "Charge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
-current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current --> CMS")
+# Erstellen des Frames "Charge Current → CMS" im Frame_0_0
+current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current → CMS")
 current_ch_control_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
-#current_ch_control_frame.columnconfigure(0, weight=1)
-
-
-# Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
-current_ch_static_var = tk.IntVar()
+# Erstellen des Dropdown-Menüs im "current_ch_control_frame", sowie Positionierung
+current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current in A:" )
-current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
-current_ch_static_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
 current_ch_static_label.grid(row=5, column=0, padx=5, pady=5)
+current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
 current_ch_static_combo.grid(row=5, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
+current_ch_static_combo.config(state="disabled")
+# Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+# Konfigurieren der Spalten, um die Inhalte zu zentrieren
+current_ch_control_frame.columnconfigure(0, weight=1)
+current_ch_control_frame.columnconfigure(1, weight=1)
 
-#
-
-# Erstellen eines weiteren Frames "Discharge Current Control EuT-Side" innerhalb des Frames "Charge Parameter"
-current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current --> CMS")
+# Erstellen des Frames "Discharge Current → CMS" im Frame_0_0
+current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current  CMS")
 current_dch_control_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
-#current_dch_control_frame.columnconfigure(0, weight=1)
-
-# Erstellen des Dropdown-Menüs für "Current [static]" im MITTLEREN Frame
-current_dch_static_var = tk.IntVar()
-current_dch_static_label = ttk.Label(current_dch_control_frame, text="Charge Current in A:" )
-current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
-current_dch_static_combo.config(state="disabled")
-
-# Positionieren des Labels und des Dropdown-Menüs "Voltage [static]" im MITTLEREN Frame
+# Erstellen des Dropdown-Menüs im "current_dch_control_frame", sowie Positionierung
+current_dch_static_var = tk.IntVar()  # Variable als Integer definieren
+current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current in A:" )
 current_dch_static_label.grid(row=7, column=0, padx=5, pady=5)
+current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
 current_dch_static_combo.grid(row=7, column=1, padx=5, pady=5)
-
-# Verknüpfung der Dropdown-Auswahl der Current [static] an die entsprechende Funktion im MITTLEREN Frame
+current_dch_static_combo.config(state="disabled")
+# Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-
-#current_static_label.grid(row=7, column=0, padx=5, pady=5)
+# Konfigurieren der Spalten, um die Inhalte zu zentrieren
+current_dch_control_frame.columnconfigure(0, weight=1)
+current_dch_control_frame.columnconfigure(1, weight=1)
 
 #
 #
-#
+### ZWEITE SPALTE:
 
-# Erstellen des Frames für den LINKEN Bereich "Controllable Load" (Tab3)
-left_frame = ttk.LabelFrame(text="Controllable Load")
-left_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+# Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
+frame_1_0 = ttk.LabelFrame(text="Controllable Load")
+frame_1_0.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+frame_1_0.columnconfigure(1, weight=1)
 
-# Erstellen des Frames für den LINKEN Bereich "Controllable Load"
-control_left_frame = ttk.LabelFrame(left_frame, text="Control Cinergia")
-control_left_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+# Erstellen des Frames "Control Cinergia" im Frame_1_0
+control_frame_1_0 = ttk.LabelFrame(frame_1_0, text="Control Cinergia")
+control_frame_1_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+# Erstellen der Schaltflächen "Enable CNG", "Disable CNG" und "Reset" im "control_frame_1_0", sowie Positionierung
+enable_button = ttk.Button(control_frame_1_0, text="Enable CNG", command=enable_cng)
+enable_button.grid(row=1, column=0, padx=5, pady=5)
+disable_button = ttk.Button(control_frame_1_0, text="Disable CNG", state="disabled", command=disable_cng)
+disable_button.grid(row=1, column=1, padx=5, pady=5)
+reset_button = ttk.Button(control_frame_1_0, text="Reset", state="disabled", command=reset_alarm_warning)
+reset_button.grid(row=1, column=2, padx=5, pady=5)
 
-# Konfigurieren der Spalten im LINKEN Frame, um die Schaltflächen im no_header_left_frame zu zentrieren
-control_left_frame.columnconfigure(0, weight=1)
-control_left_frame.columnconfigure(1, weight=1)
-control_left_frame.columnconfigure(2, weight=1)
-
-# Erstellen eines weiteren Frames "Voltage EuT-Side" innerhalb des Frames "Controllable Load"
-voltage_display_frame = ttk.LabelFrame(left_frame, text="Voltage EuT-Side")
-voltage_display_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
-
-# Erstellen eines weiteren Frames "Current EuT-Side" innerhalb des Frames "Controllable Load"
-current_display_frame = ttk.LabelFrame(left_frame, text="Current EuT-Side")
-current_display_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
-
-# Erstellen eines weiteren Frames "Power EuT-Side" innerhalb des Frames "Controllable Load"
-power_display_frame = ttk.LabelFrame(left_frame, text="Power EuT-Side")
-power_display_frame.grid(row=12, column=0, padx=10, pady=10, sticky="nsew")
-
-
-
-
-
-# Erstellen eines Frames für den RECHTEN Bereich "Charge Process" (Tab3)
-right_frame = ttk.LabelFrame(text="Charge Process")
-right_frame.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
-
-# Erstellen des Frames für den RECHTEN Bereich "Charge Process"
-no_header_right_frame = ttk.LabelFrame(right_frame, text="")
-no_header_right_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-
-
-# Erstellen der Schaltflächen "Enable CNG", "Disable CNG" und "Reset" im LINKEN Frame
-enable_button = ttk.Button(control_left_frame, text="Enable CNG", command=enable_cng)
-disable_button = ttk.Button(control_left_frame, text="Disable CNG", state="disabled", command=disable_cng)
-reset_button = ttk.Button(control_left_frame, text="Reset", state="disabled", command=reset_alarm_warning)
-
-# Erstellen der Schaltflächen "Start Charging", "Stop Charging"  im RECHTEN Frame
-start_charging_button = ttk.Button(no_header_right_frame, text="Start Charging", state="disabled", command=start_charging)
-stop_charging_button = ttk.Button(no_header_right_frame, text="Stop Charging", state="disabled", command=stop_charging)
-
-# Positionieren der Schaltflächen im RECHTEN Frame
-start_charging_button.grid(row=1, column=0, padx=5, pady=5)
-stop_charging_button.grid(row=1, column=1, padx=5, pady=5)
-
-# Konfigurieren der Spalten im RECHTEN Frame, um die Schaltflächen zu zentrieren
-no_header_right_frame.columnconfigure(0, weight=1)
-no_header_right_frame.columnconfigure(1, weight=1)
-
-
-# Erstellen der Statusanzeige im LINKEN Frame
-#status_label_fix = ttk.Label(left_frame, text="Status:")
-status_label = ttk.Label(control_left_frame, text="")
-update_status() # Aufruf der Funktion. Ausgelesener Wert aus Funktion wird an vorherige Label-Variable übergeben
-
-
-# Erstellen eines Labels zur Anzeige von Spannungswerten im LINKEN Frame "voltage_display_frame"
-voltage_un_label_fix = ttk.Label(voltage_display_frame, text="Voltage U-N:")
+# Erstellen eines weiteren Frames "Voltage EuT-Side" im Frame_1_0
+voltage_display_frame = ttk.LabelFrame(frame_1_0, text="Voltage EuT-Side")
+voltage_display_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+# Erstellen eines Labels zur Anzeige von Spannungswerts im "voltage_display_frame"
+voltage_un_label_text = ttk.Label(voltage_display_frame, text="Voltage U-N:")
+voltage_un_label_text.grid(row=3, column=0, padx=5, pady=5)
 voltage_un_label = ttk.Label(voltage_display_frame, text="")
-update_voltage_un()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
+voltage_un_label.grid(row=3, column=1, padx=5, pady=5)
+update_voltage_un()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_un = ttk.Label(voltage_display_frame, text="[V_rms]")
+unit_label_un.grid(row=3, column=2, padx=5, pady=5)
 
-
-# Erstellen eines Labels zur Anzeige von Stromwerten im LINKEN Frame "current_display_frame"
-current_total_label_fix = ttk.Label(current_display_frame, text="Current total:")
+# Erstellen eines Frames "Current EuT-Side" im Frame_1_0
+current_display_frame = ttk.LabelFrame(frame_1_0, text="Current EuT-Side")
+current_display_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
+# Erstellen eines Labels zur Anzeige des Stromwerts im "current_display_frame"
+current_total_label_text = ttk.Label(current_display_frame, text="Current total:")
+current_total_label_text.grid(row=5, column=0, padx=5, pady=5)
 current_total_label = ttk.Label(current_display_frame, text="")
-update_current_total()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
+current_total_label.grid(row=5, column=1, padx=5, pady=5)
+update_current_total()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_current_total = ttk.Label(current_display_frame, text="[A_rms]")
+unit_label_current_total.grid(row=5, column=2, padx=5, pady=5)
 
-
-# Erstellen eines Labels zur Anzeige der einzelnen Leistungen im LINKEN Frame "power_display_frame"
-power_total_label_fix = ttk.Label(power_display_frame, text="Power total:")
+# Erstellen eines Frames "Power EuT-Side" im Frame_1_0
+power_display_frame = ttk.LabelFrame(frame_1_0, text="Power EuT-Side")
+power_display_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
+# Erstellen eines Labels zur Anzeige der Leistung im Frame "power_display_frame"
+power_total_label_text = ttk.Label(power_display_frame, text="Power total:")
+power_total_label_text.grid(row=7, column=1, padx=5, pady=5)
 power_total_label = ttk.Label(power_display_frame, text="")
-update_power_total()  # Aufruf der Funktion. Ausgelesener Wert wird hier in vorherige Label-Variable geschrieben
+power_total_label.grid(row=7, column=2, padx=5, pady=5)
+update_power_total()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_power_total = ttk.Label(power_display_frame, text="[W]")
+unit_label_power_total.grid(row=7, column=3, padx=5, pady=5)
 
+#
+#
+### DRITTE SPALTE:
 
-# Positionieren der Schaltflächen, der Statusanzeige und dem Rest im LINKEN Frame
-status_label.grid(row=0, column=1, padx=0, pady=0)
-enable_button.grid(row=1, column=0, padx=0, pady=5)
-disable_button.grid(row=1, column=1, padx=0, pady=5)
-reset_button.grid(row=1, column=2, padx=0, pady=5)
-voltage_un_label_fix.grid(row=5, column=3, padx=5, pady=5)
-voltage_un_label.grid(row=5, column=4, padx=5, pady=5)
-unit_label_un.grid(row=5, column=5, padx=5, pady=5)
-current_total_label_fix.grid(row=10, column=3, padx=5, pady=5)
-current_total_label.grid(row=10, column=4, padx=5, pady=5)
-unit_label_current_total.grid(row=10, column=5, padx=5, pady=5)
-power_total_label_fix.grid(row=14, column=3, padx=5, pady=5)
-power_total_label.grid(row=14, column=4, padx=5, pady=5)
-unit_label_power_total.grid(row=14, column=5, padx=5, pady=5)
+# Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
+frame_2_0 = ttk.LabelFrame(text="Charge Process")
+frame_2_0.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
+frame_2_0.columnconfigure(2, weight=1)
 
+# Erstellen eines Frames im Frame_2_0
+no_header_frame_2_0 = ttk.LabelFrame(frame_2_0, text="")
+no_header_frame_2_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+# Erstellen der Schaltflächen "Start Charging", "Stop Charging"
+start_charging_button = ttk.Button(no_header_frame_2_0, text="Start Charging", state="disabled", command=start_charging)
+start_charging_button.grid(row=1, column=0, padx=5, pady=5)
+stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="disabled", command=stop_charging)
+stop_charging_button.grid(row=1, column=1, padx=5, pady=5)
+# Konfigurieren der Spalten, um die Inhalte zu zentrieren
+no_header_frame_2_0.columnconfigure(0, weight=1)
+no_header_frame_2_0.columnconfigure(1, weight=1)
 
+# Erstellen des Frames "Information CNG" im Frame_2_0
+information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
+information_CNG_frame_2_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+grafcet_status_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet:")
+grafcet_status_label_text.grid(row=2, column=0, padx=5, pady=5)
+grafcet_status_label = ttk.Label(information_CNG_frame_2_0, text="")
+grafcet_status_label.grid(row=2, column=1, padx=5, pady=5)
+update_status()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+output_connection_status_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection:")
+output_connection_status_label_text.grid(row=3, column=0, padx=5, pady=5)
+output_connection_status_label = ttk.Label(information_CNG_frame_2_0, text="")
+output_connection_status_label.grid(row=3, column=1, padx=5, pady=5)
+update_output_connection()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+bipolar_status_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection:")
+bipolar_status_label_text.grid(row=4, column=0, padx=5, pady=5)
+bipolar_status_label = ttk.Label(information_CNG_frame_2_0, text="")
+bipolar_status_label.grid(row=4, column=1, padx=5, pady=5)
+update_bipolar()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+# Konfigurieren der Spalten, um die Inhalte zu zentrieren
+information_CNG_frame_2_0.columnconfigure(0, weight=1)
+information_CNG_frame_2_0.columnconfigure(1, weight=1)
 
+#
+#
 # Starten der GUI
 root.mainloop()

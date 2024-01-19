@@ -20,116 +20,31 @@ from matplotlib import dates as mdates
 global CMS_current_set
 global CNG_voltage_set
 
-
 # Verbindung zum Modbus-Server herstellen
 client = ModbusClient(host='192.168.2.149', port=502)
 client.open()
 
-#schnelle modbusabfrage
+# schnelle modbusabfrage
+"""
 regs = client.read_holding_registers(16006, 2)
 print(regs)
 regs_1 = client.read_holding_registers(16008, 2)
 print(regs_1)
 regs_2 = client.read_holding_registers(16010, 2)
 print(regs_2)
-### SICHERHEITSABFRAGEN
-
-def update_output_connection():
-
-    if client.open():
-        output_connection_register = 16014 # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
-
-        status_bytes = client.read_holding_registers(output_connection_register, 2)
-        if status_bytes:
-            global output_connection  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            output_connection = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "Independent 3 channel",
-                1: "Parallel 1 channel",
-            }
-            output_connection_status_label.config(text=f"Status:   {status_translation.get(output_connection, 'Unbekannt')}")
-
-            if output_connection == 0:
-                ("output_connection =", output_connection)
-                #enable_button.config(state="normal")
-                #disable_button.config(state="disable")
-                #start_charging_button.config(state="disable")
-                #reset_button.config(state="disable")
-                #stop_charging_button.config(state="disable")
-
-            elif output_connection == 1:
-                print("output_connection =",output_connection)
-                #disable_button.config(state="normal")
-                #enable_button.config(state="disable")
-                #start_charging_button.config(state="normal")
-                #reset_button.config(state="disable")
-                #stop_charging_button.config(state="disable")
-
-        else:
-            output_connection_status_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        output_connection_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_output_connection)
-
-    return
-
-def update_bipolar():
-
-    if client.open():
-        bipolar_register = 16018 # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
-
-        status_bytes = client.read_holding_registers(bipolar_register, 2)
-        if status_bytes:
-            global bipolar  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            bipolar = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "Unipolar",
-                1: "Bipolar",
-            }
-            bipolar_status_label.config(text=f"Status:   {status_translation.get(bipolar, 'Unbekannt')}")
-
-            if bipolar == 0:
-                print("bipolar =", bipolar)
-                #enable_button.config(state="normal")
-                #disable_button.config(state="disable")
-                #start_charging_button.config(state="disable")
-                #reset_button.config(state="disable")
-                #stop_charging_button.config(state="disable")
-
-            elif bipolar == 1:
-                print("bipolar =", bipolar)
-                #disable_button.config(state="normal")
-                #enable_button.config(state="disable")
-                #start_charging_button.config(state="normal")
-                #reset_button.config(state="disable")
-                #stop_charging_button.config(state="disable")
-
-        else:
-            output_connection_status_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        output_connection_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_output_connection)
-
-    return
+"""
 
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
 
 # Funktion für den aktuellen Status der CNG
-def update_status():
-
+def update_sw_grafcet_state():
     if client.open():
-        grafcet_status_register = 16000
+        sw_grafcet_state_register = 16000
 
-        status_bytes = client.read_holding_registers(grafcet_status_register, 2)
+        status_bytes = client.read_holding_registers(sw_grafcet_state_register, 2)
         if status_bytes:
-            global grafcet_status  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
-            grafcet_status = (status_bytes[0] << 8) | status_bytes[1]
+            global sw_grafcet_state  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
+            sw_grafcet_state = (status_bytes[0] << 8) | status_bytes[1]
 
             status_translation = {
                 2: "StandBy",
@@ -139,46 +54,228 @@ def update_status():
                 6: "Warning",
                 7: "Alarm"
             }
-            grafcet_status_label.config(text=f"Status:   {status_translation.get(grafcet_status, 'Unbekannt')}")
+            sw_grafcet_state_label.config(text=f"   {status_translation.get(sw_grafcet_state, 'Unbekannt')}")
 
-            if grafcet_status == 2:
+            if sw_grafcet_state == 2:
                 enable_button.config(state="normal")
                 disable_button.config(state="disable")
                 start_charging_button.config(state="disable")
                 reset_button.config(state="disable")
                 stop_charging_button.config(state="disable")
 
-            elif grafcet_status == 4:
+            elif sw_grafcet_state == 4:
                 disable_button.config(state="normal")
                 enable_button.config(state="disable")
                 start_charging_button.config(state="normal")
                 reset_button.config(state="disable")
                 stop_charging_button.config(state="disable")
 
-            elif grafcet_status == 5:
-                  stop_charging_button.config(state="normal")
-                  disable_button.config(state="normal")
-                  reset_button.config(state="disable")
-                  enable_button.config(state="disable")
+            elif sw_grafcet_state == 5:
+                stop_charging_button.config(state="normal")
+                disable_button.config(state="normal")
+                reset_button.config(state="disable")
+                enable_button.config(state="disable")
 
-            elif grafcet_status == 6 or grafcet_status == 7:
-                  reset_button.config(state="normal")
-                  disable_button.config(state="normal")
-                  enable_button.config(state="disable")
-                  start_charging_button.config(state="disable")
-                  stop_charging_button.config(state="disable")
+            elif sw_grafcet_state == 6 or sw_grafcet_state == 7:
+                reset_button.config(state="normal")
+                disable_button.config(state="normal")
+                enable_button.config(state="disable")
+                start_charging_button.config(state="disable")
+                stop_charging_button.config(state="disable")
 
         else:
-            grafcet_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+            sw_grafcet_state_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
     else:
-        grafcet_status_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+        sw_grafcet_state_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_status)
+    # root.after(1000, update_status)
+
+    return
+
+### SICHERHEITSABFRAGEN
+
+def update_sw_output_connection():
+    if client.open():
+        sw_output_connection_register = 16014  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
+
+        status_bytes = client.read_holding_registers(sw_output_connection_register, 2)
+        if status_bytes:
+            global sw_output_connection  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            sw_output_connection = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "Independent 3 channel",
+                1: "Parallel 1 channel",
+            }
+            sw_output_connection_label.config(text=f"   {status_translation.get(sw_output_connection, 'Unbekannt')}")
+
+            if sw_output_connection == 0:
+                print("sw_output_connection =", sw_output_connection)
+
+            elif sw_output_connection == 1:
+                print("sw_output_connection =", sw_output_connection)
+
+        else:
+            sw_output_connection_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        sw_output_connection_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_output_connection)
 
     return
 
 
+def update_sw_bipolar():
+    if client.open():
+        sw_bipolar_register = 16018  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Unipolar, 1: Bipolar
+
+        status_bytes = client.read_holding_registers(sw_bipolar_register, 2)
+        if status_bytes:
+            global sw_bipolar  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            sw_bipolar = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "Unipolar",
+                1: "Bipolar",
+            }
+            sw_bipolar_label.config(text=f"   {status_translation.get(sw_bipolar, 'Unbekannt')}")
+
+            if sw_bipolar == 0:
+                print("sw_bipolar =", sw_bipolar)
+
+            elif sw_bipolar == 1:
+                print("sw_bipolar =", sw_bipolar)
+
+        else:
+            sw_bipolar_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        sw_bipolar_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Bipolar-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_output_connection)
+
+    return
+
+def update_sw_ge_el_selector():
+    if client.open():
+        sw_ge_el_selector_register = 16012  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE
+
+        status_bytes = client.read_holding_registers(sw_ge_el_selector_register, 2)
+        if status_bytes:
+            global sw_ge_el_selector  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            sw_ge_el_selector = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "EL",
+                1: "GE",
+            }
+            sw_ge_el_selector_label.config(text=f"   {status_translation.get(sw_ge_el_selector, 'Unbekannt')}")
+
+            if sw_ge_el_selector == 0:
+                print("sw_ge_el_selector =", sw_ge_el_selector)
+
+            elif sw_ge_el_selector == 1:
+                print("sw_ge_el_selector =", sw_ge_el_selector)
+
+        else:
+            sw_ge_el_selector_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        sw_ge_el_selector_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_output_connection)
+
+def update_sw_ac_dc_selector_u():
+    if client.open():
+        sw_ac_dc_selector_u_register = 16006  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
+
+        status_bytes = client.read_holding_registers(sw_ac_dc_selector_u_register, 2)
+        if status_bytes:
+            global sw_ac_dc_selector_u  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            sw_ac_dc_selector_u = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "DC",
+                1: "AC",
+            }
+            sw_ac_dc_selector_u_label.config(text=f"   {status_translation.get(sw_ac_dc_selector_u, 'Unbekannt')}")
+
+            if sw_ac_dc_selector_u == 0:
+                print("sw_ac_dc_selector_u =", sw_ac_dc_selector_u)
+
+            elif sw_ac_dc_selector_u == 1:
+                print("sw_ac_dc_selector_u =", sw_ac_dc_selector_u)
+
+        else:
+            sw_ac_dc_selector_u_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        sw_ac_dc_selector_u_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_sw_ac_dc_selector_u)
+
+def update_sw_ac_dc_selector_v():
+    if client.open():
+        sw_ac_dc_selector_v_register = 16008  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
+
+        status_bytes = client.read_holding_registers(sw_ac_dc_selector_v_register, 2)
+        if status_bytes:
+            global sw_ac_dc_selector_v  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            sw_ac_dc_selector_v = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "DC",
+                1: "AC",
+            }
+            sw_ac_dc_selector_v_label.config(text=f"   {status_translation.get(sw_ac_dc_selector_v, 'Unbekannt')}")
+
+            if sw_ac_dc_selector_v == 0:
+                print("sw_ac_dc_selector_v =", sw_ac_dc_selector_v)
+
+            elif sw_ac_dc_selector_v == 1:
+                print("sw_ac_dc_selector_v =", sw_ac_dc_selector_v)
+
+        else:
+            sw_ac_dc_selector_v_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        sw_ac_dc_selector_v_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_sw_ac_dc_selector_v)
+
+def update_sw_ac_dc_selector_w():
+    if client.open():
+        sw_ac_dc_selector_w_register = 16010  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
+
+        status_bytes = client.read_holding_registers(sw_ac_dc_selector_w_register, 2)
+        if status_bytes:
+            global sw_ac_dc_selector_w  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
+            sw_ac_dc_selector_w = (status_bytes[0] << 8) | status_bytes[1]
+
+            status_translation = {
+                0: "DC",
+                1: "AC",
+            }
+            sw_ac_dc_selector_w_label.config(text=f"   {status_translation.get(sw_ac_dc_selector_w, 'Unbekannt')}")
+
+            if sw_ac_dc_selector_w == 0:
+                print("sw_ac_dc_selector_w =", sw_ac_dc_selector_w)
+
+            elif sw_ac_dc_selector_w == 1:
+                print("sw_ac_dc_selector_w =", sw_ac_dc_selector_w)
+
+        else:
+            sw_ac_dc_selector_w_label.config(text="Fehler beim Lesen der Register.")
+    else:
+        sw_ac_dc_selector_w_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+
+    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_sw_ac_dc_selector_w)
+
+#
+#
 # Funktion zum Auslesen der aktuellen Spannung zw. U und N (EuT-Side)
 def update_voltage_un():
 
@@ -205,8 +302,8 @@ def update_voltage_un():
     else:
         voltage_un_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
-        # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(100, update_voltage_un)
+    # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
+    # root.after(1000, update_voltage_un)
 
     return
 
@@ -275,14 +372,11 @@ def update_power_total():
     return
 
 
-
-
 ### SCHALTFLÄCHEN 1 ###
 
 # Funktionen für die Schaltflächen
 def enable_cng():
-
-    if client.open() and grafcet_status == 2:
+    if client.open() and sw_grafcet_state == 2:
         enable_disable_cng_register = 17000
 
         value_to_write = 1
@@ -298,8 +392,7 @@ def enable_cng():
 
 
 def disable_cng():
-
-    if client.open() and grafcet_status >= 4:
+    if client.open() and sw_grafcet_state >= 4:
         enable_disable_cng_register = 17000
 
         value_to_write = 0
@@ -319,7 +412,7 @@ def reset_alarm_warning():
 
     ## ---> Hier noch überlegen, ob Ladevorgang bei Status Alarm automatisch abgebrochen werden soll? Das Gleiche für Status Warning überlegen! ##
 
-    if client.open() and grafcet_status == 6 or grafcet_status ==7: # Status 6 = Warning, Status 7 = Alarm
+    if client.open() and sw_grafcet_state == 6 or sw_grafcet_state ==7: # Status 6 = Warning, Status 7 = Alarm
         start_charging_button.config(state="normal")
 
         reset_register = 17018
@@ -341,18 +434,15 @@ def reset_alarm_warning():
     return
 
 
-
 ### DROPDOWN-MENÜ "CONTROL OPERATION" ###
 
 # Funktion, die INDIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
 def update_operation_combo_states():
-
     global selected_operation  # Globale Variable, die für Fkt "control_operation_selected(event)" und für Schaltfläche "Start Charging" als if-Bedingung verwendet wird
     global current_ch
     global current_dch
     selected_operation = control_operation_var.get()
     print("Die Operation-Variable lautet:", selected_operation, "; Datentyp:", type(selected_operation))
-
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Charge":
@@ -368,7 +458,6 @@ def update_operation_combo_states():
         current_ch = 0
         current_ch_static_combo.set("0")
         current_ch_static_combo.config(state="disabled")
-
 
 
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
@@ -580,7 +669,7 @@ def charge_control_current_static():
 def start_charging():
     """
 
-    if client.open() and grafcet_status >= 4: # Status 4 = Ready, Status 5 = Run
+    if client.open() and sw_grafcet_state >= 4: # Status 4 = Ready, Status 5 = Run
 
         run_ready_register = 17002
 
@@ -594,7 +683,7 @@ def start_charging():
         print("Schaltfläche Start Charging betätigt")
         time.sleep(1)
 
-        if grafcet_status ==4:
+        if Ssw_grafcet_state ==4:
             time.sleep(1) # Hier Wartezeit, damit CNG ausreichend Zeit hat in Status "Run" zu gehen
 
         if selected_operation == "Power": # Auswahl Dropdown-Menü "Control Operation"
@@ -704,13 +793,14 @@ current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current → CM
 current_ch_control_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "current_ch_control_frame", sowie Positionierung
 current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
-current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current in A:" )
+current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current in A:")
 current_ch_static_label.grid(row=5, column=0, padx=5, pady=5)
 current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
 current_ch_static_combo.grid(row=5, column=1, padx=5, pady=5)
 current_ch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
-current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+current_ch_static_combo.bind("<<ComboboxSelected>>",
+current_ch_static_combo_selected)  # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 current_ch_control_frame.columnconfigure(0, weight=1)
 current_ch_control_frame.columnconfigure(1, weight=1)
@@ -720,13 +810,13 @@ current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current  C
 current_dch_control_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "current_dch_control_frame", sowie Positionierung
 current_dch_static_var = tk.IntVar()  # Variable als Integer definieren
-current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current in A:" )
+current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current in A:")
 current_dch_static_label.grid(row=7, column=0, padx=5, pady=5)
 current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24"], state="readonly")
 current_dch_static_combo.grid(row=7, column=1, padx=5, pady=5)
 current_dch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
-current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected) # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected)  # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 current_dch_control_frame.columnconfigure(0, weight=1)
 current_dch_control_frame.columnconfigure(1, weight=1)
@@ -811,21 +901,41 @@ no_header_frame_2_0.columnconfigure(1, weight=1)
 # Erstellen des Frames "Information CNG" im Frame_2_0
 information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
 information_CNG_frame_2_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-grafcet_status_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet:")
-grafcet_status_label_text.grid(row=2, column=0, padx=5, pady=5)
-grafcet_status_label = ttk.Label(information_CNG_frame_2_0, text="")
-grafcet_status_label.grid(row=2, column=1, padx=5, pady=5)
-update_status()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-output_connection_status_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection:")
-output_connection_status_label_text.grid(row=3, column=0, padx=5, pady=5)
-output_connection_status_label = ttk.Label(information_CNG_frame_2_0, text="")
-output_connection_status_label.grid(row=3, column=1, padx=5, pady=5)
-update_output_connection()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-bipolar_status_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection:")
-bipolar_status_label_text.grid(row=4, column=0, padx=5, pady=5)
-bipolar_status_label = ttk.Label(information_CNG_frame_2_0, text="")
-bipolar_status_label.grid(row=4, column=1, padx=5, pady=5)
-update_bipolar()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_grafcet_state_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet State:")
+sw_grafcet_state_label_text.grid(row=2, column=0, padx=5, pady=5)
+sw_grafcet_state_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_grafcet_state_label.grid(row=2, column=1, padx=5, pady=5)
+update_sw_grafcet_state()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_output_connection_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection State:")
+sw_output_connection_label_text.grid(row=3, column=0, padx=5, pady=5)
+sw_output_connection_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_output_connection_label.grid(row=3, column=1, padx=5, pady=5)
+update_sw_output_connection()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_bipolar_label_text = ttk.Label(information_CNG_frame_2_0, text="Bipolar State:")
+sw_bipolar_label_text.grid(row=4, column=0, padx=5, pady=5)
+sw_bipolar_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_bipolar_label.grid(row=4, column=1, padx=5, pady=5)
+update_sw_bipolar()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_ge_el_selector_label_text = ttk.Label(information_CNG_frame_2_0, text="GE_EL_Selector:")
+sw_ge_el_selector_label_text.grid(row=5, column=0, padx=5, pady=5)
+sw_ge_el_selector_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_ge_el_selector_label.grid(row=5, column=1, padx=5, pady=5)
+update_sw_ge_el_selector()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_ac_dc_selector_u_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_U:")
+sw_ac_dc_selector_u_label_text.grid(row=6, column=0, padx=5, pady=5)
+sw_ac_dc_selector_u_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_ac_dc_selector_u_label.grid(row=6, column=1, padx=5, pady=5)
+update_sw_ac_dc_selector_u()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_ac_dc_selector_v_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_V:")
+sw_ac_dc_selector_v_label_text.grid(row=7, column=0, padx=5, pady=5)
+sw_ac_dc_selector_v_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_ac_dc_selector_v_label.grid(row=7, column=1, padx=5, pady=5)
+update_sw_ac_dc_selector_v()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+sw_ac_dc_selector_w_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_W:")
+sw_ac_dc_selector_w_label_text.grid(row=8, column=0, padx=5, pady=5)
+sw_ac_dc_selector_w_label = ttk.Label(information_CNG_frame_2_0, text="")
+sw_ac_dc_selector_w_label.grid(row=8, column=1, padx=5, pady=5)
+update_sw_ac_dc_selector_w()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 information_CNG_frame_2_0.columnconfigure(0, weight=1)
 information_CNG_frame_2_0.columnconfigure(1, weight=1)

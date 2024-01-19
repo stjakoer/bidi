@@ -1,58 +1,24 @@
-import pymodbus
-from pymodbus.client.sync import ModbusTcpClient
-from pymodbus.constants import Endian
-from pymodbus.payload import BinaryPayloadDecoder
+from pyModbusTCP.client import ModbusClient
 
-# IP-Adresse der Wallbox
-ip_address = "192.168.178.201"
+# IP-Adresse und Port des GO-E Charger
+host = "192.168.178.201"
+port = 5020
+unit_id = 1
 
-# Modbus-Slave-ID
-slave_id = 1
+# Erstelle eine Modbus-Client-Verbindung
+c = ModbusClient(host=host, port=port, unit_id=unit_id, auto_open=True)
 
-# Modbus-Registeradressen
-register_addresses = [
-    100, 101, 102, 103, 110, 130, 200, 201, 202, 203
-]
+regs = c.read_holding_registers(12, 1)
 
-# Modbus-Registerlängen
-register_lengths = [
-    1, 1, 1, 4, 20, 20, 1, 1, 1, 1
-]
+if regs:
+    print(regs)
+    print(len(regs))
+    print(type(regs[0]))
+else:
+    print("read error")
 
-# Modbus-Client erstellen
-client = ModbusTcpClient(ip_address)
+if c.write_multiple_registers(202,[0]):
+    print("write ok")
+else:from pyModbusTCP.client import ModbusClient
+    print("write error")
 
-try:
-    # Verbindung zum Modbus-Gerät herstellen
-    client.connect()
-
-    # Modbus-Register auslesen
-    registers = []
-    for i in range(len(register_addresses)):
-        result = client.read_input_registers(register_addresses[i], register_lengths[i], unit=slave_id)
-        if result.isError():
-            print(f"Fehler beim Lesen von Modbus-Register {register_addresses[i]}: {result}")
-        else:
-            registers.append(result.registers)
-
-    # Ergebnisse verarbeiten
-    decoder = BinaryPayloadDecoder.fromRegisters(registers[4], byteorder=Endian.Big, wordorder=Endian.Little)
-    charger_serial = decoder.decode_string(20)
-    decoder = BinaryPayloadDecoder.fromRegisters(registers[5], byteorder=Endian.Big, wordorder=Endian.Little)
-    charger_model = decoder.decode_string(20)
-
-    # Ausgelesene Daten ausgeben
-    print("ChargerState:", registers[0][0])
-    print("ChargerVersion:", registers[1][0])
-    print("ChargerNofConnectors:", registers[2][0])
-    print("ChargerError:", registers[3][0])
-    print("ChargerSerial:", charger_serial)
-    print("ChargerModel:", charger_model)
-    print("ChargeControl:", registers[6][0])
-    print("ComTimeoutEnbled:", registers[7][0])
-    print("ComTimeoutValue:", registers[8][0])
-    print("FallbackPower:", registers[9][0])
-
-finally:
-    # Verbindung zum Modbus-Gerät trennen
-    client.close()

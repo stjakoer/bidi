@@ -25,7 +25,13 @@ global CNG_voltage_set
 client = ModbusClient(host='192.168.2.149', port=502)
 client.open()
 
-
+#schnelle modbusabfrage
+regs = client.read_holding_registers(16006, 2)
+print(regs)
+regs_1 = client.read_holding_registers(16008, 2)
+print(regs_1)
+regs_2 = client.read_holding_registers(16010, 2)
+print(regs_2)
 ### SICHERHEITSABFRAGEN
 
 def update_output_connection():

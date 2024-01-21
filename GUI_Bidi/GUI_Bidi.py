@@ -464,12 +464,45 @@ def update_operation_combo_states():
 def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt bei jeder Betätigung des Dropdown-Menüs aufgerufen wird!
     update_operation_combo_states()  # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
 
+    control_operation_ph_u_write_register = 17004
+
+    value_to_write = 0 # Einstellen als Voltage Source: 0
+    byte0 = (value_to_write >> 24) & 0xFF
+    byte1 = (value_to_write >> 16) & 0xFF
+    byte2 = (value_to_write >> 8) & 0xFF
+    byte3 = value_to_write & 0xFF
+
+    client.write_multiple_registers(control_operation_ph_u_write_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+
+    mode_translation = {
+        0: "Voltage Source"
+    }
+
+    control_operation_ph_u_read_register = 16022
+    operation_bytes = client.read_holding_registers(control_operation_ph_u_read_register,2)  # Lesen von 2 16-Bit-Registern
+    control_operation_ph_u_read = (operation_bytes[0] << 8) | operation_bytes[1]
+
+    print(f"Control Operation Ph U: {mode_translation.get(control_operation_ph_u_read, 'Unbekannt')}")
+
+    control_operation_ph_v_read_register = 16024
+    operation_bytes = client.read_holding_registers(control_operation_ph_v_read_register,2)  # Lesen von 2 16-Bit-Registern
+    control_operation_ph_v_read = (operation_bytes[0] << 8) | operation_bytes[1]
+
+    print(f"Control Operation Ph V: {mode_translation.get(control_operation_ph_v_read, 'Unbekannt')}")
+
+    control_operation_ph_w_read_register = 16026
+    operation_bytes = client.read_holding_registers(control_operation_ph_w_read_register,2)  # Lesen von 2 16-Bit-Registern
+    control_operation_ph_w_read = (operation_bytes[0] << 8) | operation_bytes[1]
+
+    print(f"Control Operation Ph W: {mode_translation.get(control_operation_ph_w_read, 'Unbekannt')}")
+
+
+    """
     mode_translation = {
         1: "Current",
         2: "Power"
     }
-    """
-
+    
     if selected_operation == "Power":
         control_operation_ph_u_write_register = 17004
 
@@ -529,7 +562,7 @@ def current_dch_static_combo_selected(event):
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
 
 def charge_control_current_static():
-    """
+
     print("Aufruf Fkt charge_control_current_static()")
 
     ### Zuerst alle 3 Phasen einschalten. Stromwert aus Dropdown-Auswahl fließt über jede einzelne Phase! ###
@@ -544,9 +577,34 @@ def charge_control_current_static():
     byte3 = value_to_write & 0xFF
 
     client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+
+    # Phase V einschalten
+    on_off_ph_v_register = 17012
+
+    value_to_write = 1
+    byte0 = (value_to_write >> 24) & 0xFF
+    byte1 = (value_to_write >> 16) & 0xFF
+    byte2 = (value_to_write >> 8) & 0xFF
+    byte3 = value_to_write & 0xFF
+
+    client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+
+    # Phase W einschalten
+    on_off_ph_w_register = 17014
+
+    value_to_write = 1
+    byte0 = (value_to_write >> 24) & 0xFF
+    byte1 = (value_to_write >> 16) & 0xFF
+    byte2 = (value_to_write >> 8) & 0xFF
+    byte3 = value_to_write & 0xFF
+
+    client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+
     time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat alle Phasen einzuschalten
 
 
+
+    """
     if current_static_var.get() == "6 A":
         print("Dropdown-Auswahl: 6 A")
 

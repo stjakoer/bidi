@@ -24,7 +24,7 @@ global CNG_voltage_set
 client = ModbusClient(host='192.168.2.149', port=502)
 client.open()
 
-# schnelle modbusabfrage
+# schnelle Modbus-Abfrage
 """
 regs = client.read_holding_registers(16006, 2)
 print(regs)
@@ -35,7 +35,7 @@ print(regs_2)
 """
 
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
-
+# CNG Output
 # Funktion für den aktuellen Status der CNG
 def update_sw_grafcet_state():
     if client.open():
@@ -44,7 +44,7 @@ def update_sw_grafcet_state():
         status_bytes = client.read_holding_registers(sw_grafcet_state_register, 2)
         if status_bytes:
             global sw_grafcet_state  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
-            sw_grafcet_state = (status_bytes[0] << 8) | status_bytes[1]
+            u = (status_bytes[0] << 8) | status_bytes[1]
 
             status_translation = {
                 2: "StandBy",
@@ -60,41 +60,45 @@ def update_sw_grafcet_state():
                 enable_button.config(state="normal")
                 disable_button.config(state="disable")
                 start_charging_button.config(state="disable")
-                reset_button.config(state="disable")
                 stop_charging_button.config(state="disable")
+                reset_button.config(state="disable")
+
 
             elif sw_grafcet_state == 4:
-                disable_button.config(state="normal")
                 enable_button.config(state="disable")
+                disable_button.config(state="normal")
                 start_charging_button.config(state="normal")
-                reset_button.config(state="disable")
                 stop_charging_button.config(state="disable")
+                reset_button.config(state="disable")
+
 
             elif sw_grafcet_state == 5:
-                stop_charging_button.config(state="normal")
-                disable_button.config(state="normal")
-                reset_button.config(state="disable")
                 enable_button.config(state="disable")
+                disable_button.config(state="normal")
+                start_charging_button.config(state="disable")
+                stop_charging_button.config(state="normal")
+                reset_button.config(state="disable")
+
 
             elif sw_grafcet_state == 6 or sw_grafcet_state == 7:
-                reset_button.config(state="normal")
-                disable_button.config(state="normal")
                 enable_button.config(state="disable")
+                disable_button.config(state="normal")
                 start_charging_button.config(state="disable")
                 stop_charging_button.config(state="disable")
+                reset_button.config(state="normal")
 
         else:
-            sw_grafcet_state_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+            sw_grafcet_state_label.config(text="Fehler beim Lesen der Register.")
     else:
         sw_grafcet_state_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_status)
+    #root.after(1000, update_sw_grafcet_state)
 
     return
 
 ### SICHERHEITSABFRAGEN
-
+# CNG Output
 def update_sw_output_connection():
     if client.open():
         sw_output_connection_register = 16014  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
@@ -122,11 +126,11 @@ def update_sw_output_connection():
         sw_output_connection_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_output_connection)
+    #root.after(1000, update_sw_output_connection)
 
     return
 
-
+# CNG Output
 def update_sw_bipolar():
     if client.open():
         sw_bipolar_register = 16018  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Unipolar, 1: Bipolar
@@ -154,10 +158,11 @@ def update_sw_bipolar():
         sw_bipolar_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Bipolar-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_output_connection)
+    #root.after(1000, update_sw_bipolar)
 
     return
 
+# CNG Output
 def update_sw_ge_el_selector():
     if client.open():
         sw_ge_el_selector_register = 16012  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE
@@ -185,8 +190,9 @@ def update_sw_ge_el_selector():
         sw_ge_el_selector_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_output_connection)
+    #root.after(1000, update_sw_ge_el_selector)
 
+# CNG Output
 def update_sw_ac_dc_selector_u():
     if client.open():
         sw_ac_dc_selector_u_register = 16006  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
@@ -214,8 +220,9 @@ def update_sw_ac_dc_selector_u():
         sw_ac_dc_selector_u_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_sw_ac_dc_selector_u)
+    #root.after(1000, update_sw_ac_dc_selector_u)
 
+# CNG Output
 def update_sw_ac_dc_selector_v():
     if client.open():
         sw_ac_dc_selector_v_register = 16008  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
@@ -243,8 +250,9 @@ def update_sw_ac_dc_selector_v():
         sw_ac_dc_selector_v_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_sw_ac_dc_selector_v)
+    #root.after(1000, update_sw_ac_dc_selector_v)
 
+# CNG Output
 def update_sw_ac_dc_selector_w():
     if client.open():
         sw_ac_dc_selector_w_register = 16010  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
@@ -272,10 +280,11 @@ def update_sw_ac_dc_selector_w():
         sw_ac_dc_selector_w_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_sw_ac_dc_selector_w)
+    #root.after(1000, update_sw_ac_dc_selector_w)
 
 #
 #
+# CNG Output
 # Funktion zum Auslesen der aktuellen Spannung zw. U und N (EuT-Side)
 def update_voltage_un():
 
@@ -303,14 +312,14 @@ def update_voltage_un():
         voltage_un_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
     # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
-    # root.after(1000, update_voltage_un)
+    #root.after(1000, update_voltage_un)
 
     return
 
-
+# CNG Output
 # Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
 def update_current_total():
-    """
+
     if client.open():
         current_total_register = 26106
 
@@ -334,14 +343,15 @@ def update_current_total():
     else:
         current_total_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
-        # Hier wird der aktuelle Stromwert WN periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_current_total)
-    """
+    # Hier wird der aktuelle Stromwert periodisch abgefragt. Zyklus hier ist 1000 ms
+    #root.after(1000, update_current_total)
+
     return
 
-
+# CNG Output
+# Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
 def update_power_total():
-    """
+
     if client.open():
         power_total_register = 26120
 
@@ -366,16 +376,15 @@ def update_power_total():
     else:
         power_total_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
 
-    # Hier wird der aktuelle Spannungswert WN periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_power_total)
-    """
+    # Hier wird der aktuelle Leistungswert periodisch abgefragt. Zyklus hier ist 1000 ms
+    #root.after(1000, update_power_total)
+
     return
 
-
-### SCHALTFLÄCHEN 1 ###
-
+# CNG Input
 # Funktionen für die Schaltflächen
 def enable_cng():
+    """
     if client.open() and sw_grafcet_state == 2:
         enable_disable_cng_register = 17000
 
@@ -387,11 +396,12 @@ def enable_cng():
 
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
         print("Schaltfläche Enable_CNG betätigt")
-
+    """
     return
 
-
+# CNG Input
 def disable_cng():
+    """
     if client.open() and sw_grafcet_state >= 4:
         enable_disable_cng_register = 17000
 
@@ -403,13 +413,12 @@ def disable_cng():
 
         client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     print("Schaltfläche Disable_CNG betätigt")
-
+    """
     return
 
-
+# CNG Input
 def reset_alarm_warning():
     """
-
     ## ---> Hier noch überlegen, ob Ladevorgang bei Status Alarm automatisch abgebrochen werden soll? Das Gleiche für Status Warning überlegen! ##
 
     if client.open() and sw_grafcet_state == 6 or sw_grafcet_state ==7: # Status 6 = Warning, Status 7 = Alarm
@@ -430,12 +439,11 @@ def reset_alarm_warning():
 
     else:
         print("Sequenz [0, 1, 0] wurde nicht in das Register geschrieben!")
-        """
+    """
     return
 
-
+# Interne Funktion
 ### DROPDOWN-MENÜ "CONTROL OPERATION" ###
-
 # Funktion, die INDIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
 def update_operation_combo_states():
     global selected_operation  # Globale Variable, die für Fkt "control_operation_selected(event)" und für Schaltfläche "Start Charging" als if-Bedingung verwendet wird
@@ -451,19 +459,35 @@ def update_operation_combo_states():
         current_dch_static_combo.set("0")
         current_dch_static_combo.config(state="disabled")
 
-
-
     elif selected_operation == "Discharge":
         current_dch_static_combo.config(state="normal")
         current_ch = 0
         current_ch_static_combo.set("0")
         current_ch_static_combo.config(state="disabled")
 
+    return
 
+# Interne Funktion
+# Anzeige, dass Dropdown-Menü betätigt wurde
+def current_ch_static_combo_selected(event):
+    current_ch = current_ch_static_var.get()
+    print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
+    CMS_current = current_ch - current_dch
+    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
+
+# Interne Funktion
+# Anzeige, dass Dropdown-Menü betätigt wurde
+def current_dch_static_combo_selected(event):
+    current_dch = current_dch_static_var.get()
+    print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
+    CMS_current = current_ch - current_dch
+    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
+
+# CNG Input
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
 def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt bei jeder Betätigung des Dropdown-Menüs aufgerufen wird!
     update_operation_combo_states()  # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
-
+    """ # Wird diese Funktion nicht auskommentiert, kommt es zu Fehlermeldung
     control_operation_ph_u_write_register = 17004
 
     value_to_write = 0 # Einstellen als Voltage Source: 0
@@ -495,76 +519,16 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
     control_operation_ph_w_read = (operation_bytes[0] << 8) | operation_bytes[1]
 
     print(f"Control Operation Ph W: {mode_translation.get(control_operation_ph_w_read, 'Unbekannt')}")
-
-
     """
-    mode_translation = {
-        1: "Current",
-        2: "Power"
-    }
-    
-    if selected_operation == "Power":
-        control_operation_ph_u_write_register = 17004
-
-        value_to_write = 2
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(control_operation_ph_u_write_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        control_operation_ph_u_read_register = 16022
-        operation_bytes = client.read_holding_registers(control_operation_ph_u_read_register, 2)  # Lesen von 2 16-Bit-Registern
-
-        control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
-        print(f"Control Operation Ph U: {mode_translation.get(control_operation, 'Unbekannt')}")
-
-
-    elif selected_operation == "Current":
-        control_operation_ph_u_register = 17004
-
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(control_operation_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-        control_operation_ph_u_read_register = 16022
-        operation_bytes = client.read_holding_registers(control_operation_ph_u_read_register,2)  # Lesen von 2 16-Bit-Registern
-
-        control_operation = (operation_bytes[0] << 8) | operation_bytes[1]
-        print(f"Control Operation Ph U: {mode_translation.get(control_operation, 'Unbekannt')}")
-        """
     return
 
 
-### SCHALTFLÄCHEN 2 ###
-
-### DROPDOWN-MENÜS + EINGABEFELDER ###
-
-# Anzeige, dass Dropdown-Menü betätigt wurde
-def current_ch_static_combo_selected(event):
-    current_ch = current_ch_static_var.get()
-    print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
-    CMS_current = current_ch - current_dch
-    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
-
-# Anzeige, dass Dropdown-Menü betätigt wurde
-def current_dch_static_combo_selected(event):
-    current_dch = current_dch_static_var.get()
-    print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
-    CMS_current = current_ch - current_dch
-    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
-
+# CNG Input
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
+def charge_control_voltage_static():
 
-def charge_control_current_static():
-
-    print("Aufruf Fkt charge_control_current_static()")
-
+    print("Aufruf Fkt charge_control_voltage_static()")
+    """ # Kontrolle der Richtigkeit (Phasen schalten, wenn es keine gibt?)
     ### Zuerst alle 3 Phasen einschalten. Stromwert aus Dropdown-Auswahl fließt über jede einzelne Phase! ###
 
     # Phase U einschalten
@@ -601,112 +565,26 @@ def charge_control_current_static():
     client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
 
     time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat alle Phasen einzuschalten
+    
+    
+    magnitude_voltage_dc_global_sp_register = 27666
+    value_to_write = CNG_voltage_set
+    print(value_to_write)
 
+    # Umwandeln des Gleitkommawertes in 4 Bytes im Big-Endian-Format
+    value_bytes = struct.pack('>f', value_to_write)
 
+    # Extrahieren der Bytes in der richtigen Reihenfolge
+    byte0 = value_bytes[0]
+    byte1 = value_bytes[1]
+    byte2 = value_bytes[2]
+    byte3 = value_bytes[3]
 
-    """
-    if current_static_var.get() == "6 A":
-        print("Dropdown-Auswahl: 6 A")
+    # Schreiben der Bytes in die Register
+    client.write_multiple_registers(magnitude_voltage_dc_global_sp_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    
 
-
-        # Stromvorgabe Phase U
-        current_fundamental_ac_ph_u_register = 27072
-        value_to_write = -6.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    if current_static_var.get() == "8 A":
-        print("Dropdown-Auswahl: 8 A")
-
-        # Stromvorgabe Phase U
-        current_fundamental_ac_ph_u_register = 27072
-        value_to_write = -8.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    if current_static_var.get() == "10 A":
-        print("Dropdown-Auswahl: 10 A")
-
-        # Stromvorgabe Phase U
-        current_fundamental_ac_ph_u_register = 27072
-        value_to_write = -10.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    if current_static_var.get() == "13 A":
-        print("Dropdown-Auswahl: 13 A")
-
-        # Stromvorgabe Phase U
-        current_fundamental_ac_ph_u_register = 27072
-        value_to_write = -13.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    if current_static_var.get() == "16 A":
-        print("Dropdown-Auswahl: 16 A")
-
-        # Stromvorgabe Phase U
-        current_fundamental_ac_ph_u_register = 27072
-        value_to_write = -16.0
-
-        # Umwandeln des Gleitkommawerts in 4 Bytes im Big-Endian-Format
-        value_bytes = struct.pack('>f', value_to_write)
-
-        # Extrahieren der Bytes in der richtigen Reihenfolge
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-
-        # Schreiben der Bytes in die Register
-        client.write_multiple_registers(current_fundamental_ac_ph_u_register,[byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    # Selektierte Stromvorgabe senden
+    # Selektierte Spannungsvorgabe senden
     trigger_config_register = 17020
 
     value_to_write = 1
@@ -720,13 +598,12 @@ def charge_control_current_static():
     """
     return
 
-
-### SCHALTFLÄCHEN 3 ###
-
+# CNG Input
 # Funktionen für Schaltflächen
 def start_charging():
+    charge_control_voltage_static()  # Aufruf Funktion
+    print("Funktion charge_control_voltage_static() erfolgreich aufgerufen")
     """
-
     if client.open() and sw_grafcet_state >= 4: # Status 4 = Ready, Status 5 = Run
 
         run_ready_register = 17002
@@ -741,38 +618,15 @@ def start_charging():
         print("Schaltfläche Start Charging betätigt")
         time.sleep(1)
 
-        if Ssw_grafcet_state ==4:
-            time.sleep(1) # Hier Wartezeit, damit CNG ausreichend Zeit hat in Status "Run" zu gehen
+        if sw_grafcet_state == 4:
+            time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat in Status "Run" zu gehen
 
-        if selected_operation == "Power": # Auswahl Dropdown-Menü "Control Operation"
-            if power_static_state == 1: # Globale Variable aus Fkt "enable_power_static()"
-                charge_control_power_static() # Aufruf Funktion
-                print("Funktion charge_control_power_static() erfolgreich aufgerufen")
-
-            if power_automatic_state == 1: # Globale Variable aus Fkt "enable_power_automatic()"
-                charge_control_power_automatic()
-                print("Funktion charge_control_power_automatic() erfolgreich aufgerufen")
-
-            if power_manual_state == 1: # Globale Variable aus Fkt "enable_power_manual()"
-                charge_control_power_manual() # Aufruf Funktion
-                print("Funktion charge_control_power_manual() erfolgreich aufgerufen")
-
-
-        if selected_operation == "Current": # Auswahl Dropdown-Menü "Control Operation"
-            if current_static_state == 1: # Globale Variable aus Fkt "enable_current_static()"
-                charge_control_current_static() # Aufruf Funktion
-                print("Funktion charge_control_current_static() erfolgreich aufgerufen")
-
-            if current_automatic_state == 1: # Globale Variable aus Fkt "enable_current_automatic()"
-                charge_control_current_automatic() # Aufruf Funktion
-                print("Funktion charge_control_current_automatic() erfolgreich aufgerufen")
-
-            if current_manual_state == 1: # Globale Variable aus Fkt "enable_current_manual()"
-                charge_control_current_manual() # Aufruf Funktion
-                print("Funktion charge_control_current_manual() erfolgreich aufgerufen")
-                """
+            charge_control_voltage_static()  # Aufruf Funktion
+            print("Funktion charge_control_voltage_static() erfolgreich aufgerufen")
+        """
     return
 
+# CNG Input
 def stop_charging():
     """
     run_ready_register = 17002
@@ -814,7 +668,7 @@ root.attributes('-topmost', 1)
 
 #
 #
-### ERSTE SPALTE:
+### ERSTE SPALTE ###
 
 # Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
 frame_0_0 = ttk.LabelFrame(text="Charge Parameter")
@@ -841,8 +695,7 @@ voltage_control_frame = ttk.LabelFrame(frame_0_0, text="Voltage Control --> Cine
 voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 # Erstellen der Spannungsausgabe im "voltage_control_frame", sowie Positionierung
 CNG_voltage_set = 400  # Spannung zunächst fest auf 400V eingestellt
-print(CNG_voltage_set)
-voltage_static_label = ttk.Label(voltage_control_frame, text="Voltage fixed on 400V.")
+voltage_static_label = ttk.Label(voltage_control_frame, text=f"Voltage fixed on {CNG_voltage_set}V.")
 voltage_static_label.grid(row=3, column=0, padx=5, pady=5)
 voltage_static_label.config(state="normal")
 
@@ -864,7 +717,7 @@ current_ch_control_frame.columnconfigure(0, weight=1)
 current_ch_control_frame.columnconfigure(1, weight=1)
 
 # Erstellen des Frames "Discharge Current → CMS" im Frame_0_0
-current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current  CMS")
+current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current →  CMS")
 current_dch_control_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "current_dch_control_frame", sowie Positionierung
 current_dch_static_var = tk.IntVar()  # Variable als Integer definieren
@@ -881,7 +734,7 @@ current_dch_control_frame.columnconfigure(1, weight=1)
 
 #
 #
-### ZWEITE SPALTE:
+### ZWEITE SPALTE ###
 
 # Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
 frame_1_0 = ttk.LabelFrame(text="Controllable Load")
@@ -937,7 +790,7 @@ unit_label_power_total.grid(row=7, column=3, padx=5, pady=5)
 
 #
 #
-### DRITTE SPALTE:
+### DRITTE SPALTE ###
 
 # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
 frame_2_0 = ttk.LabelFrame(text="Charge Process")
@@ -948,9 +801,9 @@ frame_2_0.columnconfigure(2, weight=1)
 no_header_frame_2_0 = ttk.LabelFrame(frame_2_0, text="")
 no_header_frame_2_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 # Erstellen der Schaltflächen "Start Charging", "Stop Charging"
-start_charging_button = ttk.Button(no_header_frame_2_0, text="Start Charging", state="disabled", command=start_charging)
+start_charging_button = ttk.Button(no_header_frame_2_0, text="Start Charging", state="normal", command=start_charging)
 start_charging_button.grid(row=1, column=0, padx=5, pady=5)
-stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="disabled", command=stop_charging)
+stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="normal", command=stop_charging)
 stop_charging_button.grid(row=1, column=1, padx=5, pady=5)
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 no_header_frame_2_0.columnconfigure(0, weight=1)
@@ -958,41 +811,41 @@ no_header_frame_2_0.columnconfigure(1, weight=1)
 
 # Erstellen des Frames "Information CNG" im Frame_2_0
 information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
-information_CNG_frame_2_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+information_CNG_frame_2_0.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 sw_grafcet_state_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet State:")
-sw_grafcet_state_label_text.grid(row=2, column=0, padx=5, pady=5)
+sw_grafcet_state_label_text.grid(row=3, column=0, padx=5, pady=5)
 sw_grafcet_state_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_grafcet_state_label.grid(row=2, column=1, padx=5, pady=5)
+sw_grafcet_state_label.grid(row=3, column=1, padx=5, pady=5)
 update_sw_grafcet_state()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_output_connection_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection State:")
-sw_output_connection_label_text.grid(row=3, column=0, padx=5, pady=5)
+sw_output_connection_label_text.grid(row=4, column=0, padx=5, pady=5)
 sw_output_connection_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_output_connection_label.grid(row=3, column=1, padx=5, pady=5)
+sw_output_connection_label.grid(row=4, column=1, padx=5, pady=5)
 update_sw_output_connection()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_bipolar_label_text = ttk.Label(information_CNG_frame_2_0, text="Bipolar State:")
-sw_bipolar_label_text.grid(row=4, column=0, padx=5, pady=5)
+sw_bipolar_label_text.grid(row=5, column=0, padx=5, pady=5)
 sw_bipolar_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_bipolar_label.grid(row=4, column=1, padx=5, pady=5)
+sw_bipolar_label.grid(row=5, column=1, padx=5, pady=5)
 update_sw_bipolar()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_ge_el_selector_label_text = ttk.Label(information_CNG_frame_2_0, text="GE_EL_Selector:")
-sw_ge_el_selector_label_text.grid(row=5, column=0, padx=5, pady=5)
+sw_ge_el_selector_label_text.grid(row=6, column=0, padx=5, pady=5)
 sw_ge_el_selector_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ge_el_selector_label.grid(row=5, column=1, padx=5, pady=5)
+sw_ge_el_selector_label.grid(row=6, column=1, padx=5, pady=5)
 update_sw_ge_el_selector()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_ac_dc_selector_u_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_U:")
-sw_ac_dc_selector_u_label_text.grid(row=6, column=0, padx=5, pady=5)
+sw_ac_dc_selector_u_label_text.grid(row=7, column=0, padx=5, pady=5)
 sw_ac_dc_selector_u_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ac_dc_selector_u_label.grid(row=6, column=1, padx=5, pady=5)
+sw_ac_dc_selector_u_label.grid(row=7, column=1, padx=5, pady=5)
 update_sw_ac_dc_selector_u()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_ac_dc_selector_v_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_V:")
-sw_ac_dc_selector_v_label_text.grid(row=7, column=0, padx=5, pady=5)
+sw_ac_dc_selector_v_label_text.grid(row=8, column=0, padx=5, pady=5)
 sw_ac_dc_selector_v_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ac_dc_selector_v_label.grid(row=7, column=1, padx=5, pady=5)
+sw_ac_dc_selector_v_label.grid(row=8, column=1, padx=5, pady=5)
 update_sw_ac_dc_selector_v()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_ac_dc_selector_w_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_W:")
-sw_ac_dc_selector_w_label_text.grid(row=8, column=0, padx=5, pady=5)
+sw_ac_dc_selector_w_label_text.grid(row=9, column=0, padx=5, pady=5)
 sw_ac_dc_selector_w_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ac_dc_selector_w_label.grid(row=8, column=1, padx=5, pady=5)
+sw_ac_dc_selector_w_label.grid(row=9, column=1, padx=5, pady=5)
 update_sw_ac_dc_selector_w()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 information_CNG_frame_2_0.columnconfigure(0, weight=1)

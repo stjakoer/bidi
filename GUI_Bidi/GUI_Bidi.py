@@ -22,7 +22,7 @@ global CNG_voltage_set
 
 # Verbindung zum Modbus-Server herstellen
 client = ModbusClient(host='192.168.2.149', port=502)
-client.open()
+#client.open()
 
 # schnelle Modbus-Abfrage
 """
@@ -38,6 +38,7 @@ print(regs_2)
 # CNG Output
 # Funktion für den aktuellen Status der CNG
 def update_sw_grafcet_state():
+    """
     if client.open():
         sw_grafcet_state_register = 16000
 
@@ -94,12 +95,13 @@ def update_sw_grafcet_state():
 
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_grafcet_state)
-
+    """
     return
 
 ### SICHERHEITSABFRAGEN
 # CNG Output
 def update_sw_output_connection():
+    """
     if client.open():
         sw_output_connection_register = 16014  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Independent 3 channel, 1: Parallel 1 channel
 
@@ -127,11 +129,12 @@ def update_sw_output_connection():
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_output_connection)
-
+    """
     return
 
 # CNG Output
 def update_sw_bipolar():
+    """
     if client.open():
         sw_bipolar_register = 16018  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Unipolar, 1: Bipolar
 
@@ -159,11 +162,12 @@ def update_sw_bipolar():
 
     # Hier wird der aktuelle Bipolar-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_bipolar)
-
+    """
     return
 
 # CNG Output
 def update_sw_ge_el_selector():
+    """
     if client.open():
         sw_ge_el_selector_register = 16012  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE
 
@@ -191,9 +195,12 @@ def update_sw_ge_el_selector():
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_ge_el_selector)
+    """
+    return
 
 # CNG Output
 def update_sw_ac_dc_selector_u():
+    """
     if client.open():
         sw_ac_dc_selector_u_register = 16006  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
 
@@ -221,9 +228,12 @@ def update_sw_ac_dc_selector_u():
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_ac_dc_selector_u)
+    """
+    return
 
 # CNG Output
 def update_sw_ac_dc_selector_v():
+    """
     if client.open():
         sw_ac_dc_selector_v_register = 16008  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
 
@@ -251,9 +261,12 @@ def update_sw_ac_dc_selector_v():
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_ac_dc_selector_v)
+    """
+    return
 
 # CNG Output
 def update_sw_ac_dc_selector_w():
+    """
     if client.open():
         sw_ac_dc_selector_w_register = 16010  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
 
@@ -281,12 +294,15 @@ def update_sw_ac_dc_selector_w():
 
     # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_sw_ac_dc_selector_w)
+    """
+    return
 
 #
 #
 # CNG Output
 # Funktion zum Auslesen der aktuellen Spannung zw. U und N (EuT-Side)
 def update_voltage_un():
+    """
 
     if client.open():
         voltage_un_register = 26094
@@ -313,13 +329,13 @@ def update_voltage_un():
 
     # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_voltage_un)
-
+    """
     return
 
 # CNG Output
 # Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
 def update_current_total():
-
+    """
     if client.open():
         current_total_register = 26106
 
@@ -345,13 +361,13 @@ def update_current_total():
 
     # Hier wird der aktuelle Stromwert periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_current_total)
-
+    """
     return
 
 # CNG Output
 # Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
 def update_power_total():
-
+    """
     if client.open():
         power_total_register = 26120
 
@@ -378,7 +394,7 @@ def update_power_total():
 
     # Hier wird der aktuelle Leistungswert periodisch abgefragt. Zyklus hier ist 1000 ms
     #root.after(1000, update_power_total)
-
+    """
     return
 
 # CNG Input
@@ -472,16 +488,12 @@ def update_operation_combo_states():
 def current_ch_static_combo_selected(event):
     current_ch = current_ch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
-    CMS_current = current_ch - current_dch
-    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
 
 # Interne Funktion
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_dch_static_combo_selected(event):
     current_dch = current_dch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
-    CMS_current = current_ch - current_dch
-    print("Variable CMS_current:", CMS_current, "; Datentyp:", type(CMS_current))
 
 # CNG Input
 # Funktion, die DIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird

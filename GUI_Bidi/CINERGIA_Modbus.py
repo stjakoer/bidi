@@ -14,7 +14,6 @@ def cinergia_modbus():
                           (16012, 2, 'SW_GE_EL_Selector', 'int'),
                           (16014, 2, 'SW_OutputConnection', 'int'),
                           (16018, 2, 'SW_Bipolar', 'int'),
-                          (16020, 2, 'SW_BranchControl', 'int'),
                           (16022, 2, 'SW_ControlOperationU', 'int'),
                           (23000, 2, 'Alarm_INV_1', 'int'),
                           (23002, 2, 'Alarm_INV_2', 'int'),
@@ -24,6 +23,8 @@ def cinergia_modbus():
                           (26094, 2, 'Voltage_Output_U_RMS', 'float'),
                           (26106, 2, 'Current_Output_Global', 'float'),
                           (26120, 2, 'Power_Active_Output_Total', 'float')]
+
+    client.open()
 
     for address, length, name, typ in register_addresses:
         regs = client.read_holding_registers(address, length)
@@ -43,6 +44,8 @@ def cinergia_modbus():
         else:
             print(f"Fehler beim Lesen des Registers {address}")
         cinergia[address] = {'name': name, 'value': value}
+
+    client.close()
 
     def description(cinergia_new):
         alarm_dict = {
@@ -180,14 +183,16 @@ def cinergia_modbus():
 
         return cinergia_new
 
-    print(description(cinergia))
+    cinergia = description(cinergia)
+
+    return cinergia
 
 
-cinergia_modbus()
-
-
-def schreiben(register, value):
-    dkfaslfdk = 8
+def schreiben(register, value_to_write):
+    byte0 = (value_to_write >> 24) & 0xFF
+    byte1 = (value_to_write >> 16) & 0xFF
+    byte2 = (value_to_write >> 8) & 0xFF
+    byte3 = value_to_write & 0xFF
 
     return dkfaslfdk
 

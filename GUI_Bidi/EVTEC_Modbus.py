@@ -32,22 +32,19 @@ def evtec_modbus():
         if regs:
             if length == 1:
                 value = regs[0]
-                print(f"{address:}: {value}")
             elif length == 2:
                 value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
-                print(f"{address}-{address + 1}: {value}")
             elif length == 4:
                 value = struct.unpack('>d', struct.pack('>HHHH', *regs))[0]
             elif length == 12:
                 values = [struct.unpack('>f', struct.pack('>HH', regs[i], regs[i + 1]))[0] for i in range(0, 12, 2)]
         else:
-            print(f"Fehler beim Lesen des Registers {address}")
+            print(f"EVTEC: Fehler beim Lesen des Registers {address}")
         evtec[address] = {'name': name, 'value': value}
 
     # Schließen Sie die Verbindung
     client.close()
 
-    #print(evtec.items())
 
 
     def description(evtec_new):
@@ -123,6 +120,5 @@ def evtec_modbus():
 
     evtec = description(evtec)
 
-    #print(evtec.items())
 
     return evtec

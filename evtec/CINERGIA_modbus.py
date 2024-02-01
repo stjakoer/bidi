@@ -87,3 +87,13 @@ def cinergia_modbus():
     print(description(cinergia))
 
 cinergia_modbus()
+
+
+def schreiben(register, value)
+    dkfaslfödk
+
+    return
+
+
+
+schreiben(1703, 0)

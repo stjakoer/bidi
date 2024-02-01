@@ -47,7 +47,7 @@ def evtec_modbus():
     # Schließen Sie die Verbindung
     client.close()
 
-    print(evtec.items())
+    #print(evtec.items())
 
 
     def description(evtec_new):
@@ -123,6 +123,6 @@ def evtec_modbus():
 
     evtec = description(evtec)
 
-    print(evtec.items())
+    #print(evtec.items())
 
     return evtec

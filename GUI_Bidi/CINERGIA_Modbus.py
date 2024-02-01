@@ -34,7 +34,6 @@ def cinergia_modbus():
                 value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
             elif typ == 'int':
                 value = (regs[0] << 8) | regs[1]
-            print(f"{address}-{address + 1}: {value}")
         else:
             print(f"Fehler beim Lesen des Registers {address}")
         cinergia[address] = {'name': name, 'value': value}
@@ -182,26 +181,30 @@ def cinergia_modbus():
     return cinergia
 
 
-def cinergia_write_modbus(register, value_to_write, type):
+def cinergia_write_modbus(register, value_to_write, value_type):
     from pyModbusTCP.client import ModbusClient
     import struct
     client = ModbusClient(host="192.168.2.149", port=502)
 
     client.open()
 
-    if type == float:
+    if value_type == float:     # Abfrage nacht type, da float anders umgewandelt wird als integer
+        if isinstance(value_to_write, int):
+            value_to_write = float(value_to_write)
         value_bytes = struct.pack('>f', value_to_write)
         byte0 = value_bytes[0]
         byte1 = value_bytes[1]
         byte2 = value_bytes[2]
         byte3 = value_bytes[3]
-    elif type == int:
+    elif value_type == int:
+        if isinstance(value_to_write, float):
+            value_to_write = int(value_to_write)
         byte0 = (value_to_write >> 24) & 0xFF
         byte1 = (value_to_write >> 16) & 0xFF
         byte2 = (value_to_write >> 8) & 0xFF
         byte3 = value_to_write & 0xFF
+    else:
+        print('Es konnte kein Bit-shifting gemacht werden.')
 
     client.write_multiple_registers(register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     return
-
-

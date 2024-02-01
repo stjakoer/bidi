@@ -4,7 +4,6 @@ def evtec_modbus():
 
     evtec = {}
     client = ModbusClient(host="192.168.178.201", port=5020, unit_id=2)
-    slave_id = 2  # Fügen Sie weitere IDs hinzu, wenn Sie mehr Stecker haben
     register_addresses = [(0, 1, 'State'),
                           (1, 1, 'ChargeState'),
                           (2, 1, 'SessionType'),
@@ -37,15 +36,12 @@ def evtec_modbus():
             elif length == 4:
                 value = struct.unpack('>d', struct.pack('>HHHH', *regs))[0]
             elif length == 12:
-                values = [struct.unpack('>f', struct.pack('>HH', regs[i], regs[i + 1]))[0] for i in range(0, 12, 2)]
+                value = [struct.unpack('>f', struct.pack('>HH', regs[i], regs[i + 1]))[0] for i in range(0, 12, 2)]
         else:
             print(f"EVTEC: Fehler beim Lesen des Registers {address}")
         evtec[address] = {'name': name, 'value': value}
 
-    # Schließen Sie die Verbindung
     client.close()
-
-
 
     def description(evtec_new):
         # register 0
@@ -117,8 +113,6 @@ def evtec_modbus():
 
         return evtec_new
 
-
     evtec = description(evtec)
-
 
     return evtec

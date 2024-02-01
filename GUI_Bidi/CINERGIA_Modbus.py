@@ -182,20 +182,20 @@ def cinergia_modbus():
     return cinergia
 
 
-def cinergia_write_modbus(register, value_to_write):
+def cinergia_write_modbus(register, value_to_write, type):
     from pyModbusTCP.client import ModbusClient
     import struct
     client = ModbusClient(host="192.168.2.149", port=502)
 
     client.open()
 
-    if isinstance(value_to_write, float):
+    if type == float:
         value_bytes = struct.pack('>f', value_to_write)
         byte0 = value_bytes[0]
         byte1 = value_bytes[1]
         byte2 = value_bytes[2]
         byte3 = value_bytes[3]
-    elif isinstance(value_to_write, int):
+    elif type == int:
         byte0 = (value_to_write >> 24) & 0xFF
         byte1 = (value_to_write >> 16) & 0xFF
         byte2 = (value_to_write >> 8) & 0xFF

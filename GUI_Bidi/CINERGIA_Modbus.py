@@ -9,7 +9,7 @@ def cinergia_modbus():
                           (13004, 2, 'Alarm_ABR_3', 'int'),
                           (13006, 2, 'Alarm_ABR_4', 'int'),
                           (13008, 2, 'Alarm_ABR_5', 'int'),
-                          (16000, 2, 'SW_GrafecetState', 'int'),
+                          (16000, 2, 'SW_GrafcetState', 'int'),
                           (16006, 2, 'SW_AC_DC_Selector_U', 'int'),
                           (16012, 2, 'SW_GE_EL_Selector', 'int'),
                           (16014, 2, 'SW_OutputConnection', 'int'),
@@ -30,17 +30,11 @@ def cinergia_modbus():
         regs = client.read_holding_registers(address, length)
         value = regs
         if regs:
-            if length == 1:
-                value = regs[0]
-                print(f"{address:}: {value}")
-            elif length == 2:
-                if typ == 'float':
-                    value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
-                elif typ == 'int':
-                    value = (regs[0] << 8) | regs[1]
-                print(f"{address}-{address + 1}: {value}")
-            elif length == 4:
-                value = struct.unpack('>d', struct.pack('>HHHH', *regs))[0]
+            if typ == 'float':
+                value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
+            elif typ == 'int':
+                value = (regs[0] << 8) | regs[1]
+            print(f"{address}-{address + 1}: {value}")
         else:
             print(f"Fehler beim Lesen des Registers {address}")
         cinergia[address] = {'name': name, 'value': value}
@@ -188,13 +182,26 @@ def cinergia_modbus():
     return cinergia
 
 
-def schreiben(register, value_to_write):
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
+def cinergia_write_modbus(register, value_to_write):
+    from pyModbusTCP.client import ModbusClient
+    import struct
+    client = ModbusClient(host="192.168.2.149", port=502)
 
-    return dkfaslfdk
+    client.open()
+
+    if isinstance(value_to_write, float):
+        value_bytes = struct.pack('>f', value_to_write)
+        byte0 = value_bytes[0]
+        byte1 = value_bytes[1]
+        byte2 = value_bytes[2]
+        byte3 = value_bytes[3]
+    elif isinstance(value_to_write, int):
+        byte0 = (value_to_write >> 24) & 0xFF
+        byte1 = (value_to_write >> 16) & 0xFF
+        byte2 = (value_to_write >> 8) & 0xFF
+        byte3 = value_to_write & 0xFF
+
+    client.write_multiple_registers(register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    return
 
 
-schreiben(1703, 0)

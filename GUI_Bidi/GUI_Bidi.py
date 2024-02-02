@@ -18,7 +18,10 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker
 from matplotlib import dates as mdates
 from EVTEC_Modbus import evtec_modbus
-from CINERGIA_Modbus import cinergia_modbus
+from CINERGIA_Modbus import cinergia_modbus, cinergia_write_modbus
+
+cinergia_dict = {}
+evtec_dict = {}
 
 global CMS_current_set
 global CNG_voltage_set
@@ -40,16 +43,25 @@ print(regs_2)
 """
 
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
-global cinergia_dict
+
+
+
 def update_cinergia_dict():
+    global cinergia_dict
     cinergia_dict = cinergia_modbus()
     root.after(1000, update_cinergia_dict)
     return
-update_cinergia_dict()
+
+def update_evtec_dict():
+    global evtec_dict
+    evtec_dict = evtec_modbus()
+    root.after(1000, update_evtec_dict)
+    return
+
 
 
 # CNG Output
-# Funktion für den aktuellen Status der CNG
+# Funktion für den aktuellen Status (Grafcet) der CNG
 def update_sw_grafcet_state():
     sw_grafcet_state_label.config(text=f"{cinergia_dict[16000]['def']}")
     if cinergia_dict[16000]['value'] == 2:  # 2: Standby
@@ -80,280 +92,206 @@ def update_sw_grafcet_state():
     root.after(1000, update_sw_grafcet_state)
     return
 
-### SICHERHEITSABFRAGEN
+### SICHERHEITSABFRAGEN ###
+
+
+# CNG Output
+def update_sw_ac_dc_selector_u():
+    sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16006]['def']}")
+    # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
+    root.after(1000, update_sw_ac_dc_selector_u)
+    return
+# Für die Phasen v (16008) und w (16010) ist dies nicht mehr nötig, da sich im parallel 1 channel- und unipolar mode
+# sowieso alle drei Phasen gleich verhalten (Branch_Control = Unified) Gegenprüfen???????????????????????????????????????
+
+
+# CNG Output
+def update_sw_ge_el_selector():
+    sw_ge_el_selector_label.config(text=f"{cinergia_dict[16012]['def']}")
+    # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE; noch unklar, ob nutzbar
+    root.after(1000, update_sw_ge_el_selector)
+    return
+
 
 # CNG Output
 def update_sw_output_connection():
     sw_output_connection_label.config(text=f"{cinergia_dict[16014]['def']}")
-    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    # Entspricht vermutlich 1:1 der Drehschalter Position; 0: independent 3 channel, 1: parallel 1 channel
     root.after(1000, update_sw_output_connection)
     return
 
+
 # CNG Output
 def update_sw_bipolar():
-    if client.open():
-        sw_bipolar_register = 16018  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Unipolar, 1: Bipolar
-
-        status_bytes = client.read_holding_registers(sw_bipolar_register, 2)
-        if status_bytes:
-            global sw_bipolar  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            sw_bipolar = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "Unipolar",
-                1: "Bipolar",
-            }
-            sw_bipolar_label.config(text=f"   {status_translation.get(sw_bipolar, 'Unbekannt')}")
-        else:
-            sw_bipolar_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        sw_bipolar_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Bipolar-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
+    sw_bipolar_label.config(text=f"{cinergia_dict[16018]['def']}")
+    # Entspricht vermutlich 1:1 der Drehschalter Position; 0: unipolar, 1: bipolar
     root.after(1000, update_sw_bipolar)
     return
 
-# CNG Output
-def update_sw_ge_el_selector():
-    if client.open():
-        sw_ge_el_selector_register = 16012  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE
-
-        status_bytes = client.read_holding_registers(sw_ge_el_selector_register, 2)
-        if status_bytes:
-            global sw_ge_el_selector  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            sw_ge_el_selector = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "EL",
-                1: "GE",
-            }
-            sw_ge_el_selector_label.config(text=f"   {status_translation.get(sw_ge_el_selector, 'Unbekannt')}")
-        else:
-            sw_ge_el_selector_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        sw_ge_el_selector_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_sw_ge_el_selector)
-    return
-
-# CNG Output
-def update_sw_ac_dc_selector_u():
-    if client.open():
-        sw_ac_dc_selector_u_register = 16006  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
-
-        status_bytes = client.read_holding_registers(sw_ac_dc_selector_u_register, 2)
-        if status_bytes:
-            global sw_ac_dc_selector_u  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            sw_ac_dc_selector_u = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "DC",
-                1: "AC",
-            }
-            sw_ac_dc_selector_u_label.config(text=f"   {status_translation.get(sw_ac_dc_selector_u, 'Unbekannt')}")
-        else:
-            sw_ac_dc_selector_u_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        sw_ac_dc_selector_u_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_sw_ac_dc_selector_u)
-    return
-
-# CNG Output
-def update_sw_ac_dc_selector_v():
-    if client.open():
-        sw_ac_dc_selector_v_register = 16008  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
-
-        status_bytes = client.read_holding_registers(sw_ac_dc_selector_v_register, 2)
-        if status_bytes:
-            global sw_ac_dc_selector_v  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            sw_ac_dc_selector_v = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "DC",
-                1: "AC",
-            }
-            sw_ac_dc_selector_v_label.config(text=f"   {status_translation.get(sw_ac_dc_selector_v, 'Unbekannt')}")
-        else:
-            sw_ac_dc_selector_v_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        sw_ac_dc_selector_v_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_sw_ac_dc_selector_v)
-    return
-
-# CNG Output
-def update_sw_ac_dc_selector_w():
-    if client.open():
-        sw_ac_dc_selector_w_register = 16020  # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
-
-        status_bytes = client.read_holding_registers(sw_ac_dc_selector_w_register, 2)
-        if status_bytes:
-            global sw_ac_dc_selector_w  # Variable die für Sicherheitsbedingungen in anderen Funktionen genutzt werden kann
-            sw_ac_dc_selector_w = (status_bytes[0] << 8) | status_bytes[1]
-
-            status_translation = {
-                0: "Unified",
-                1: "Seperated",
-            }
-            sw_ac_dc_selector_w_label.config(text=f"   {status_translation.get(sw_ac_dc_selector_w, 'Unbekannt')}")
-        else:
-            sw_ac_dc_selector_w_label.config(text="Fehler beim Lesen der Register.")
-    else:
-        sw_ac_dc_selector_w_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Output Connection-Status (Drehschalter) periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_sw_ac_dc_selector_w)
-    return
 
 #
 #
 # CNG Output
-# Funktion zum Auslesen der aktuellen Spannung zw. U und N (EuT-Side)
+# Funktion zum Auslesen der aktuellen Spannung U-NEG (EuT-Side)
 def update_voltage_un():
-    if client.open():
-        voltage_un_register = 26094
-
-        voltage_bytes = client.read_holding_registers(voltage_un_register, 2)
-        if voltage_bytes:
-            if len(voltage_bytes) == 2:
-                msb = voltage_bytes[0] # Wert des MSB-Registers
-                lsb = voltage_bytes[1] # Wert des LSB-Registers
-
-                # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
-                combined_value = (msb << 16) | lsb
-
-                # Konvertiere den kombinierten Wert in den Datentyp float32
-                global voltage_un # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
-                voltage_un = struct.unpack('!f', struct.pack('!I', combined_value))[0]
-
-                voltage_un_label.config(text="{0:.2f}".format(voltage_un)) # Anzeige auf 2 Dezimalstellen
-            else:
-                voltage_un_label.config(text='Fehler beim Lesen des Registers')
-
-    else:
-        voltage_un_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
+    global cinergia_dict
+    voltage_un_label.config(text=f"{cinergia_dict[26094]['value']}")  # Anzeige auf 2 Dezimalstellen
+    # if client.open():
+    #     voltage_un_register = 26094
+    #     voltage_bytes = client.read_holding_registers(voltage_un_register, 2)
+    #     if voltage_bytes:
+    #         if len(voltage_bytes) == 2:
+    #             msb = voltage_bytes[0] # Wert des MSB-Registers
+    #             lsb = voltage_bytes[1] # Wert des LSB-Registers
+    #
+    #             # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
+    #             combined_value = (msb << 16) | lsb
+    #
+    #             # Konvertiere den kombinierten Wert in den Datentyp float32
+    #             global voltage_un # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
+    #             voltage_un = struct.unpack('!f', struct.pack('!I', combined_value))[0]
+    #
+    #             voltage_un_label.config(text="{0:.2f}".format(voltage_un)) # Anzeige auf 2 Dezimalstellen
+    #         else:
+    #             voltage_un_label.config(text='Fehler beim Lesen des Registers')
+    #
+    # else:
+    #     voltage_un_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+    #
+    # # Hier wird der aktuelle Spannungswert UN periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_voltage_un)
     return
 
 # CNG Output
 # Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
 def update_current_total():
-    if client.open():
-        current_total_register = 26106
-
-        current_bytes = client.read_holding_registers(current_total_register, 2)
-        if current_bytes:
-            if len(current_bytes) == 2:
-                msb = current_bytes[0]  # Wert des MSB-Registers
-                lsb = current_bytes[1]  # Wert des LSB-Registers
-
-                # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
-                combined_value = (msb << 16) | lsb
-
-                # Konvertiere den kombinierten Wert in den Datentyp float32
-                global current_total  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
-                current_total = struct.unpack('!f', struct.pack('!I', combined_value))[0]
-
-                current_total_label.config(text="{0:.2f}".format(current_total))  # Anzeige auf 2 Dezimalstellen
-            else:
-                current_total_label.config(text='Fehler beim Lesen des Registers')
-
-    else:
-        current_total_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Stromwert periodisch abgefragt. Zyklus hier ist 1000 ms
+    global cinergia_dict
+    current_total_label.config(text=f"{cinergia_dict[26106]['value']}")  # Anzeige auf 2 Dezimalstellen
+    # if client.open():
+    #     current_total_register = 26106
+    #
+    #     current_bytes = client.read_holding_registers(current_total_register, 2)
+    #     if current_bytes:
+    #         if len(current_bytes) == 2:
+    #             msb = current_bytes[0]  # Wert des MSB-Registers
+    #             lsb = current_bytes[1]  # Wert des LSB-Registers
+    #
+    #             # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
+    #             combined_value = (msb << 16) | lsb
+    #
+    #             # Konvertiere den kombinierten Wert in den Datentyp float32
+    #             global current_total  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
+    #             current_total = struct.unpack('!f', struct.pack('!I', combined_value))[0]
+    #
+    #             current_total_label.config(text="{0:.2f}".format(current_total))  # Anzeige auf 2 Dezimalstellen
+    #         else:
+    #             current_total_label.config(text='Fehler beim Lesen des Registers')
+    #
+    # else:
+    #     current_total_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+    #
+    # # Hier wird der aktuelle Stromwert periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_current_total)
     return
 
 # CNG Output
 # Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
 def update_power_total():
-    if client.open():
-        power_total_register = 26120
-
-        power_bytes = client.read_holding_registers(power_total_register, 2)
-        if power_bytes:
-            if len(power_bytes) == 2:
-                msb = power_bytes[0]  # Wert des MSB-Registers
-                lsb = power_bytes[1]  # Wert des LSB-Registers
-
-                # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
-                combined_value = (msb << 16) | lsb
-
-                # Konvertiere den kombinierten Wert in den Datentyp float32
-                global power_total  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
-                power_total = struct.unpack('!f', struct.pack('!I', combined_value))[0]
-
-                power_total_label.config(
-                    text="{0:.2f}".format(power_total))  # Anzeige auf 2 Dezimalstellen
-            else:
-                power_total_label.config(text='Fehler beim Lesen des Registers')
-
-    else:
-        power_total_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
-
-    # Hier wird der aktuelle Leistungswert periodisch abgefragt. Zyklus hier ist 1000 ms
+    global cinergia_dict
+    power_total_label.config(text=f"{cinergia_dict[26120]['value']}")   # Anzeige auf 2 Dezimalstellen
+    # if client.open():
+    #     power_total_register = 26120
+    #
+    #     power_bytes = client.read_holding_registers(power_total_register, 2)
+    #     if power_bytes:
+    #         if len(power_bytes) == 2:
+    #             msb = power_bytes[0]  # Wert des MSB-Registers
+    #             lsb = power_bytes[1]  # Wert des LSB-Registers
+    #
+    #             # Kombiniere die beiden Werte in einen 32-Bit-Wert (Big-Endian)
+    #             combined_value = (msb << 16) | lsb
+    #
+    #             # Konvertiere den kombinierten Wert in den Datentyp float32
+    #             global power_total  # Variable die für Bedingungen in anderen Funktionen genutzt werden kann
+    #             power_total = struct.unpack('!f', struct.pack('!I', combined_value))[0]
+    #
+    #             power_total_label.config(
+    #                 text="{0:.2f}".format(power_total))  # Anzeige auf 2 Dezimalstellen
+    #         else:
+    #             power_total_label.config(text='Fehler beim Lesen des Registers')
+    #
+    # else:
+    #     power_total_label.config(text="Verbindung zum Modbus-Server fehlgeschlagen.")
+    #
+    # # Hier wird der aktuelle Leistungswert periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(1000, update_power_total)
     return
 
 # CNG Input
 # Funktionen für die Schaltflächen
 def enable_cng():
-    if client.open() and sw_grafcet_state == 2:
-        enable_disable_cng_register = 17000
+    if cinergia_dict[16000]['value'] == 2:  # 2: Standby
+        cinergia_write_modbus(17000, 1, 'int')
 
-        value_to_write = 1
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-        print("Schaltfläche Enable_CNG betätigt")
+    # if client.open() and sw_grafcet_state == 2:
+    #     enable_disable_cng_register = 17000
+    #
+    #     value_to_write = 1
+    #     byte0 = (value_to_write >> 24) & 0xFF
+    #     byte1 = (value_to_write >> 16) & 0xFF
+    #     byte2 = (value_to_write >> 8) & 0xFF
+    #     byte3 = value_to_write & 0xFF
+    #
+    #     client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    #     print("Schaltfläche Enable_CNG betätigt")
     return
 
 # CNG Input
 def disable_cng():
-    if client.open() and sw_grafcet_state >= 4:
-        enable_disable_cng_register = 17000
+    if cinergia_dict[16000]['value'] >= 4:  # 4: Ready; 5: Run; 6: Warning; 7: Alarm
+        cinergia_write_modbus(17000, 0, 'int')
 
-        value_to_write = 0
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
-
-        client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-    print("Schaltfläche Disable_CNG betätigt")
+    # if client.open() and sw_grafcet_state >= 4:
+    #     enable_disable_cng_register = 17000
+    #
+    #     value_to_write = 0
+    #     byte0 = (value_to_write >> 24) & 0xFF
+    #     byte1 = (value_to_write >> 16) & 0xFF
+    #     byte2 = (value_to_write >> 8) & 0xFF
+    #     byte3 = value_to_write & 0xFF
+    #
+    #     client.write_multiple_registers(enable_disable_cng_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    # print("Schaltfläche Disable_CNG betätigt")
     return
 
 # CNG Input
 def reset_alarm_warning():
     ## ---> Hier noch überlegen, ob Ladevorgang bei Status Alarm automatisch abgebrochen werden soll? Das Gleiche für Status Warning überlegen! ##
-    if client.open() and sw_grafcet_state == 6 or sw_grafcet_state ==7: # Status 6 = Warning, Status 7 = Alarm
-        start_charging_button.config(state="normal")
-
-        reset_register = 17018
-
-        # Sequenz erstellen
-        sequence = [0, 1, 0]
-
-        values = [sequence[0] << 8 | sequence[1], sequence[1] << 8 | sequence[2]]
-
-        # Werte in das Register schreiben
-        client.write_multiple_registers(reset_register, values)
-
-        print("Schaltfläche Reset betätigt")
-        print("Sequenz [0, 1, 0] wurde erfolgreich in das Modbus-Register geschrieben.")
-
-    else:
-        print("Sequenz [0, 1, 0] wurde nicht in das Register geschrieben!")
+    if cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:    # 6: Warning; 7: Alarm
+        cinergia_write_modbus(17018, 0, 'int')  # Sequenz erstellen: [0, 1, 0]
+        time.sleep(1)
+        cinergia_write_modbus(17018, 1, 'int')
+        time.sleep(1)
+        cinergia_write_modbus(17018, 0, 'int')
+        time.sleep(1)
+    # if client.open() and sw_grafcet_state == 6 or sw_grafcet_state ==7: # Status 6 = Warning, Status 7 = Alarm
+    #     start_charging_button.config(state="normal")
+    #
+    #     reset_register = 17018
+    #
+    #
+    #     sequence = [0, 1, 0]
+    #
+    #     values = [sequence[0] << 8 | sequence[1], sequence[1] << 8 | sequence[2]]
+    #
+    #     # Werte in das Register schreiben
+    #     client.write_multiple_registers(reset_register, values)
+    #
+    #     print("Schaltfläche Reset betätigt")
+    #     print("Sequenz [0, 1, 0] wurde erfolgreich in das Modbus-Register geschrieben.")
+    #
+    # else:
+    #     print("Sequenz [0, 1, 0] wurde nicht in das Register geschrieben!")
     return
 
 # Interne Funktion
@@ -416,37 +354,40 @@ def power_calculation(current_ch, current_dch, CNG_voltage_set):
 def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt bei jeder Betätigung des Dropdown-Menüs aufgerufen wird!
     update_operation_combo_states()  # Aufruf einer weiteren Funktion, um Aktivierung/Deaktivierung von Schaltflächen und Dropdown-Menüs je nach Dropdown-Auswahl von "Control Operation" zu steuern
     # Wird diese Funktion nicht auskommentiert, kommt es zu Fehlermeldung
-    control_operation_ph_u_write_register = 17004
+    cinergia_write_modbus(17004, 0, 'int')  # Einstellen von u (v, w) als Voltage Source: 0
 
-    value_to_write = 0 # Einstellen als Voltage Source: 0
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
 
-    client.write_multiple_registers(control_operation_ph_u_write_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-    mode_translation = {
-        0: "Voltage Source",
-    }
-
-    control_operation_ph_u_read_register = 16022
-    operation_bytes = client.read_holding_registers(control_operation_ph_u_read_register,2)  # Lesen von 2 16-Bit-Registern
-    control_operation_ph_u_read = (operation_bytes[0] << 8) | operation_bytes[1]
-
-    print(f"Control Operation Ph U: {mode_translation.get(control_operation_ph_u_read, 'Unbekannt')}")
-
-    control_operation_ph_v_read_register = 16024
-    operation_bytes = client.read_holding_registers(control_operation_ph_v_read_register,2)  # Lesen von 2 16-Bit-Registern
-    control_operation_ph_v_read = (operation_bytes[0] << 8) | operation_bytes[1]
-
-    print(f"Control Operation Ph V: {mode_translation.get(control_operation_ph_v_read, 'Unbekannt')}")
-
-    control_operation_ph_w_read_register = 16026
-    operation_bytes = client.read_holding_registers(control_operation_ph_w_read_register,2)  # Lesen von 2 16-Bit-Registern
-    control_operation_ph_w_read = (operation_bytes[0] << 8) | operation_bytes[1]
-
-    print(f"Control Operation Ph W: {mode_translation.get(control_operation_ph_w_read, 'Unbekannt')}")
+    # control_operation_ph_u_write_register = 17004
+    #
+    # value_to_write = 0 # Einstellen als Voltage Source: 0
+    # byte0 = (value_to_write >> 24) & 0xFF
+    # byte1 = (value_to_write >> 16) & 0xFF
+    # byte2 = (value_to_write >> 8) & 0xFF
+    # byte3 = value_to_write & 0xFF
+    #
+    # client.write_multiple_registers(control_operation_ph_u_write_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    #
+    # mode_translation = {
+    #     0: "Voltage Source",
+    # }
+    #
+    # control_operation_ph_u_read_register = 16022
+    # operation_bytes = client.read_holding_registers(control_operation_ph_u_read_register,2)  # Lesen von 2 16-Bit-Registern
+    # control_operation_ph_u_read = (operation_bytes[0] << 8) | operation_bytes[1]
+    #
+    # print(f"Control Operation Ph U: {mode_translation.get(control_operation_ph_u_read, 'Unbekannt')}")
+    #
+    # control_operation_ph_v_read_register = 16024
+    # operation_bytes = client.read_holding_registers(control_operation_ph_v_read_register,2)  # Lesen von 2 16-Bit-Registern
+    # control_operation_ph_v_read = (operation_bytes[0] << 8) | operation_bytes[1]
+    #
+    # print(f"Control Operation Ph V: {mode_translation.get(control_operation_ph_v_read, 'Unbekannt')}")
+    #
+    # control_operation_ph_w_read_register = 16026
+    # operation_bytes = client.read_holding_registers(control_operation_ph_w_read_register,2)  # Lesen von 2 16-Bit-Registern
+    # control_operation_ph_w_read = (operation_bytes[0] << 8) | operation_bytes[1]
+    #
+    # print(f"Control Operation Ph W: {mode_translation.get(control_operation_ph_w_read, 'Unbekannt')}")
     return
 
 
@@ -454,74 +395,76 @@ def control_operation_selected(event):  # event-Argument hier wichtig, damit Fkt
 ### FUNKTIONEN, DIE ÜBER IF-BEDINGUNGEN IN DER FKT VON DER SCHALTFLÄCHE "START CHARGING" AUFGERUFEN WIRD ###
 def charge_control_voltage_static():
 
-    print("Aufruf Fkt charge_control_voltage_static()")
-    # Kontrolle der Richtigkeit (Phasen schalten, wenn es keine gibt?)
-    ### Zuerst alle 3 Phasen einschalten. Stromwert aus Dropdown-Auswahl fließt über jede einzelne Phase! ###
+    # print("Aufruf Fkt charge_control_voltage_static()")
+    # # Kontrolle der Richtigkeit (Phasen schalten, wenn es keine gibt?)
+    # ### Zuerst alle 3 Phasen einschalten. Stromwert aus Dropdown-Auswahl fließt über jede einzelne Phase! ###
+    #
+    # # Phase U einschalten
+    # on_off_ph_u_register = 17010
+    #
+    # value_to_write = 0
+    # byte0 = (value_to_write >> 24) & 0xFF
+    # byte1 = (value_to_write >> 16) & 0xFF
+    # byte2 = (value_to_write >> 8) & 0xFF
+    # byte3 = value_to_write & 0xFF
+    #
+    # client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    #
+    # # Phase V einschalten
+    # on_off_ph_v_register = 17012
+    #
+    # value_to_write = 0
+    # byte0 = (value_to_write >> 24) & 0xFF
+    # byte1 = (value_to_write >> 16) & 0xFF
+    # byte2 = (value_to_write >> 8) & 0xFF
+    # byte3 = value_to_write & 0xFF
+    #
+    # client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    #
+    # # Phase W einschalten
+    # on_off_ph_w_register = 17014
+    #
+    # value_to_write = 0
+    # byte0 = (value_to_write >> 24) & 0xFF
+    # byte1 = (value_to_write >> 16) & 0xFF
+    # byte2 = (value_to_write >> 8) & 0xFF
+    # byte3 = value_to_write & 0xFF
+    #
+    # client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    #
+    # time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat alle Phasen einzuschalten
 
-    # Phase U einschalten
-    on_off_ph_u_register = 17010
+    cinergia_write_modbus(27666, CNG_voltage_set, 'float')
+    cinergia_write_modbus(17020, 1, 'int')
 
-    value_to_write = 0
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(on_off_ph_u_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-    # Phase V einschalten
-    on_off_ph_v_register = 17012
-
-    value_to_write = 0
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(on_off_ph_v_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-    # Phase W einschalten
-    on_off_ph_w_register = 17014
-
-    value_to_write = 0
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(on_off_ph_w_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-    time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat alle Phasen einzuschalten
-
-
-    magnitude_voltage_dc_global_sp_register = 27666
-    value_to_write = CNG_voltage_set
-    print(value_to_write)
-
-    # Umwandeln des Gleitkommawertes in 4 Bytes im Big-Endian-Format
-    value_bytes = struct.pack('>f', value_to_write)
-
-    # Extrahieren der Bytes in der richtigen Reihenfolge
-    byte0 = value_bytes[0]
-    byte1 = value_bytes[1]
-    byte2 = value_bytes[2]
-    byte3 = value_bytes[3]
-
-    # Schreiben der Bytes in die Register
-    client.write_multiple_registers(magnitude_voltage_dc_global_sp_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-
-
-    # Selektierte Spannungsvorgabe senden
-    trigger_config_register = 17020
-
-    value_to_write = 1
-
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    # magnitude_voltage_dc_global_sp_register = 27666
+    # value_to_write = CNG_voltage_set
+    # print(value_to_write)
+    #
+    # # Umwandeln des Gleitkommawertes in 4 Bytes im Big-Endian-Format
+    # value_bytes = struct.pack('>f', value_to_write)
+    #
+    # # Extrahieren der Bytes in der richtigen Reihenfolge
+    # byte0 = value_bytes[0]
+    # byte1 = value_bytes[1]
+    # byte2 = value_bytes[2]
+    # byte3 = value_bytes[3]
+    #
+    # # Schreiben der Bytes in die Register
+    # client.write_multiple_registers(magnitude_voltage_dc_global_sp_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+    #
+    #
+    # # Selektierte Spannungsvorgabe senden
+    # trigger_config_register = 17020
+    #
+    # value_to_write = 1
+    #
+    # byte0 = (value_to_write >> 24) & 0xFF
+    # byte1 = (value_to_write >> 16) & 0xFF
+    # byte2 = (value_to_write >> 8) & 0xFF
+    # byte3 = value_to_write & 0xFF
+    #
+    # client.write_multiple_registers(trigger_config_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     return
 
 # CNG Input
@@ -529,7 +472,7 @@ def charge_control_voltage_static():
 def start_charging():
     charge_control_voltage_static()  # Aufruf Funktion
     print("Funktion charge_control_voltage_static() erfolgreich aufgerufen")
-    if client.open() and sw_grafcet_state >= 4: # Status 4 = Ready, Status 5 = Run
+    if client.open() and cinergia_dict[16000]['value'] >= 4: # Status 4 = Ready, Status 5 = Run
 
         run_ready_register = 17002
 
@@ -543,7 +486,7 @@ def start_charging():
         print("Schaltfläche Start Charging betätigt")
         time.sleep(1)
 
-        if sw_grafcet_state == 4:
+        if cinergia_dict[16000]['value'] == 4:
             time.sleep(1)  # Hier Wartezeit, damit CNG ausreichend Zeit hat in Status "Run" zu gehen
 
             charge_control_voltage_static()  # Aufruf Funktion
@@ -552,16 +495,7 @@ def start_charging():
 
 # CNG Input
 def stop_charging():
-    run_ready_register = 17002
-
-    value_to_write = 0
-    byte0 = (value_to_write >> 24) & 0xFF
-    byte1 = (value_to_write >> 16) & 0xFF
-    byte2 = (value_to_write >> 8) & 0xFF
-    byte3 = value_to_write & 0xFF
-
-    client.write_multiple_registers(run_ready_register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
-    print("Schaltfläche Stop Charging betätigt")
+    cinergia_write_modbus(17002, 0, 'int')
     return
 
 # Sicherheitskriterien von RaPi abfragen:
@@ -589,9 +523,33 @@ def stop_charging():
 # while rapi_cng_switch_status == 1 and wago_cng_switch_status == 1:
 
 
+def update_evtec():
+    global evtec_dict
+    j = 0
+    for i in evtec_dict.keys():
+        EVTEC_name = ttk.Label(information_EVTEC_frame_3_0, text=f"{evtec_dict[i]['name']}:")
+        EVTEC_name.grid(row=j, column=0, padx=5, pady=5)
+        EVTEC_def = ttk.Label(information_EVTEC_frame_3_0, text="")
+        if i in [0, 1, 12]:
+            EVTEC_def.config(text=f"{evtec_dict[i]['def']}")
+            EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
+        else:
+            EVTEC_def.config(text=f"{evtec_dict[i]['value']}")
+            EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
+        j += 1
+    root.after(1000, update_evtec)
+    return
+
+
+
 root = tk.Tk()
 root.title("EV-Emulator")
 root.iconbitmap("Logo_Bidi.ico")
+
+update_cinergia_dict()
+update_evtec_dict()
+
+print(cinergia_dict.items())
 
 """
 #get the screen dimension
@@ -614,8 +572,6 @@ root.resizable(False, False)
 root.attributes('-topmost', 1)
 """
 
-#
-#
 ### ERSTE SPALTE ###
 
 # Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
@@ -690,8 +646,6 @@ power_calculation_status_label = ttk.Label(power_calculation_frame, text="")
 power_calculation_status_label.grid(row=9, column=2, padx=5, pady=5)
 power_calculation(CNG_voltage_set, current_dch, current_ch)
 
-#
-#
 ### ZWEITE SPALTE ###
 
 # Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
@@ -746,8 +700,6 @@ update_power_total()  # Aufruf der Funktion, Übergabe an vorherige Label-Variab
 unit_label_power_total = ttk.Label(power_display_frame, text="[W]")
 unit_label_power_total.grid(row=7, column=3, padx=5, pady=5)
 
-#
-#
 ### DRITTE SPALTE ###
 
 # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
@@ -795,44 +747,18 @@ sw_ac_dc_selector_u_label_text.grid(row=7, column=0, padx=5, pady=5)
 sw_ac_dc_selector_u_label = ttk.Label(information_CNG_frame_2_0, text="")
 sw_ac_dc_selector_u_label.grid(row=7, column=1, padx=5, pady=5)
 update_sw_ac_dc_selector_u()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-sw_ac_dc_selector_v_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_V:")
-sw_ac_dc_selector_v_label_text.grid(row=8, column=0, padx=5, pady=5)
-sw_ac_dc_selector_v_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ac_dc_selector_v_label.grid(row=8, column=1, padx=5, pady=5)
-update_sw_ac_dc_selector_v()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-sw_ac_dc_selector_w_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_W:")
-sw_ac_dc_selector_w_label_text.grid(row=9, column=0, padx=5, pady=5)
-sw_ac_dc_selector_w_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ac_dc_selector_w_label.grid(row=9, column=1, padx=5, pady=5)
-update_sw_ac_dc_selector_w()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 information_CNG_frame_2_0.columnconfigure(0, weight=1)
 information_CNG_frame_2_0.columnconfigure(1, weight=1)
 
+### VIERTE SPALTE ###
 
-def update_evtec():
-    j = 0
-    evtec_dict = evtec_modbus()
-    for i in range(120):
-        if i in [0, 1, 2, 3, 5, 7, 9, 11, 12, 17, 19, 21, 55, 59, 61, 63, 65, 120]:
-            EVTEC_name = ttk.Label(information_EVTEC_frame_0_1, text=f"{evtec_dict[i]['name']}:")
-            EVTEC_name.grid(row=j, column=0, padx=5, pady=5)
-            EVTEC_def = ttk.Label(information_EVTEC_frame_0_1, text="")
-            if i in [0, 1, 12]:
-                EVTEC_def.config(text=f"{evtec_dict[i]['def']}")
-                EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
-            else:
-                EVTEC_def.config(text=f"{evtec_dict[i]['value']}")
-                EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
-        j=j+1
-    root.after(1000, update_evtec)
-    return
-
-frame_0_1 = ttk.LabelFrame(text="EVSE")
-frame_0_1.grid(row=0, column=4, padx=10, pady=10, sticky="nsew")
-frame_0_1.columnconfigure(0, weight=1)
-information_EVTEC_frame_0_1 = ttk.LabelFrame(frame_0_1, text="EVTEC Parameter")
-information_EVTEC_frame_0_1.grid(row=1, column=4, padx=10, pady=10, sticky="nsew")
+# Erstellen des Frames_3_0 (4. Haupt-Frame von links) "EVSE"
+frame_3_0 = ttk.LabelFrame(text="EVSE")
+frame_3_0.grid(row=0, column=4, padx=10, pady=10, sticky="nsew")
+frame_3_0.columnconfigure(0, weight=1)
+information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
+information_EVTEC_frame_3_0.grid(row=1, column=4, padx=10, pady=10, sticky="nsew")
 update_evtec()
 
 

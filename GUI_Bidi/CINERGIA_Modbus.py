@@ -126,10 +126,10 @@ def cinergia_modbus():
             1011: "Isolation Device"
         }  # alarm description/error code
         # register3000,13002,13004,13006,13006 & 23000,23002,23004,23006,23008
-        for register in [13000, 13002, 13004, 13006, 13006, 23000, 23002, 23004, 23006, 23008]:
+        for register in [13000, 13002, 13004, 13006, 13008, 23000, 23002, 23004, 23006, 23008]:
             for key in alarm_dict.keys():
                 if cinergia_new[register]['value'] == key:
-                    cinergia_new[register]['dev'] = alarm_dict[key]
+                    cinergia_new[register]['def'] = alarm_dict[key]
 
         # register16000
         var_temp = cinergia_new[16000]['value']
@@ -151,7 +151,7 @@ def cinergia_modbus():
         if var_temp == 0:
             cinergia_new[16006]['def'] = "DC"
         elif var_temp == 1:
-            cinergia_new[16006]['def'] = "AC"
+            cinergia_new[16006]['def'] = "ofihsdviughiaurhdfvcisabcdsg"
 
         # register16012
         var_temp = cinergia_new[16012]['value']

@@ -151,7 +151,7 @@ def cinergia_modbus():
         if var_temp == 0:
             cinergia_new[16006]['def'] = "DC"
         elif var_temp == 1:
-            cinergia_new[16006]['def'] = "ofihsdviughiaurhdfvcisabcdsg"
+            cinergia_new[16006]['def'] = "AC"
 
         # register16012
         var_temp = cinergia_new[16012]['value']

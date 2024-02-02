@@ -188,7 +188,7 @@ def cinergia_write_modbus(register, value_to_write, value_type):
 
     client.open()
 
-    if value_type == float:     # Abfrage nacht type, da float anders umgewandelt wird als integer
+    if value_type == 'float':     # Abfrage nacht type, da float anders umgewandelt wird als integer
         if isinstance(value_to_write, int):
             value_to_write = float(value_to_write)
         value_bytes = struct.pack('>f', value_to_write)
@@ -196,7 +196,7 @@ def cinergia_write_modbus(register, value_to_write, value_type):
         byte1 = value_bytes[1]
         byte2 = value_bytes[2]
         byte3 = value_bytes[3]
-    elif value_type == int:
+    elif value_type == 'int':
         if isinstance(value_to_write, float):
             value_to_write = int(value_to_write)
         byte0 = (value_to_write >> 24) & 0xFF

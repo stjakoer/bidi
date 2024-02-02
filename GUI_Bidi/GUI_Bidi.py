@@ -129,7 +129,7 @@ def update_sw_bipolar():
 # Funktion zum Auslesen der aktuellen Spannung U-NEG (EuT-Side)
 def update_voltage_un():
     global cinergia_dict
-    voltage_un_label.config(text=f"{cinergia_dict[26094]['value']}")  # Anzeige auf 2 Dezimalstellen
+    voltage_un_label.config(text="{:.3f}".format(cinergia_dict[26094]['value']))    # Anzeige auf 2 Dezimalstellen
     root.after(1000, update_voltage_un)
     return
 
@@ -137,7 +137,7 @@ def update_voltage_un():
 # Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
 def update_current_total():
     global cinergia_dict
-    current_total_label.config(text=f"{cinergia_dict[26106]['value']}")  # Anzeige auf 2 Dezimalstellen
+    current_total_label.config(text="{:.3f}".format(cinergia_dict[26106]['value']))  # Anzeige auf 2 Dezimalstellen
     root.after(1000, update_current_total)
     return
 
@@ -145,7 +145,7 @@ def update_current_total():
 # Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
 def update_power_total():
     global cinergia_dict
-    power_total_label.config(text=f"{cinergia_dict[26120]['value']}")   # Anzeige auf 2 Dezimalstellen
+    power_total_label.config(text="{:.3f}".format(cinergia_dict[26120]['value']))   # Anzeige auf 2 Dezimalstellen
     root.after(1000, update_power_total)
     return
 
@@ -198,7 +198,6 @@ def update_operation_combo_states():
         current_ch_static_combo.set("0")
         current_ch_static_combo.config(state="disabled")
         power_calculation(current_ch, current_dch, CNG_voltage_set)
-
     return
 
 # Interne Funktion
@@ -297,14 +296,19 @@ def update_evtec():
         EVTEC_name.grid(row=j, column=0, padx=5, pady=5)
         EVTEC_def = ttk.Label(information_EVTEC_frame_3_0, text="")
         if i in [0, 1, 12]:
+            EVTEC_def.destroy()
             EVTEC_def.config(text=f"{evtec_dict[i]['def']}")
             EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
         else:
             EVTEC_def.config(text=f"{evtec_dict[i]['value']}")
+            # EVTEC_def.config(text="{:.3f}".format(evtec_dict[i]['value']))
             EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
         j += 1
     root.after(1000, update_evtec)
     return
+
+
+
 
 
 

@@ -15,13 +15,14 @@ def evtec_modbus():
                           (12, 1, 'ConnectorType'),
                           (17, 2, 'ChargeTime'),
                           (19, 2, 'ChargedEnergy'),
-                          (21, 2, 'DischargedEnergy'),
+                          #(21, 2, 'DischargedEnergy'),
                           (55, 4, 'Error'),
                           (59, 2, 'TotalBatteryCapacity'),
                           (61, 2, 'RemainingBatteryCapacity'),
                           (63, 2, 'MinimalBatteryCapacity'),
                           (65, 2, 'BulkChargeCapacity'),
-                          (120, 12, 'EVCC ID')]  # (register,länge,name)
+                          #(120, 12, 'EVCC ID')
+                          ]  # (register,länge,name)
 
     client.open()
 

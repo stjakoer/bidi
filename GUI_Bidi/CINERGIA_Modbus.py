@@ -163,9 +163,9 @@ def cinergia_modbus():
         # register16014
         var_temp = cinergia_new[16014]['value']
         if var_temp == 0:
-            cinergia_new[16014]['def'] = "Independent 3 Channel"
+            cinergia_new[16014]['def'] = "Independent"
         elif var_temp == 1:
-            cinergia_new[16014]['def'] = "Parallel 1 Channel"
+            cinergia_new[16014]['def'] = "  Parallel "
 
         # register16018
         var_temp = cinergia_new[16018]['value']

@@ -144,12 +144,12 @@ def cinergia_modbus():
             14: "Temperature INV",
             15: "Room Temperature",
             16: "INV Alarmed",
-            17: "Isolation Device Overload",
-            18: "Precharge SD Error",
-            19: "Mains Lost",
-            20: "Device not initialized",
-            # Bits 21 to 31 are reserved (RSVD)
-            21: "RSVD",
+            17: "Isolation Device",
+            18: "Overload Precharge",
+            19: "SD Error",
+            20: "Mains Lost",
+            21: "Device not initialized",
+            # Bits 22 to 31 are reserved (RSVD)
             22: "RSVD",
             23: "RSVD",
             24: "RSVD",
@@ -160,7 +160,7 @@ def cinergia_modbus():
             29: "RSVD",
             30: "RSVD",
             31: "RSVD"
-        } # warining description
+        }  # warning description
 
         # register3000,13002,13004,13006,13006 & 23000,23002,23004,23006,23008
         for register in [13000, 13002, 13004, 13006, 13008, 23000, 23002, 23004, 23006, 23008]:
@@ -230,7 +230,7 @@ def cinergia_write_modbus(register, value_to_write, value_type):
 
     client.open()
 
-    if value_type == 'float':     # Abfrage nacht type, da float anders umgewandelt wird als integer
+    if value_type == 'float':  # Abfrage nacht type, da float anders umgewandelt wird als integer
         if isinstance(value_to_write, int):
             value_to_write = float(value_to_write)
         value_bytes = struct.pack('>f', value_to_write)

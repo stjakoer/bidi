@@ -20,6 +20,7 @@ def cinergia_modbus():
                           (23004, 2, 'Alarm_INV_3', 'int'),
                           (23006, 2, 'Alarm_INV_4', 'int'),
                           (23008, 2, 'Alarm_INV_5', 'int'),
+                          (23010, 2, 'Waring_Vector_INV', 'int'),
                           (26094, 2, 'Voltage_Output_U_RMS', 'float'),
                           (26106, 2, 'Current_Output_Global', 'float'),
                           (26120, 2, 'Power_Active_Output_Total', 'float')]
@@ -125,11 +126,52 @@ def cinergia_modbus():
             1010: "Mains Lost",
             1011: "Isolation Device"
         }  # alarm description/error code
+        warning_dict = {
+            0: "WatchDog",
+            1: "Heart Bit",
+            2: "Emergency_Sequence",
+            3: "Drivers PhR",
+            4: "Drivers PhS",
+            5: "Drivers PhT",
+            6: "DCLink OverVolage",
+            7: "DCLink UnderVoltage",
+            8: "AC OverVoltage",
+            9: "AC UnderVoltage",
+            10: "AC Overcurrent RMS",
+            11: "AC Overcurrent Peak",
+            12: "OverLoad",
+            13: "Heatsink Temperature ABR",
+            14: "Temperature INV",
+            15: "Room Temperature",
+            16: "INV Alarmed",
+            17: "Isolation Device Overload",
+            18: "Precharge SD Error",
+            19: "Mains Lost",
+            20: "Device not initialized",
+            # Bits 21 to 31 are reserved (RSVD)
+            21: "RSVD",
+            22: "RSVD",
+            23: "RSVD",
+            24: "RSVD",
+            25: "RSVD",
+            26: "RSVD",
+            27: "RSVD",
+            28: "RSVD",
+            29: "RSVD",
+            30: "RSVD",
+            31: "RSVD"
+        } # warining description
+
         # register3000,13002,13004,13006,13006 & 23000,23002,23004,23006,23008
         for register in [13000, 13002, 13004, 13006, 13008, 23000, 23002, 23004, 23006, 23008]:
             for key in alarm_dict.keys():
                 if cinergia_new[register]['value'] == key:
                     cinergia_new[register]['def'] = alarm_dict[key]
+
+        # register 23010 Warnung definieren
+        for key in warning_dict.keys():
+            if cinergia_new[23010]['value'] == key:
+                cinergia_new[23010]['def'] = warning_dict[key]
 
         # register16000
         var_temp = cinergia_new[16000]['value']

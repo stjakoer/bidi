@@ -6,11 +6,11 @@ import time
 
 # Konstanten für den Ladevorgang
 EVMaxCurrent = 50
-EVMaxVoltage = 350
-EVMaxPower = 350 * 50
+EVMaxVoltage = 450
+EVMaxPower = 450 * 50
 
-EVPreChargeVoltage = 305
-EVTargetVoltage = 300
+EVPreChargeVoltage = 405
+EVTargetVoltage = 400
 EVTargetCurrent = 10
 
 EVSoC = 50

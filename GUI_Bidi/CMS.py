@@ -1,4 +1,4 @@
-cms_dict = {
+cms_read_dict = {
     "Linkstatus": None,
     "ErrorCodeLevel3": None,
     "ErrorCodeLevel2": None,
@@ -26,4 +26,19 @@ cms_dict = {
     "EVSEPeakCurrentRipple": None,
     "EVSEMinVoltage": None,
     "EVSEMaxCurrent": None
+}
+
+cms_write_dict = {
+    "EVEnergyRequest": None,
+    "EVEnergyCapacity": None,
+    "EVWeldingDetectionEnable": None,
+    "EVReady": None,
+    "ChargeStopIndication": None,
+    "ChargeProgressIndication": None,
+    "EVSoC": None,
+    "EVPreChargeVoltage": None,
+    "EVTargetVoltage": None,
+    "EVTargetCurrent": None,
+    "EVMaxVoltage": None,
+    "EVMaxCurrent": None
 }

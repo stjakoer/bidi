@@ -46,7 +46,7 @@ def update_cinergia_dict():
 def update_evtec_dict():
     global evtec_dict
     evtec_dict = evtec_modbus()
-    root.after(5000, update_evtec_dict)
+    root.after(2000, update_evtec_dict)
     return
 
 
@@ -236,6 +236,7 @@ def current_ch_static_combo_selected(event):
     power_calculation()
     return
 
+
 # Interne Funktion
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_dch_static_combo_selected(event):
@@ -246,6 +247,7 @@ def current_dch_static_combo_selected(event):
     # Anzeige der erwarteten Entladeleistung:
     power_calculation()# Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
     return
+
 
 # Interne Funktion
 # Prüfung der Leistung
@@ -261,6 +263,7 @@ def power_calculation():
         power_ok = True
     return
 
+
 # CNG Input
 # Funktionen für Schaltflächen
 def start_charging():
@@ -273,12 +276,14 @@ def start_charging():
         print("Erfolgreich gestartet.")
     return
 
+
 # CNG Input
 def stop_charging():
     cinergia_write_modbus(17002, 0, 'int')
     return
 
 ### Sicherheitskriterien von RaPi abfragen ###
+
 
 def rapi_cng_switch_test():
     global rapi_cng_switch_status
@@ -292,16 +297,12 @@ def rapi_cng_switch_test():
     return
 
 
-
-
-
-
 def update_evtec():
     global evtec_dict
     j = 0
     for i in evtec_dict.keys():
         EVTEC_name = ttk.Label(information_EVTEC_frame_3_0, text=f"{evtec_dict[i]['name']}:")
-        EVTEC_name.grid(row=j, column=0, padx=5, pady=5)
+        EVTEC_name.grid(row=j, column=0, padx=5, pady=2)
         EVTEC_def = ttk.Label(information_EVTEC_frame_3_0, text="")
 
         existing_widget = information_EVTEC_frame_3_0.grid_slaves(row=j, column=1)
@@ -309,13 +310,13 @@ def update_evtec():
             existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
         if i in [0, 1, 12]:
             EVTEC_def.config(text=f"{evtec_dict[i]['def']}")
-            EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
+            EVTEC_def.grid(row=j, column=1, padx=5, pady=2)
         else:
             if isinstance(evtec_dict[i]['value'], float):
                 EVTEC_def.config(text=f"{evtec_dict[i]['value']:.3f}")
             else:
                 EVTEC_def.config(text=f"{evtec_dict[i]['value']}")
-            EVTEC_def.grid(row=j, column=1, padx=5, pady=5)
+            EVTEC_def.grid(row=j, column=1, padx=5, pady=2)
         j += 1
 
     root.after(5000, update_evtec)
@@ -357,11 +358,13 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     root.resizable(False, False)
     root.attributes('-topmost', 1)
     """
-
+    notebook = ttk.Notebook(root)
+    tab1 = ttk.Frame(notebook)
+    tab2 = ttk.Frame(notebook)
     ### ERSTE SPALTE ###
 
     # Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
-    frame_0_0 = ttk.LabelFrame(text="Charge Parameter")
+    frame_0_0 = ttk.LabelFrame(tab1, text="Charge Parameter")
     frame_0_0.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
     frame_0_0.columnconfigure(0, weight=1)
 
@@ -434,7 +437,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     ### ZWEITE SPALTE ###
 
     # Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
-    frame_1_0 = ttk.LabelFrame(text="Controllable Load")
+    frame_1_0 = ttk.LabelFrame(tab1, text="Controllable Load")
     frame_1_0.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
     frame_1_0.columnconfigure(1, weight=1)
 
@@ -508,7 +511,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     ### DRITTE SPALTE ###
 
     # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
-    frame_2_0 = ttk.LabelFrame(text="Charge Process")
+    frame_2_0 = ttk.LabelFrame(tab1, text="Charge Process")
     frame_2_0.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
     frame_2_0.columnconfigure(2, weight=1)
 
@@ -559,12 +562,16 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     ### VIERTE SPALTE ###
 
     # Erstellen des Frames_3_0 (4. Haupt-Frame von links) "EVSE"
-    frame_3_0 = ttk.LabelFrame(text="EVSE")
-    frame_3_0.grid(row=0, column=4, padx=10, pady=10, sticky="nsew")
+    frame_3_0 = ttk.LabelFrame(tab2, text="EVSE")
+    frame_3_0.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
     frame_3_0.columnconfigure(0, weight=1)
     information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
-    information_EVTEC_frame_3_0.grid(row=1, column=4, padx=10, pady=10, sticky="nsew")
+    information_EVTEC_frame_3_0.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
     update_evtec()
+
+    notebook.add(tab1, text="Tab1")
+    notebook.add(tab2, text="Tab2")
+    notebook.pack(expand=True, fill='both')
 
 
     # Starten der GUI

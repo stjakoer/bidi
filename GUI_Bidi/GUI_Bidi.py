@@ -124,20 +124,29 @@ def update_sw_bipolar():
     return
 
 def update_alarm_abr():
-    alarm_ABR_1_label.config(text=f"{cinergia_dict[13000]['def']}")
-    alarm_ABR_2_label.config(text=f"{cinergia_dict[13002]['def']}")
-    alarm_ABR_3_label.config(text=f"{cinergia_dict[13004]['def']}")
-    alarm_ABR_4_label.config(text=f"{cinergia_dict[13006]['def']}")
-    alarm_ABR_5_label.config(text=f"{cinergia_dict[13008]['def']}")
+    alarm_def_ABR[0].config(text=f"{cinergia_dict[13000]['def']}")
+    alarm_def_ABR[1].config(text=f"{cinergia_dict[13002]['def']}")
+    alarm_def_ABR[2].config(text=f"{cinergia_dict[13004]['def']}")
+    alarm_def_ABR[3].config(text=f"{cinergia_dict[13006]['def']}")
+    alarm_def_ABR[4].config(text=f"{cinergia_dict[13008]['def']}")
     root.after(1000, update_alarm_abr)
     return
 
+# def update_alarm_inv():
+#     alarm_INV_1_label.config(text=f"{cinergia_dict[23000]['def']}")
+#     alarm_INV_2_label.config(text=f"{cinergia_dict[23002]['def']}")
+#     alarm_INV_3_label.config(text=f"{cinergia_dict[23004]['def']}")
+#     alarm_INV_4_label.config(text=f"{cinergia_dict[23006]['def']}")
+#     alarm_INV_5_label.config(text=f"{cinergia_dict[23008]['def']}")
+#     root.after(1000, update_alarm_inv)
+#     return
+
 def update_alarm_inv():
-    alarm_INV_1_label.config(text=f"{cinergia_dict[23000]['def']}")
-    alarm_INV_2_label.config(text=f"{cinergia_dict[23002]['def']}")
-    alarm_INV_3_label.config(text=f"{cinergia_dict[23004]['def']}")
-    alarm_INV_4_label.config(text=f"{cinergia_dict[23006]['def']}")
-    alarm_INV_5_label.config(text=f"{cinergia_dict[23008]['def']}")
+    alarm_def_INV[0].config(text=f"{cinergia_dict[23000]['def']}")
+    alarm_def_INV[1].config(text=f"{cinergia_dict[23002]['def']}")
+    alarm_def_INV[2].config(text=f"{cinergia_dict[23004]['def']}")
+    alarm_def_INV[3].config(text=f"{cinergia_dict[23006]['def']}")
+    alarm_def_INV[4].config(text=f"{cinergia_dict[23008]['def']}")
     root.after(1000, update_alarm_inv)
     return
 
@@ -313,7 +322,6 @@ def update_evtec():
     return
 
 
-
 cinergia_dict = cinergia_modbus()
 # Sicherheitskriterien von Wago abfragen, 1 = alles richtig, 0 = Fehler:
 wago_cng_switch_status = True
@@ -477,56 +485,25 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     unit_label_power_total = ttk.Label(power_display_frame, text="[W]")
     unit_label_power_total.grid(row=7, column=3, padx=5, pady=5)
 
-    # Erstellen eines Frames "Alarms Grid side [ARB]" im Frame_1_0
-    alarm_ABR_display_frame = ttk.LabelFrame(frame_1_0, text="Alarm Grid side [ABR]")
-    alarm_ABR_display_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
-    # Erstellen eines Labels zur Anzeige der Alarme [ARB] im Frame "alarm_display_frame"
-    alarm_ABR_1_label_text = ttk.Label(alarm_ABR_display_frame, text="Alarm 1:")
-    alarm_ABR_1_label_text.grid(row=9, column=1, padx=5, pady=5)
-    alarm_ABR_1_label = ttk.Label(alarm_ABR_display_frame, text="")
-    alarm_ABR_1_label.grid(row=9, column=2, padx=5, pady=5)
-    alarm_ABR_2_label_text = ttk.Label(alarm_ABR_display_frame, text="Alarm 2:")
-    alarm_ABR_2_label_text.grid(row=10, column=1, padx=5, pady=5)
-    alarm_ABR_2_label = ttk.Label(alarm_ABR_display_frame, text="")
-    alarm_ABR_2_label.grid(row=10, column=2, padx=5, pady=5)
-    alarm_ABR_3_label_text = ttk.Label(alarm_ABR_display_frame, text="Alarm 3:")
-    alarm_ABR_3_label_text.grid(row=11, column=1, padx=5, pady=5)
-    alarm_ABR_3_label = ttk.Label(alarm_ABR_display_frame, text="")
-    alarm_ABR_3_label.grid(row=11, column=2, padx=5, pady=5)
-    alarm_ABR_4_label_text = ttk.Label(alarm_ABR_display_frame, text="Alarm 4:")
-    alarm_ABR_4_label_text.grid(row=12, column=1, padx=5, pady=5)
-    alarm_ABR_4_label = ttk.Label(alarm_ABR_display_frame, text="")
-    alarm_ABR_4_label.grid(row=12, column=2, padx=5, pady=5)
-    alarm_ABR_5_label_text = ttk.Label(alarm_ABR_display_frame, text="Alarm 5:")
-    alarm_ABR_5_label_text.grid(row=13, column=1, padx=5, pady=5)
-    alarm_ABR_5_label = ttk.Label(alarm_ABR_display_frame, text="")
-    alarm_ABR_5_label.grid(row=13, column=2, padx=5, pady=5)
+    #   Funktion zum allgemeinen Erstellen des Alarmfensters
+    def create_alarm_frame(frame, title, row, alarm_dict):
+        alarm_texts = ["Alarm 1:", "Alarm 2:", "Alarm 3:", "Alarm 4:", "Alarm 5:"]
+        alarm_display_frame = ttk.LabelFrame(frame, text=title)
+        alarm_display_frame.grid(row=row, column=0, padx=10, pady=5, sticky="nsew")
+        for i, alarm_text in enumerate(alarm_texts, start=9):
+            alarm_label_text = ttk.Label(alarm_display_frame, text=alarm_text)
+            alarm_label_text.grid(row=i, column=1, padx=5, pady=2)
+            alarm_label = ttk.Label(alarm_display_frame, text="")
+            alarm_label.grid(row=i, column=2, padx=5, pady=2)
+            alarm_dict.append(alarm_label)
+    #   Erstellen des Alarmfensters für ABR
+    alarm_def_ABR = []
+    create_alarm_frame(frame_1_0, "Alarm E.U.T. side [ABR]", 13, alarm_def_ABR)
     update_alarm_abr()  # Aufruf der Funktion, Übergabe an vorherigen 5 Label-Variable (text="")
-
-    # Erstellen eines Frames "Alarm E.U.T. side [INV]" im Frame_1_0
-    alarm_INV_display_frame = ttk.LabelFrame(frame_1_0, text="Alarm E.U.T. side [INV]")
-    alarm_INV_display_frame.grid(row=14, column=0, padx=10, pady=10, sticky="nsew")
-    alarm_INV_1_label_text = ttk.Label(alarm_INV_display_frame, text="Alarm 1:")
-    alarm_INV_1_label_text.grid(row=9, column=1, padx=5, pady=5)
-    alarm_INV_1_label = ttk.Label(alarm_INV_display_frame, text="")
-    alarm_INV_1_label.grid(row=9, column=2, padx=5, pady=5)
-    alarm_INV_2_label_text = ttk.Label(alarm_INV_display_frame, text="Alarm 2:")
-    alarm_INV_2_label_text.grid(row=10, column=1, padx=5, pady=5)
-    alarm_INV_2_label = ttk.Label(alarm_INV_display_frame, text="")
-    alarm_INV_2_label.grid(row=10, column=2, padx=5, pady=5)
-    alarm_INV_3_label_text = ttk.Label(alarm_INV_display_frame, text="Alarm 3:")
-    alarm_INV_3_label_text.grid(row=11, column=1, padx=5, pady=5)
-    alarm_INV_3_label = ttk.Label(alarm_INV_display_frame, text="")
-    alarm_INV_3_label.grid(row=11, column=2, padx=5, pady=5)
-    alarm_INV_4_label_text = ttk.Label(alarm_INV_display_frame, text="Alarm 4:")
-    alarm_INV_4_label_text.grid(row=12, column=1, padx=5, pady=5)
-    alarm_INV_4_label = ttk.Label(alarm_INV_display_frame, text="")
-    alarm_INV_4_label.grid(row=12, column=2, padx=5, pady=5)
-    alarm_INV_5_label_text = ttk.Label(alarm_INV_display_frame, text="Alarm 5:")
-    alarm_INV_5_label_text.grid(row=13, column=1, padx=5, pady=5)
-    alarm_INV_5_label = ttk.Label(alarm_INV_display_frame, text="")
-    alarm_INV_5_label.grid(row=13, column=2, padx=5, pady=5)
-    update_alarm_inv()  # Aufruf der Funktion, Übergabe an vorherigen 5 Label-Variable (text="")
+    #   Erstellen des Alarmfensters für INV
+    alarm_def_INV = []
+    create_alarm_frame(frame_1_0, "Alarm E.U.T. side [INV]", 14, alarm_def_INV)
+    update_alarm_inv()
 
     ### DRITTE SPALTE ###
 

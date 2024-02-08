@@ -20,6 +20,6 @@ def can_bus_reader(bus, db):
 if __name__ == "__main__":
     # Initialisieren Sie den CAN-Bus und die DBC-Datei.
     canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
-    database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
+    database_dbc = cantools.db.load_file("../GUI_Bidi/ISC_CMS_Automotive.dbc")
 
     can_bus_reader(canBus, database_dbc)

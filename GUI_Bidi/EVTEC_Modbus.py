@@ -31,9 +31,9 @@ def evtec_modbus():
         # register 1
         var_temp = evtec_new[1]['value']
         if var_temp == 0:
-            evtec_new[1]['def'] = "Charging process not started (no vehicle connected)"
+            evtec_new[1]['def'] = "Charging process not started \n(no vehicle connected)"
         elif var_temp == 1:
-            evtec_new[1]['def'] = "Connected, waiting for release (by RFID or Local)"
+            evtec_new[1]['def'] = "Connected, waiting for release \n(by RFID or Local)"
         elif var_temp == 2:
             evtec_new[1]['def'] = "Charging process starts"
         elif var_temp == 3:
@@ -41,13 +41,13 @@ def evtec_modbus():
         elif var_temp == 4:
             evtec_new[1]['def'] = "Suspended (loading paused)"
         elif var_temp == 5:
-            evtec_new[1]['def'] = "Charging process successfully completed (vehicle still plugged in)"
+            evtec_new[1]['def'] = "Charging process successfully \ncompleted (vehicle still plugged in)"
         elif var_temp == 6:
-            evtec_new[1]['def'] = "Charging process completed by user (vehicle still plugged in)"
+            evtec_new[1]['def'] = "Charging process completed by \nuser (vehicle still plugged in)"
         elif var_temp == 7:
-            evtec_new[1]['def'] = "Charging ended with error (vehicle still connected)"
+            evtec_new[1]['def'] = "Charging ended with error \n(vehicle still connected)"
         else:
-            evtec_new[1]['def'] = "Couldnt do def!"
+            evtec_new[1]['def'] = "Couldn't do def!"
 
         # register 3
         evtec_new[3]['def'] = "Actual Output Voltage (DC)"
@@ -119,4 +119,3 @@ def evtec_modbus():
 
     return evtec
 
-evtec_modbus = evtec_modbus()

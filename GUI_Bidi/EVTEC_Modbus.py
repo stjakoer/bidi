@@ -2,48 +2,6 @@ def evtec_modbus():
     from pyModbusTCP.client import ModbusClient
     import struct
 
-    evtec = {}
-    client = ModbusClient(host="192.168.178.201", port=5020, unit_id=2)
-    register_addresses = [(0, 1, 'State'),
-                          (1, 1, 'ChargeState'),
-                          (2, 1, 'SessionType'),
-                          (3, 2, 'Voltage'),
-                          (5, 2, 'PowerUInt'),
-                          (7, 2, 'Current'),
-                          (9, 2, 'Power'),
-                          (11, 1, 'SOC'),
-                          (12, 1, 'ConnectorType'),
-                          (17, 2, 'ChargeTime'),
-                          (19, 2, 'ChargedEnergy'),
-                          #(21, 2, 'DischargedEnergy'),
-                          (55, 4, 'Error'),
-                          (59, 2, 'TotalBatteryCapacity'),
-                          (61, 2, 'RemainingBatteryCapacity'),
-                          (63, 2, 'MinimalBatteryCapacity'),
-                          (65, 2, 'BulkChargeCapacity'),
-                          #(120, 12, 'EVCC ID')
-                          ]  # (register,länge,name)
-
-    client.open()
-
-    for address, length, name in register_addresses:
-        regs = client.read_holding_registers(address, length)
-        value = regs
-        if regs:
-            if length == 1:
-                value = regs[0]
-            elif length == 2:
-                value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
-            elif length == 4:
-                value = struct.unpack('>d', struct.pack('>HHHH', *regs))[0]
-            elif length == 12:
-                value = [struct.unpack('>f', struct.pack('>HH', regs[i], regs[i + 1]))[0] for i in range(0, 12, 2)]
-        else:
-            print(f"EVTEC: Fehler beim Lesen des Registers {address}")
-        evtec[address] = {'name': name, 'value': value}
-
-    client.close()
-
     def description(evtec_new):
         # register 0
         var_temp = evtec_new[0]['value']
@@ -114,6 +72,51 @@ def evtec_modbus():
 
         return evtec_new
 
-    evtec = description(evtec)
+    evtec = {}
+    client = ModbusClient(host="192.168.178.201", port=5020, unit_id=2)
+    register_addresses = [(0, 1, 'State'),
+                          (1, 1, 'ChargeState'),
+                          (2, 1, 'SessionType'),
+                          (3, 2, 'Voltage'),
+                          (5, 2, 'PowerUInt'),
+                          (7, 2, 'Current'),
+                          (9, 2, 'Power'),
+                          (11, 1, 'SOC'),
+                          (12, 1, 'ConnectorType'),
+                          (17, 2, 'ChargeTime'),
+                          (19, 2, 'ChargedEnergy'),
+                          # (21, 2, 'DischargedEnergy'),
+                          (55, 4, 'Error'),
+                          (59, 2, 'TotalBatteryCapacity'),
+                          (61, 2, 'RemainingBatteryCapacity'),
+                          (63, 2, 'MinimalBatteryCapacity'),
+                          (65, 2, 'BulkChargeCapacity'),
+                          # (120, 12, 'EVCC ID')
+                          ]  # (register,länge,name)
+
+    if client.open():
+        for address, length, name in register_addresses:
+            regs = client.read_holding_registers(address, length)
+            value = regs
+            if regs:
+                if length == 1:
+                    value = regs[0]
+                elif length == 2:
+                    value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
+                elif length == 4:
+                    value = struct.unpack('>d', struct.pack('>HHHH', *regs))[0]
+                elif length == 12:
+                    value = [struct.unpack('>f', struct.pack('>HH', regs[i], regs[i + 1]))[0] for i in range(0, 12, 2)]
+            else:
+                print(f"EVTEC: Fehler beim Lesen des Registers {address}")
+            evtec[address] = {'name': name, 'value': value}
+
+        client.close()
+
+        evtec = description(evtec)
+    else:
+        print("Verbindung zur EVTEC konnte nicht hergestellt werden!")
 
     return evtec
+
+evtec_modbus = evtec_modbus()

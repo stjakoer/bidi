@@ -6,16 +6,16 @@ import time
 
 # Konstanten für den Ladevorgang
 EVMaxCurrent = 50
-EVMaxVoltage = 450
-EVMaxPower = 450 * 50
+EVMaxVoltage = 350
+EVMaxPower = 350 * 50
 
-EVPreChargeVoltage = 405
-EVTargetVoltage = 400
+EVPreChargeVoltage = 305
+EVTargetVoltage = 300
 EVTargetCurrent = 10
 
 EVSoC = 50
 
-CHARGE_DURATION = 5  # Ladedauer in Sekunden
+CHARGE_DURATION = 40  # Ladedauer in Sekunden
 
 def cms_charge_loop(can_tester):
     # Vorbereitung der CAN-Nachrichten für den Ladevorgang

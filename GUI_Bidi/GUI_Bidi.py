@@ -29,6 +29,7 @@ selected_operation = {}
 power_ok = False
 rapi_cng_switch_status = False
 wago_cng_switch_status = False
+update_time = 5000  # Zeit bis sich jede Funktion wiederholt
 
 # Verbindung zum Modbus-Server herstellen
 #client = ModbusClient(host='192.168.2.149', port=502)
@@ -40,13 +41,13 @@ wago_cng_switch_status = False
 def update_cinergia_dict():
     global cinergia_dict
     cinergia_dict = cinergia_modbus()
-    root.after(2000, update_cinergia_dict)
+    root.after(update_time, update_cinergia_dict)
     return
 
 def update_evtec_dict():
     global evtec_dict
     evtec_dict = evtec_modbus()
-    root.after(2000, update_evtec_dict)
+    root.after(update_time, update_evtec_dict)
     return
 
 
@@ -85,7 +86,7 @@ def update_sw_grafcet_state():
         stop_charging_button.config(state="disable")
         reset_button.config(state="normal")
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(1000, update_sw_grafcet_state)
+    root.after(update_time, update_sw_grafcet_state)
     return
 
 ### SICHERHEITSABFRAGEN ###
@@ -95,7 +96,7 @@ def update_sw_grafcet_state():
 def update_sw_ac_dc_selector_u():
     sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16006]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
-    root.after(1000, update_sw_ac_dc_selector_u)
+    root.after(update_time, update_sw_ac_dc_selector_u)
     return
 # Für die Phasen v (16008) und w (16010) ist dies nicht mehr nötig, da sich im parallel 1 channel- und unipolar mode
 # sowieso alle drei Phasen gleich verhalten (Branch_Control = Unified) Gegenprüfen???????????????????????????????????????
@@ -104,7 +105,7 @@ def update_sw_ac_dc_selector_u():
 def update_sw_ge_el_selector():
     sw_ge_el_selector_label.config(text=f"{cinergia_dict[16012]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE; noch unklar, ob nutzbar
-    root.after(1000, update_sw_ge_el_selector)
+    root.after(update_time, update_sw_ge_el_selector)
     return
 
 
@@ -112,7 +113,7 @@ def update_sw_ge_el_selector():
 def update_sw_output_connection():
     sw_output_connection_label.config(text=f"{cinergia_dict[16014]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: independent 3 channel, 1: parallel 1 channel
-    root.after(1000, update_sw_output_connection)
+    root.after(update_time, update_sw_output_connection)
     return
 
 
@@ -120,7 +121,7 @@ def update_sw_output_connection():
 def update_sw_bipolar():
     sw_bipolar_label.config(text=f"{cinergia_dict[16018]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: unipolar, 1: bipolar
-    root.after(1000, update_sw_bipolar)
+    root.after(update_time, update_sw_bipolar)
     return
 
 def update_alarm_abr():
@@ -129,17 +130,9 @@ def update_alarm_abr():
     alarm_def_ABR[2].config(text=f"{cinergia_dict[13004]['def']}")
     alarm_def_ABR[3].config(text=f"{cinergia_dict[13006]['def']}")
     alarm_def_ABR[4].config(text=f"{cinergia_dict[13008]['def']}")
-    root.after(1000, update_alarm_abr)
+    root.after(update_time, update_alarm_abr)
     return
 
-# def update_alarm_inv():
-#     alarm_INV_1_label.config(text=f"{cinergia_dict[23000]['def']}")
-#     alarm_INV_2_label.config(text=f"{cinergia_dict[23002]['def']}")
-#     alarm_INV_3_label.config(text=f"{cinergia_dict[23004]['def']}")
-#     alarm_INV_4_label.config(text=f"{cinergia_dict[23006]['def']}")
-#     alarm_INV_5_label.config(text=f"{cinergia_dict[23008]['def']}")
-#     root.after(1000, update_alarm_inv)
-#     return
 
 def update_alarm_inv():
     alarm_def_INV[0].config(text=f"{cinergia_dict[23000]['def']}")
@@ -147,7 +140,7 @@ def update_alarm_inv():
     alarm_def_INV[2].config(text=f"{cinergia_dict[23004]['def']}")
     alarm_def_INV[3].config(text=f"{cinergia_dict[23006]['def']}")
     alarm_def_INV[4].config(text=f"{cinergia_dict[23008]['def']}")
-    root.after(1000, update_alarm_inv)
+    root.after(update_time, update_alarm_inv)
     return
 
 # CNG Output
@@ -155,7 +148,7 @@ def update_alarm_inv():
 def update_voltage_un():
     global cinergia_dict
     voltage_un_label.config(text="{:.3f}".format(cinergia_dict[26094]['value']))    # Anzeige auf 2 Dezimalstellen
-    root.after(1000, update_voltage_un)
+    root.after(update_time, update_voltage_un)
     return
 
 # CNG Output
@@ -163,7 +156,7 @@ def update_voltage_un():
 def update_current_total():
     global cinergia_dict
     current_total_label.config(text="{:.3f}".format(cinergia_dict[26106]['value']))  # Anzeige auf 2 Dezimalstellen
-    root.after(1000, update_current_total)
+    root.after(update_time, update_current_total)
     return
 
 # CNG Output
@@ -171,7 +164,7 @@ def update_current_total():
 def update_power_total():
     global cinergia_dict
     power_total_label.config(text="{:.3f}".format(cinergia_dict[26120]['value']))   # Anzeige auf 2 Dezimalstellen
-    root.after(1000, update_power_total)
+    root.after(update_time, update_power_total)
     return
 
 # CNG Input
@@ -319,7 +312,7 @@ def update_evtec():
             EVTEC_def.grid(row=j, column=1, padx=5, pady=2)
         j += 1
 
-    root.after(5000, update_evtec)
+    root.after(update_time, update_evtec)
     return
 
 
@@ -562,12 +555,20 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     ### VIERTE SPALTE ###
 
     # Erstellen des Frames_3_0 (4. Haupt-Frame von links) "EVSE"
-    frame_3_0 = ttk.LabelFrame(tab2, text="EVSE")
+    frame_3_0 = ttk.LabelFrame(tab1, text="EVSE")
     frame_3_0.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
     frame_3_0.columnconfigure(0, weight=1)
     information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
     information_EVTEC_frame_3_0.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
     update_evtec()
+
+    """ Erste Spalte - TAB 2 """
+    frame_0_0_2 = ttk.LabelFrame(tab2, text="CMS")
+    frame_0_0_2.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
+    frame_0_0_2.columnconfigure(0, weight=1)
+    information_CMS_frame = ttk.LabelFrame(frame_0_0_2, text="CMS Parameter")
+    information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
+
 
     notebook.add(tab1, text="Tab1")
     notebook.add(tab2, text="Tab2")

@@ -30,6 +30,7 @@ def cms_read():
     }
     return cms_read_dict
 
+
 cms_write_dict = {
     "EVEnergyRequest": None,
     "EVEnergyCapacity": None,
@@ -45,4 +46,6 @@ cms_write_dict = {
     "EVMaxCurrent": None
 }
 
-def cms_write (name, value):
+
+def cms_write(botschaft, signal, value):
+    can_tester.messages[botschaft][signal] = value

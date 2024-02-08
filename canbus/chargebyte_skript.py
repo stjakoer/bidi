@@ -138,7 +138,7 @@ MAIN
 -------------------------------------------------------------------------------------------------'''
 if __name__ == "__main__":
     # Laden der DBC-Datei und Initialisierung des CAN-Bus
-    database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
+    database_dbc = cantools.db.load_file("../GUI_Bidi/ISC_CMS_Automotive.dbc")
     canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
     tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automotive')
 

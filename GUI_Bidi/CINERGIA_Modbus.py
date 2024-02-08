@@ -2,46 +2,8 @@ def cinergia_modbus():
     from pyModbusTCP.client import ModbusClient
     import struct
 
-    cinergia = {}
-    client = ModbusClient(host="192.168.2.149", port=502)
-    register_addresses = [(13000, 2, 'Alarm_ABR_1', 'int'),
-                          (13002, 2, 'Alarm_ABR_2', 'int'),
-                          (13004, 2, 'Alarm_ABR_3', 'int'),
-                          (13006, 2, 'Alarm_ABR_4', 'int'),
-                          (13008, 2, 'Alarm_ABR_5', 'int'),
-                          (16000, 2, 'SW_GrafcetState', 'int'),
-                          (16006, 2, 'SW_AC_DC_Selector_U', 'int'),
-                          (16012, 2, 'SW_GE_EL_Selector', 'int'),
-                          (16014, 2, 'SW_OutputConnection', 'int'),
-                          (16018, 2, 'SW_Bipolar', 'int'),
-                          (16022, 2, 'SW_ControlOperationU', 'int'),
-                          (23000, 2, 'Alarm_INV_1', 'int'),
-                          (23002, 2, 'Alarm_INV_2', 'int'),
-                          (23004, 2, 'Alarm_INV_3', 'int'),
-                          (23006, 2, 'Alarm_INV_4', 'int'),
-                          (23008, 2, 'Alarm_INV_5', 'int'),
-                          (23010, 2, 'Waring_Vector_INV', 'int'),
-                          (26094, 2, 'Voltage_Output_U_RMS', 'float'),
-                          (26106, 2, 'Current_Output_Global', 'float'),
-                          (26120, 2, 'Power_Active_Output_Total', 'float')]
-
-    client.open()
-
-    for address, length, name, typ in register_addresses:
-        regs = client.read_holding_registers(address, length)
-        value = regs
-        if regs:
-            if typ == 'float':
-                value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
-            elif typ == 'int':
-                value = (regs[0] << 8) | regs[1]
-        else:
-            print(f"Fehler beim Lesen des Registers {address}")
-        cinergia[address] = {'name': name, 'value': value}
-
-    client.close()
-
     def description(cinergia_new):
+
         alarm_dict = {
             0: "No alarm",
             100: "Watchdog",
@@ -218,7 +180,46 @@ def cinergia_modbus():
 
         return cinergia_new
 
-    cinergia = description(cinergia)
+    cinergia = {}
+    client = ModbusClient(host="192.168.2.149", port=502)
+    register_addresses = [(13000, 2, 'Alarm_ABR_1', 'int'),
+                          (13002, 2, 'Alarm_ABR_2', 'int'),
+                          (13004, 2, 'Alarm_ABR_3', 'int'),
+                          (13006, 2, 'Alarm_ABR_4', 'int'),
+                          (13008, 2, 'Alarm_ABR_5', 'int'),
+                          (16000, 2, 'SW_GrafcetState', 'int'),
+                          (16006, 2, 'SW_AC_DC_Selector_U', 'int'),
+                          (16012, 2, 'SW_GE_EL_Selector', 'int'),
+                          (16014, 2, 'SW_OutputConnection', 'int'),
+                          (16018, 2, 'SW_Bipolar', 'int'),
+                          (16022, 2, 'SW_ControlOperationU', 'int'),
+                          (23000, 2, 'Alarm_INV_1', 'int'),
+                          (23002, 2, 'Alarm_INV_2', 'int'),
+                          (23004, 2, 'Alarm_INV_3', 'int'),
+                          (23006, 2, 'Alarm_INV_4', 'int'),
+                          (23008, 2, 'Alarm_INV_5', 'int'),
+                          (23010, 2, 'Waring_Vector_INV', 'int'),
+                          (26094, 2, 'Voltage_Output_U_RMS', 'float'),
+                          (26106, 2, 'Current_Output_Global', 'float'),
+                          (26120, 2, 'Power_Active_Output_Total', 'float')]
+
+    if client.open():
+        for address, length, name, typ in register_addresses:
+            regs = client.read_holding_registers(address, length)
+            value = regs
+            if regs:
+                if typ == 'float':
+                    value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
+                elif typ == 'int':
+                    value = (regs[0] << 8) | regs[1]
+            else:
+                print(f"Fehler beim Lesen des Registers {address}")
+            cinergia[address] = {'name': name, 'value': value}
+
+        client.close()
+        cinergia = description(cinergia)
+    else:
+        print("Verbindung zur Cinergia konnte nicht hergestellt werden!")
 
     return cinergia
 

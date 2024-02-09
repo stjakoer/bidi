@@ -46,8 +46,6 @@ def cms_read():
                 if keys_dict == key_bot:
                     cms_read_dict[keys_dict] = decoded_botschaft[key_bot]
 
-
-
     return cms_read_dict
 
 
@@ -82,6 +80,7 @@ def cms_write(botschaft, signal, value):
 
 
 def cms_userguide():
+
     cms_write('EVStatusControl', 'BCBControl', 'Stop')
 
     print(cms_read())

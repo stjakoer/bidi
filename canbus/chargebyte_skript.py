@@ -1,4 +1,4 @@
-import can.logger
+import can
 import cantools
 import sys
 import traceback
@@ -9,13 +9,15 @@ EVMaxCurrent = 50
 EVMaxVoltage = 450
 EVMaxPower = 450 * 50
 
+# Einstellen der Ladeparameter
 EVPreChargeVoltage = 405
 EVTargetVoltage = 400
 EVTargetCurrent = 10
 
 EVSoC = 50
 
-CHARGE_DURATION = 40  # Ladedauer in Sekunden
+CHARGE_DURATION = 50  # Ladedauer in Sekunden
+
 
 def cms_charge_loop(can_tester):
     # Vorbereitung der CAN-Nachrichten für den Ladevorgang
@@ -32,16 +34,16 @@ def cms_charge_loop(can_tester):
     can_tester.messages['EVPlugStatus']['EVControlPilotDutyCycle'] = 'SNA'
 
     # Initialisierung des Ladevorgangs
-    can_tester.flush_input()
+    can_tester.flush_input()  # CAN Nachrichtenspeicher wird geleert
     assert can_tester.expect('ChargeInfo', timeout=3) is not None, "CME dead?"
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Default'},
                              timeout=3) is not None, "CME not unplugged?"
 
     print('Bitte Ladestecker einstecken....')
 
-    can_tester.flush_input()
+    can_tester.flush_input()  # CAN Nachrichtenspeicher wird geleert
     assert can_tester.expect('ChargeInfo', {'ControlPilotState': 'B'}), "Didn't detect plug-in within 10s"
-    print('Pilot State B detected')
+    print('Pilot State B detected')  # State B --> Vcp = 9V
 
     # ... Weitere Initialisierungs- und Authentifizierungsschritte ...
 
@@ -57,7 +59,7 @@ def cms_charge_loop(can_tester):
     can_tester.messages['EVStatusDisplay']['EVSoC'] = EVSoC
     can_tester.messages['EVStatusControl']['EVReady'] = 'True'
 
-    can_tester.flush_input()
+    can_tester.flush_input()  # CAN Nachrichtenspeicher wird geleert
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Isolation'}, timeout=20)
     print('Isolation')
 
@@ -69,12 +71,13 @@ def cms_charge_loop(can_tester):
     # ... Weitere Schritte des Ladevorgangs ...
 
     # Warten auf Übereinstimmung von Spannung und Strom
-    cnt = 0
+
+    cnt = 0  # count start = 0, wird bei jeder Zählerschleife um 1 erhöht
     matched = False
-    can_tester.flush_input()
+    can_tester.flush_input()  # CAN Nachrichtenspeicher wird geleert
     while not matched:
         charge_info = can_tester.expect('ChargeInfo')
-        if 'VoltageMatch' in charge_info and charge_info['VoltageMatch'] == 'True':
+        if 'VoltageMatch' in charge_info and charge_info['VoltageMatch'] == 'True':  # Abgleich Spannung
             matched = True
         charge_targets = can_tester.expect('EVSEDCStatus')
         current = charge_targets['EVSEPresentCurrent']
@@ -83,7 +86,7 @@ def cms_charge_loop(can_tester):
             voltage = 0.0
         if current == 'SNA':
             current = 0.0
-        print("%10d sec Voltage: %f, Current: %f" % (cnt, voltage, current))
+        print("%10d sec Voltage: %f, Current: %f" % (cnt, voltage, current))  # ??
         time.sleep(0.1)
         cnt += 1
         can_tester.flush_input()
@@ -96,7 +99,7 @@ def cms_charge_loop(can_tester):
     print('Charge')
 
     # Warten während des Ladevorgangs
-    time.sleep(CHARGE_DURATION)
+    time.sleep(CHARGE_DURATION)  # lädt 5 Sekunden, hier vielleicht ziel SoC
 
     # Stoppen des Ladevorgangs
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Stop'
@@ -113,6 +116,7 @@ def cms_charge_loop(can_tester):
     can_tester.flush_input()
     assert can_tester.expect('ChargeInfo', {'ControlPilotState': 'E'})
     # ... Weitere Schritte nach dem Ladevorgang ...
+
 
 def cms_charging(can_tester):
     # Endlose Schleife für kontinuierliches Testen
@@ -131,14 +135,25 @@ def cms_charging(can_tester):
             can_tester.flush_input()
             assert can_tester.expect('ChargeInfo', {'ControlPilotState': 'E'})
 
+        # Nach dem Setzen der Ladeziele
+
+        # can_tester.messages['EVDCChargeTargets']['EVPreChargeVoltage'] = EVPreChargeVoltage
+        # EVPreChargeVoltage = can_tester.messages['EVDCChargeTargets'][EVPreChargeVoltage]
+        print('EVPreChargeVoltage')
+        target_current = can_tester.messages['EVDCChargeTargets']['EVTargetCurrent']
+        print(f"Zielstrom für den Ladevorgang: {target_current} A")
+
+        time.sleep(60)
+
         can_tester.stop()
+
 
 '''-------------------------------------------------------------------------------------------------
 MAIN
 -------------------------------------------------------------------------------------------------'''
 if __name__ == "__main__":
     # Laden der DBC-Datei und Initialisierung des CAN-Bus
-    database_dbc = cantools.db.load_file("../GUI_Bidi/ISC_CMS_Automotive.dbc")
+    database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
     canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
     tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automotive')
 

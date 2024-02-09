@@ -31,14 +31,13 @@ selected_operation = {}
 power_ok = False
 rapi_cng_switch_status = False
 wago_cng_switch_status = False
-update_time = 5000  # Zeit bis sich jede Funktion wiederholt
+update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 
 # Verbindung zum Modbus-Server herstellen
 #client = ModbusClient(host='192.168.2.149', port=502)
 #client.open()
 
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
-
 
 def update_cinergia_dict():
     global cinergia_dict
@@ -52,11 +51,11 @@ def update_evtec_dict():
     root.after(update_time, update_evtec_dict)
     return
 
-# def update_cms_dict():
-#     global cms_dict
-#     cms_dict = cms_read()
-#     root.after(update_time, update_cms_dict)
-#     return
+def update_cms_dict():
+    global cms_dict
+    cms_dict = cms_read()
+    root.after(update_time, update_cms_dict)
+    return
 
 
 # CNG Output
@@ -323,21 +322,19 @@ def update_evtec():
     root.after(update_time, update_evtec)
     return
 
-# def update_cms_frame():
-#     global cms_dict
-#     for keys in cms_dict.keys():
-#         CMS_name = ttk.Label(information_CMS_frame, text=f"{keys}:")
-#         CMS_name.grid(row=j, column=0, padx=5, pady=2)
-#         CMS_value= ttk.Label(information_CMS_frame, text="")
-#
-#         existing_widget = information_CMS_frame.grid_slaves(row=j, column=1)
-#         if existing_widget:
-#             existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
-#
-#         CMS_value.config(text=f"{evtec_dict[keys]}")
-#         CMS_value.grid(row=j, column=1, padx=5, pady=2)
-#     root.after(update_time, update_evtec)
-#     return
+def update_cms_frame():
+    global cms_dict
+    print(cms_dict)
+    j = 0
+    for keys in cms_dict.keys():
+        existing_widget = information_CMS_frame.grid_slaves(row=j, column=0)
+        if existing_widget:
+            existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
+        CMS_name = ttk.Label(information_CMS_frame, text=f"{keys}:      {cms_dict[keys]}",anchor='w')
+        CMS_name.grid(row=j, column=0, padx=5, pady=2, sticky='w')
+        j += 1
+    root.after(update_time, update_cms_frame)
+    return
 
 
 cinergia_dict = cinergia_modbus()
@@ -354,7 +351,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
 
     update_cinergia_dict()
     update_evtec_dict()
-    # update_cms_dict()
+    update_cms_dict()
 
     """
     #get the screen dimension
@@ -527,6 +524,11 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     create_alarm_frame(frame_1_0, "Alarm E.U.T. side [INV]", 14, alarm_def_INV)
     update_alarm_inv()
 
+    warning_frame = ttk.Label(frame_1_0, text="")
+    warning_frame.grid(row=15, column=0, padx=5, pady=5, sticky="nsew")
+    warning_vector_label_text =ttk.Label(warning_frame, text=f"Waring_Vector_INV:  {cinergia_dict[23010]['def']}")
+    warning_vector_label_text.grid(row=16, column=0, padx=5, pady=5)
+
     ### DRITTE SPALTE ###
 
     # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
@@ -589,12 +591,12 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     update_evtec()
 
     """ Erste Spalte - TAB 2 """
-    # frame_0_0_2 = ttk.LabelFrame(tab2, text="CMS")
-    # frame_0_0_2.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
-    # frame_0_0_2.columnconfigure(0, weight=1)
-    # information_CMS_frame = ttk.LabelFrame(frame_0_0_2, text="CMS Parameter")
-    # information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
-    # update_cms_frame()
+    frame_0_0_2 = ttk.LabelFrame(tab2, text="CMS")
+    frame_0_0_2.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
+    frame_0_0_2.columnconfigure(0, weight=1)
+    information_CMS_frame = ttk.LabelFrame(frame_0_0_2, text="CMS Parameter")
+    information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
+    update_cms_frame()
 
 
     notebook.add(tab1, text="Tab1")

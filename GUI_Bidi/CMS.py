@@ -57,20 +57,21 @@ def cms_read():
     return cms_read_dict
 
 
-# cms_write_dict = {
-#     "EVEnergyRequest": None,
-#     "EVEnergyCapacity": None,
-#     "EVWeldingDetectionEnable": None,
-#     "EVReady": None,
-#     "ChargeStopIndication": None,
-#     "ChargeProgressIndication": None,
-#     "EVSoC": None,
-#     "EVPreChargeVoltage": None,
-#     "EVTargetVoltage": None,
-#     "EVTargetCurrent": None,
-#     "EVMaxVoltage": None,
-#     "EVMaxCurrent": None
-# }
+cms_write_dict = {
+    "EVEnergyRequest": {'bot': 'EVDCEnergyLimits', 'value': None},
+    "EVEnergyCapacity": {'bot': 'EVDCEnergyLimits', 'value': None},
+    "EVWeldingDetectionEnable": {'bot': 'EVStatusControl', 'value': None},
+    "EVReady": {'bot': 'EVStatusControl', 'value': None},
+    "ChargeStopIndication": {'bot': 'EVStatusControl', 'value': None},
+    "ChargeProgressIndication": {'bot': 'EVStatusControl', 'value': None},
+    "EVSoC": {'bot': 'EVStatusDisplay', 'value': None},
+    "EVPreChargeVoltage": {'bot': 'EVDCChargeTargets', 'value': None},
+    "EVTargetVoltage": {'bot': 'EVDCChargeTargets', 'value': None},
+    "EVTargetCurrent": {'bot': 'EVDCChargeTargets', 'value': None},
+    "EVMaxVoltage": {'bot': 'EVDCMaxLimits', 'value': None},
+    "EVMaxCurrent": {'bot': 'EVDCMaxLimits', 'value': None}
+}   # dictionary um jedes Signal der Botschaft zuzuordnen
+
 
 def cms_write(botschaft, signal, value):
     canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")

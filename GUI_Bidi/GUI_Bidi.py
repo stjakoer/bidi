@@ -52,11 +52,11 @@ def update_evtec_dict():
     root.after(update_time, update_evtec_dict)
     return
 
-def update_cms_dict():
-    global cms_dict
-    cms_dict = cms_read()
-    root.after(update_time, update_cms_dict)
-    return
+# def update_cms_dict():
+#     global cms_dict
+#     cms_dict = cms_read()
+#     root.after(update_time, update_cms_dict)
+#     return
 
 
 # CNG Output
@@ -323,21 +323,21 @@ def update_evtec():
     root.after(update_time, update_evtec)
     return
 
-def update_cms_frame():
-    global cms_dict
-    for keys in cms_dict.keys():
-        CMS_name = ttk.Label(information_CMS_frame, text=f"{keys}:")
-        CMS_name.grid(row=j, column=0, padx=5, pady=2)
-        CMS_value= ttk.Label(information_CMS_frame, text="")
-
-        existing_widget = information_CMS_frame.grid_slaves(row=j, column=1)
-        if existing_widget:
-            existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
-
-        CMS_value.config(text=f"{evtec_dict[keys]}")
-        CMS_value.grid(row=j, column=1, padx=5, pady=2)
-    root.after(update_time, update_evtec)
-    return
+# def update_cms_frame():
+#     global cms_dict
+#     for keys in cms_dict.keys():
+#         CMS_name = ttk.Label(information_CMS_frame, text=f"{keys}:")
+#         CMS_name.grid(row=j, column=0, padx=5, pady=2)
+#         CMS_value= ttk.Label(information_CMS_frame, text="")
+#
+#         existing_widget = information_CMS_frame.grid_slaves(row=j, column=1)
+#         if existing_widget:
+#             existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
+#
+#         CMS_value.config(text=f"{evtec_dict[keys]}")
+#         CMS_value.grid(row=j, column=1, padx=5, pady=2)
+#     root.after(update_time, update_evtec)
+#     return
 
 
 cinergia_dict = cinergia_modbus()
@@ -354,7 +354,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
 
     update_cinergia_dict()
     update_evtec_dict()
-    update_cms_dict()
+    # update_cms_dict()
 
     """
     #get the screen dimension
@@ -589,12 +589,12 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     update_evtec()
 
     """ Erste Spalte - TAB 2 """
-    frame_0_0_2 = ttk.LabelFrame(tab2, text="CMS")
-    frame_0_0_2.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
-    frame_0_0_2.columnconfigure(0, weight=1)
-    information_CMS_frame = ttk.LabelFrame(frame_0_0_2, text="CMS Parameter")
-    information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
-    update_cms_frame()
+    # frame_0_0_2 = ttk.LabelFrame(tab2, text="CMS")
+    # frame_0_0_2.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
+    # frame_0_0_2.columnconfigure(0, weight=1)
+    # information_CMS_frame = ttk.LabelFrame(frame_0_0_2, text="CMS Parameter")
+    # information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
+    # update_cms_frame()
 
 
     notebook.add(tab1, text="Tab1")

@@ -3,6 +3,9 @@ import time
 import can
 import cantools
 cms_read_dict = {}
+canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
+database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
+tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automotive')
 
 def cms_read():
     global cms_read_dict
@@ -37,8 +40,6 @@ def cms_read():
     }
 
     print(cms_read_dict)
-    canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
-    database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
     start_time = time.time()
     while time.time() - start_time < 0.15:
         raw_message = canBus.recv()
@@ -73,16 +74,6 @@ cms_write_dict = {
 }   # dictionary um jedes Signal der Botschaft zuzuordnen
 
 
-def cms_write(botschaft, signal, value):
-    canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
-    database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
-    tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automotive')
+def cms_write(signal, value):
 
-    tester.messages[botschaft][signal] = value
-
-def cms_userguide():
-
-    cms_write('EVStatusControl', 'BCBControl', 'Stop')
-
-    print(cms_read())
-    return
+    tester.messages[signal] = value

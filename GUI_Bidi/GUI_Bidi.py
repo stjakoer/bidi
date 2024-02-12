@@ -4,10 +4,9 @@ Created on Tue Oct 24 15:37:44 2023
 
 @author: Team-Bidi
 """
-
+import threading
 import tkinter as tk
 from tkinter import ttk
-# from pyModbusTCP.client import ModbusClient
 from tkinter.messagebox import showerror, showwarning, showinfo
 import time
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -18,11 +17,11 @@ from matplotlib import ticker
 from matplotlib import dates as mdates
 from EVTEC_Modbus import evtec_modbus
 from CINERGIA_Modbus import cinergia_modbus, cinergia_write_modbus
-from CMS import cms_read
+from CMS import cms_canbus_listener, start_charging_cms, cms_read_dict_handover
 
-cinergia_dict = {}
-evtec_dict = {}
-cms_dict = {}
+cinergia_dict = {}  # Leeres dictionary für cinergia variablen
+evtec_dict = {}     # Leeres dictionary für evtec variablen
+cms_dict = {}       # Leeres dictionary für cms values
 CMS_current_set = 0
 CNG_voltage_set = 40
 current_ch = 0
@@ -33,11 +32,10 @@ rapi_cng_switch_status = False
 wago_cng_switch_status = False
 update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 
-# Verbindung zum Modbus-Server herstellen
-#client = ModbusClient(host='192.168.2.149', port=502)
-#client.open()
-
+can_bus_thread = threading.Thread(target=cms_canbus_listener, daemon=True)
+can_bus_thread.start()
 ### AKTUALISIERUNG AUSGELESENE WERTE ###
+
 
 def update_cinergia_dict():
     global cinergia_dict
@@ -45,15 +43,17 @@ def update_cinergia_dict():
     root.after(update_time, update_cinergia_dict)
     return
 
+
 def update_evtec_dict():
     global evtec_dict
     evtec_dict = evtec_modbus()
     root.after(update_time, update_evtec_dict)
     return
 
+
 def update_cms_dict():
     global cms_dict
-    cms_dict = cms_read()
+    cms_dict = cms_read_dict_handover()
     root.after(update_time, update_cms_dict)
     return
 
@@ -274,6 +274,8 @@ def start_charging():
         time.sleep(1)
     if cinergia_dict[16000]['value'] == 5:  # 5: Run:
         print("Erfolgreich gestartet.")
+    canbus_start_charging_thread = threading.Thread(target=start_charging_cms, args=(10, 400, 35), daemon=True)
+    canbus_start_charging_thread.start()
     return
 
 
@@ -324,18 +326,16 @@ def update_evtec():
 
 def update_cms_frame():
     global cms_dict
-    print(cms_dict)
     j = 0
     for keys in cms_dict.keys():
         existing_widget = information_CMS_frame.grid_slaves(row=j, column=0)
         if existing_widget:
             existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
-        CMS_name = ttk.Label(information_CMS_frame, text=f"{keys}:      {cms_dict[keys]}",anchor='w')
-        CMS_name.grid(row=j, column=0, padx=5, pady=2, sticky='w')
+        cms_name = ttk.Label(information_CMS_frame, text=f"{keys}:      {cms_dict[keys]}",anchor='w')
+        cms_name.grid(row=j, column=0, padx=5, pady=2, sticky='w')
         j += 1
     root.after(update_time, update_cms_frame)
     return
-
 
 cinergia_dict = cinergia_modbus()
 # Sicherheitskriterien von Wago abfragen, 1 = alles richtig, 0 = Fehler:
@@ -598,11 +598,9 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
     update_cms_frame()
 
-
     notebook.add(tab1, text="Tab1")
     notebook.add(tab2, text="Tab2")
     notebook.pack(expand=True, fill='both')
-
 
     # Starten der GUI
     root.mainloop()
@@ -625,4 +623,5 @@ else:
         ttk.Button(root, text='WAGO: Cinergia falsch eingestellt!', command=lambda:
         showerror(title='Drehschalter der CNG falsch eingestellt', message=f"WAGO: Noch nicht vergeben.")).pack(**options)
     # run the app
+
     root.mainloop()

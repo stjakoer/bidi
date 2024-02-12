@@ -43,8 +43,8 @@ def cms_canbus_listener():
         "EVSEMinVoltage": None,
         "EVSEMaxCurrent": None
     }
-
-    while True:
+    start_time = time.time()
+    while time.time() - start_time < 0.15:
         raw_message = canBus.recv()
         if raw_message is not None:
             coded_message = database_dbc.get_message_by_frame_id(raw_message.arbitration_id)
@@ -76,6 +76,10 @@ cms_write_dict = {
     "EVMaxCurrent": {'bot': 'EVDCMaxLimits', 'value': None}
 }   # dictionary um jedes Signal der Botschaft zuzuordnen
 
+def receive_and_decode_signal(signal_name):
+    cms_canbus_listener()
+    global cms_read_dict
+    return cms_read_dict.get(signal_name)
 
 def start_charging_cms(evcurrent, evvoltage, evsoc):
 
@@ -165,7 +169,7 @@ def start_charging_cms(evcurrent, evvoltage, evsoc):
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Start'
 
     can_tester.flush_input()
-    assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Charge'}, timeout=6)
+    assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Charge'}, timeout=3)
     print('Charge')
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

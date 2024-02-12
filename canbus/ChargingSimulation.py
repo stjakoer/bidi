@@ -543,7 +543,7 @@ class ChargingSimulation:
     def __init__(self):
         # get application path
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        script_dir = os.path.join(script_dir, "../../40_Network")
+        script_dir = os.path.join(script_dir, "")
         # join path -> "application_path + 'DBC_CCL_BCU.db'"
         vcu_dbc_path = os.path.join(script_dir, 'ISC_CMS_Automotive.dbc')
 

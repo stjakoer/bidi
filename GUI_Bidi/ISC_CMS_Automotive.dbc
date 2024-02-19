@@ -1,4 +1,4 @@
-VERSION "1.9.0"
+VERSION "1.8.0"
 
 
 NS_ :
@@ -37,29 +37,6 @@ BU_: VCU CMS
 VAL_TABLE_ EVSENotificationMaxDelay -1 "SNA" ;
 
 
-BO_ 2147488531 VDV261_Vin2_Energy_Stat: 7 VCU
- SG_ VDV261_Vin2 : 48|8@1+ (1,0) [0|255] ""  CMS
- SG_ VDV261_Chrg_Stat : 32|16@1+ (1,0) [0|65535] ""  CMS
- SG_ VDV261_Prec_Eamount : 16|16@1+ (1,0) [0|65535] "kWh"  CMS
- SG_ VDV261_Bat_Eamount : 0|16@1+ (1,0) [0|65535] "kWh"  CMS
-
-BO_ 2147488530 VDV261_Vin1: 8 VCU
- SG_ VDV261_Vin1 : 0|64@1+ (1,0) [0|1.84467440737096E+019] ""  CMS
-
-BO_ 2147488529 VDV261_Vin0: 8 VCU
- SG_ VDV261_Vin0 : 0|64@1+ (1,0) [0|1.84467440737096E+019] ""  CMS
-
-BO_ 2147488784 VDV261_Precondition: 5 CMS
- SG_ VDV261_Ambienttemp : 32|8@1+ (1,-50) [-50|205] "C"  VCU
- SG_ VDV261_Prec_Hvac : 24|2@1+ (1,0) [0|3] ""  VCU
- SG_ VDV261_Prec_Dsrd : 16|8@1+ (1,0) [0|255] ""  VCU
- SG_ VDV261_Driveoff : 0|16@1+ (1,0) [0|65535] "min"  VCU
-
-BO_ 2147488528 VDV261_OdoDuration: 6 VCU
- SG_ VDV261_Prec_Reqtime : 40|8@1+ (1,0) [0|255] "min"  CMS
- SG_ VDV261_Bat_Reqtime : 32|8@1+ (1,0) [0|255] "min"  CMS
- SG_ VDV261_Odo : 0|32@1+ (1,0) [0|4294967295] "km"  CMS
-
 BO_ 2147491846 EVMacAddress: 8 CMS
  SG_ EVMacAddress : 0|48@1+ (1,0) [0|281474976710655] ""  VCU
 
@@ -90,13 +67,13 @@ BO_ 2147488771 EVSEDateTime: 8 CMS
  SG_ EVSEDateTimeNow : 0|64@1+ (1,0) [0|1.84467440737096E+019] ""  VCU
 
 BO_ 2147491844 HardwareStatus: 8 CMS
- SG_ GPIO6Status : 10|2@1+ (1,0) [0|3] ""  VCU
- SG_ GPIO5Status : 8|2@1+ (1,0) [0|3] ""  VCU
- SG_ GPIO4Status : 6|2@1+ (1,0) [0|3] ""  VCU
- SG_ GPIO3Status : 4|2@1+ (1,0) [0|3] ""  VCU
- SG_ GPIO2Status : 2|2@1+ (1,0) [0|3] ""  VCU
- SG_ GPIO1Status : 0|2@1+ (1,0) [0|3] ""  VCU
- SG_ GPIO1ADCValue : 16|12@1+ (1,0) [0|4094] ""  VCU
+ SG_ GPIO6Status : 16|2@1+ (1,0) [0|3] ""  VCU
+ SG_ GPIO5Status : 18|2@1+ (1,0) [0|3] ""  VCU
+ SG_ GPIO4Status : 20|2@1+ (1,0) [0|3] ""  VCU
+ SG_ GPIO3Status : 22|2@1+ (1,0) [0|3] ""  VCU
+ SG_ GPIO2Status : 14|2@1+ (1,0) [0|3] ""  VCU
+ SG_ GPIO1Status : 12|2@1+ (1,0) [0|3] ""  VCU
+ SG_ GPIO1ADCValue : 0|12@1+ (1,0) [0|4094] ""  VCU
 
 BO_ 2147491843 SLACInfo: 8 CMS
  SG_ MeasuredAttenuation : 8|8@1+ (0.5,0) [0|100] "dB"  VCU
@@ -117,7 +94,6 @@ BO_ 2147491842 ErrorCodes: 8 CMS
  SG_ ErrorCodeLevel0 : 0|16@1+ (1,0) [0|65535] ""  VCU
 
 BO_ 2147487744 ChargeInfo: 8 CMS
- SG_ EVSEEnergyTransferType : 40|12@1+ (1,0) [0|4095] "" Vector__XXX
  SG_ BCBStatus : 30|2@1+ (1,0) [0|3] ""  VCU
  SG_ AliveCounter : 36|4@1+ (1,0) [0|15] ""  VCU
  SG_ EVSECompatible : 28|2@1+ (1,0) [0|3] ""  VCU
@@ -246,19 +222,6 @@ CM_ SG_ 2147491842 ErrorCodeLevel2 "Previous error code if an additional error c
 CM_ SG_ 2147491842 ErrorCodeLevel1 "Previous error code if an additional error code has been detected.";
 CM_ SG_ 2147491842 ErrorCodeLevel0 "Newest Error Code or '1' if no error present.";
 CM_ BO_ 2147487744 "This message contains general information about the module operation and the charging state.";
-CM_ SG_ 2147487744 EVSEEnergyTransferType "Transfertype which the EVSE supports
-Bitfield:
-0 AC_1p_core
-1 AC_3p_core
-2 DC_core
-3 DC_extended
-4 DC_combo_core
-5 DC_dual_unique
-6 AC_core1p_DC_extended
-7 AC_single_DC_core
-8 AC_1p_3p_core_DC_extended
-9 AC_core3p_DC_extended
-10 Unsupported";
 CM_ SG_ 2147487744 BCBStatus "It provides current status of B-C-B restart.";
 CM_ SG_ 2147487744 AliveCounter "Continuously incrementing counter to signal that the module's firmware is running.";
 CM_ SG_ 2147487744 EVSECompatible "This signal represents an estimation if the EV and EVSE are compatible. Ex: EVSE can charge only 400V But EV needs 800V then compatibility is false.";
@@ -356,16 +319,6 @@ BA_DEF_DEF_  "CANoeStartDelay" 0;
 BA_DEF_DEF_  "VFrameFormat" "StandardCAN";
 BA_ "BusType" "CAN";
 BA_ "DBName" "ISC_CMS_Automotive";
-BA_ "GenMsgCycleTime" BO_ 2147488531 5000;
-BA_ "VFrameFormat" BO_ 2147488531 1;
-BA_ "GenMsgCycleTime" BO_ 2147488530 5000;
-BA_ "VFrameFormat" BO_ 2147488530 1;
-BA_ "GenMsgCycleTime" BO_ 2147488529 5000;
-BA_ "VFrameFormat" BO_ 2147488529 1;
-BA_ "GenMsgCycleTime" BO_ 2147488784 5000;
-BA_ "VFrameFormat" BO_ 2147488784 1;
-BA_ "GenMsgCycleTime" BO_ 2147488528 5000;
-BA_ "VFrameFormat" BO_ 2147488528 1;
 BA_ "VFrameFormat" BO_ 2147491846 1;
 BA_ "GenMsgCycleTime" BO_ 2147491846 10000;
 BA_ "GenMsgCycleTime" BO_ 2147491845 100;
@@ -412,17 +365,6 @@ BA_ "VFrameFormat" BO_ 2147488512 1;
 BA_ "GenMsgCycleTime" BO_ 2147488512 100;
 BA_ "VFrameFormat" BO_ 2147491841 1;
 BA_ "GenMsgCycleTime" BO_ 2147491841 10000;
-BA_ "GenSigStartValue" SG_ 2147488531 VDV261_Vin2 255;
-BA_ "GenSigStartValue" SG_ 2147488531 VDV261_Chrg_Stat 255;
-BA_ "GenSigStartValue" SG_ 2147488530 VDV261_Vin1 65535;
-BA_ "GenSigStartValue" SG_ 2147488529 VDV261_Vin0 65535;
-BA_ "GenSigStartValue" SG_ 2147488784 VDV261_Ambienttemp 255;
-BA_ "GenSigStartValue" SG_ 2147488784 VDV261_Prec_Hvac 3;
-BA_ "GenSigStartValue" SG_ 2147488784 VDV261_Prec_Dsrd 255;
-BA_ "GenSigStartValue" SG_ 2147488784 VDV261_Driveoff 65535;
-BA_ "GenSigStartValue" SG_ 2147488528 VDV261_Prec_Reqtime 255;
-BA_ "GenSigStartValue" SG_ 2147488528 VDV261_Bat_Reqtime 255;
-BA_ "GenSigStartValue" SG_ 2147488528 VDV261_Odo 65535;
 BA_ "GenSigStartValue" SG_ 2147491846 EVMacAddress 0;
 BA_ "GenSigStartValue" SG_ 2147491845 ConfigGPIO6 0;
 BA_ "GenSigStartValue" SG_ 2147491845 ConfigGPIO5 0;
@@ -444,8 +386,8 @@ BA_ "GenSigStartValue" SG_ 2147491844 GPIO2Status 0;
 BA_ "GenSigStartValue" SG_ 2147491844 GPIO1Status 0;
 BA_ "GenSigStartValue" SG_ 2147491844 GPIO1ADCValue 0;
 BA_ "GenSigStartValue" SG_ 2147491843 MeasuredAttenuation 0;
-BA_ "GenSigStartValue" SG_ 2147491843 LinkStatus 3;
-BA_ "GenSigStartValue" SG_ 2147491843 SLACState 7;
+BA_ "GenSigStartValue" SG_ 2147491843 LinkStatus 0;
+BA_ "GenSigStartValue" SG_ 2147491843 SLACState 0;
 BA_ "GenSigStartValue" SG_ 2147488517 EVEnergyRequest 0;
 BA_ "GenSigStartValue" SG_ 2147488517 EVEnergyCapacity 0;
 BA_ "GenSigStartValue" SG_ 2148073472 BootloaderVersion 0;
@@ -453,56 +395,55 @@ BA_ "GenSigStartValue" SG_ 2147491842 ErrorCodeLevel3 0;
 BA_ "GenSigStartValue" SG_ 2147491842 ErrorCodeLevel2 0;
 BA_ "GenSigStartValue" SG_ 2147491842 ErrorCodeLevel1 0;
 BA_ "GenSigStartValue" SG_ 2147491842 ErrorCodeLevel0 0;
-BA_ "GenSigStartValue" SG_ 2147487744 EVSEEnergyTransferType 4095;
 BA_ "GenSigStartValue" SG_ 2147487744 BCBStatus 0;
-BA_ "GenSigStartValue" SG_ 2147487744 AliveCounter 15;
-BA_ "GenSigStartValue" SG_ 2147487744 EVSECompatible 3;
-BA_ "GenSigStartValue" SG_ 2147487744 VoltageMatch 3;
-BA_ "GenSigStartValue" SG_ 2147487744 ControlPilotState 15;
+BA_ "GenSigStartValue" SG_ 2147487744 AliveCounter 0;
+BA_ "GenSigStartValue" SG_ 2147487744 EVSECompatible 0;
+BA_ "GenSigStartValue" SG_ 2147487744 VoltageMatch 0;
+BA_ "GenSigStartValue" SG_ 2147487744 ControlPilotState 0;
 BA_ "GenSigStartValue" SG_ 2147487744 ControlPilotDutyCycle 0;
-BA_ "GenSigStartValue" SG_ 2147487744 TCPStatus 3;
-BA_ "GenSigStartValue" SG_ 2147487744 ActualChargeProtocol 15;
-BA_ "GenSigStartValue" SG_ 2147487744 SwS2Close 3;
-BA_ "GenSigStartValue" SG_ 2147487744 ProximityPinState 15;
-BA_ "GenSigStartValue" SG_ 2147487744 StateMachineState 15;
-BA_ "GenSigStartValue" SG_ 2147488516 EVACReqStateC 3;
-BA_ "GenSigStartValue" SG_ 2147488516 EVProximityPinState 15;
-BA_ "GenSigStartValue" SG_ 2147488516 EVControlPilotState 15;
+BA_ "GenSigStartValue" SG_ 2147487744 TCPStatus 0;
+BA_ "GenSigStartValue" SG_ 2147487744 ActualChargeProtocol 0;
+BA_ "GenSigStartValue" SG_ 2147487744 SwS2Close 0;
+BA_ "GenSigStartValue" SG_ 2147487744 ProximityPinState 0;
+BA_ "GenSigStartValue" SG_ 2147487744 StateMachineState 0;
+BA_ "GenSigStartValue" SG_ 2147488516 EVACReqStateC 0;
+BA_ "GenSigStartValue" SG_ 2147488516 EVProximityPinState 0;
+BA_ "GenSigStartValue" SG_ 2147488516 EVControlPilotState 0;
 BA_ "GenSigStartValue" SG_ 2147488516 EVControlPilotDutyCycle 0;
 BA_ "GenSigStartValue" SG_ 2147488770 EVSENotificationMaxDelay 0;
 BA_ "GenSigStartValue" SG_ 2147488770 EVSENotification 0;
-BA_ "GenSigStartValue" SG_ 2147488770 EVSEStatusCode 15;
-BA_ "GenSigStartValue" SG_ 2147488770 EVSEPowerLimitAchieved 3;
-BA_ "GenSigStartValue" SG_ 2147488770 EVSEVoltageLimitAchieved 3;
-BA_ "GenSigStartValue" SG_ 2147488770 EVSECurrentLimitAchieved 3;
-BA_ "GenSigStartValue" SG_ 2147488770 EVSEIsolationStatus 7;
-BA_ "GenSigStartValue" SG_ 2147488770 EVSEPresentCurrent 32500;
+BA_ "GenSigStartValue" SG_ 2147488770 EVSEStatusCode 0;
+BA_ "GenSigStartValue" SG_ 2147488770 EVSEPowerLimitAchieved 0;
+BA_ "GenSigStartValue" SG_ 2147488770 EVSEVoltageLimitAchieved 0;
+BA_ "GenSigStartValue" SG_ 2147488770 EVSECurrentLimitAchieved 0;
+BA_ "GenSigStartValue" SG_ 2147488770 EVSEIsolationStatus 0;
+BA_ "GenSigStartValue" SG_ 2147488770 EVSEPresentCurrent 0;
 BA_ "GenSigStartValue" SG_ 2147488770 EVSEPresentVoltage 0;
 BA_ "GenSigStartValue" SG_ 2147488769 EVSECurrentRegulationTolerance 0;
 BA_ "GenSigStartValue" SG_ 2147488769 EVSEPeakCurrentRipple 0;
 BA_ "GenSigStartValue" SG_ 2147488769 EVSEMinVoltage 0;
-BA_ "GenSigStartValue" SG_ 2147488769 EVSEMinCurrent 32500;
+BA_ "GenSigStartValue" SG_ 2147488769 EVSEMinCurrent 0;
 BA_ "GenSigStartValue" SG_ 2147488768 EVSEEnergyToBeDelivered 0;
 BA_ "GenSigStartValue" SG_ 2147488768 EVSEMaxPower 0;
 BA_ "GenSigStartValue" SG_ 2147488768 EVSEMaxVoltage 0;
 BA_ "GenSigStartValue" SG_ 2147488768 EVSEMaxCurrent 0;
 BA_ "GenSigStartValue" SG_ 2147488514 BCBControl 0;
 BA_ "GenSigStartValue" SG_ 2147488514 ChargeProtocolPriority 0;
-BA_ "GenSigStartValue" SG_ 2147488514 EVWeldingDetectionEnable 3;
-BA_ "GenSigStartValue" SG_ 2147488514 EVReady 3;
-BA_ "GenSigStartValue" SG_ 2147488514 ChargeStopIndication 3;
-BA_ "GenSigStartValue" SG_ 2147488514 ChargeProgressIndication 3;
-BA_ "GenSigStartValue" SG_ 2147488515 EVRESSConditioning 3;
+BA_ "GenSigStartValue" SG_ 2147488514 EVWeldingDetectionEnable 0;
+BA_ "GenSigStartValue" SG_ 2147488514 EVReady 0;
+BA_ "GenSigStartValue" SG_ 2147488514 ChargeStopIndication 0;
+BA_ "GenSigStartValue" SG_ 2147488514 ChargeProgressIndication 0;
+BA_ "GenSigStartValue" SG_ 2147488515 EVRESSConditioning 0;
 BA_ "GenSigStartValue" SG_ 2147488515 EVTimeToFullSoC 0;
 BA_ "GenSigStartValue" SG_ 2147488515 EVTimeToBulkSoC 0;
-BA_ "GenSigStartValue" SG_ 2147488515 EVErrorCode 15;
-BA_ "GenSigStartValue" SG_ 2147488515 EVCabinConditioning 3;
-BA_ "GenSigStartValue" SG_ 2147488515 EVBulkChargingComplete 3;
-BA_ "GenSigStartValue" SG_ 2147488515 EVChargingComplete 3;
+BA_ "GenSigStartValue" SG_ 2147488515 EVErrorCode 0;
+BA_ "GenSigStartValue" SG_ 2147488515 EVCabinConditioning 0;
+BA_ "GenSigStartValue" SG_ 2147488515 EVBulkChargingComplete 0;
+BA_ "GenSigStartValue" SG_ 2147488515 EVChargingComplete 0;
 BA_ "GenSigStartValue" SG_ 2147488515 EVSoC 0;
 BA_ "GenSigStartValue" SG_ 2147488513 EVPreChargeVoltage 0;
 BA_ "GenSigStartValue" SG_ 2147488513 EVTargetVoltage 0;
-BA_ "GenSigStartValue" SG_ 2147488513 EVTargetCurrent 32500;
+BA_ "GenSigStartValue" SG_ 2147488513 EVTargetCurrent 0;
 BA_ "GenSigStartValue" SG_ 2147488512 EVBulkSoC 0;
 BA_ "GenSigStartValue" SG_ 2147488512 EVFullSoC 0;
 BA_ "GenSigStartValue" SG_ 2147488512 EVMaxVoltage 0;
@@ -512,9 +453,6 @@ BA_ "GenSigStartValue" SG_ 2147491841 SoftwareVersionConfig 0;
 BA_ "GenSigStartValue" SG_ 2147491841 SoftwareVersionPatch 0;
 BA_ "GenSigStartValue" SG_ 2147491841 SoftwareVersionMinor 0;
 BA_ "GenSigStartValue" SG_ 2147491841 SoftwareVersionMajor 0;
-VAL_ 2147488531 VDV261_Chrg_Stat 255 "SNA" 2 "charging impossible" 1 "charging" 0 "ready to charge" ;
-VAL_ 2147488784 VDV261_Prec_Hvac 3 "SNA" 2 "no hot water, cooling or vent" 1 "hot water & heating" 0 "only warm water & ventilation" ;
-VAL_ 2147488784 VDV261_Prec_Dsrd 255 "SNA" 1 "yes" 0 "no" ;
 VAL_ 2147491845 ConfigGPIO6 3 "SNA" 1 "HIGH" 0 "LOW" ;
 VAL_ 2147491845 ConfigGPIO5 3 "SNA" 1 "HIGH" 0 "LOW" ;
 VAL_ 2147491845 ConfigGPIO4 3 "SNA" 1 "HIGH" 0 "LOW" ;
@@ -532,7 +470,6 @@ VAL_ 2147491843 LinkStatus 3 "SNA" 1 "Up" 0 "Down" ;
 VAL_ 2147491843 SLACState 7 "SNA" 3 "Failed" 2 "Matched" 1 "Matching" 0 "Disconnected" ;
 VAL_ 2147488517 EVEnergyRequest 65535 "SNA" ;
 VAL_ 2147488517 EVEnergyCapacity 65535 "SNA" ;
-VAL_ 2147487744 EVSEEnergyTransferType 4095 "SNA" ;
 VAL_ 2147487744 BCBStatus 2 "Error" 3 "SNA" 1 "Active" 0 "NotActive" ;
 VAL_ 2147487744 AliveCounter 15 "SNA" ;
 VAL_ 2147487744 EVSECompatible 3 "SNA" 2 "Invalid" 1 "True" 0 "False" ;
@@ -587,3 +524,4 @@ VAL_ 2147488512 EVFullSoC 255 "SNA" ;
 VAL_ 2147488512 EVMaxVoltage 65535 "SNA" ;
 VAL_ 2147488512 EVMaxPower 65535 "SNA" ;
 VAL_ 2147488512 EVMaxCurrent 65535 "SNA" ;
+

@@ -82,15 +82,15 @@ def evtec_modbus():
                           (7, 2, 'Current'),
                           (9, 2, 'Power'),
                           (11, 1, 'SOC'),
-                          (12, 1, 'ConnectorType'),
+                          # (12, 1, 'ConnectorType'),
                           (17, 2, 'ChargeTime'),
                           (19, 2, 'ChargedEnergy'),
                           # (21, 2, 'DischargedEnergy'),
                           (55, 4, 'Error'),
-                          (59, 2, 'TotalBatteryCapacity'),
-                          (61, 2, 'RemainingBatteryCapacity'),
-                          (63, 2, 'MinimalBatteryCapacity'),
-                          (65, 2, 'BulkChargeCapacity'),
+                          # (59, 2, 'TotalBatteryCapacity'),
+                          # (61, 2, 'RemainingBatteryCapacity'),
+                          # (63, 2, 'MinimalBatteryCapacity'),
+                          # (65, 2, 'BulkChargeCapacity'),
                           # (120, 12, 'EVCC ID')
                           ]  # (register,länge,name)
 

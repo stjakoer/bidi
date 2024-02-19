@@ -17,7 +17,7 @@ from matplotlib import ticker
 from matplotlib import dates as mdates
 from EVTEC_Modbus import evtec_modbus
 from CINERGIA_Modbus import cinergia_modbus, cinergia_write_modbus
-from CMS import cms_canbus_listener, start_charging_cms, cms_read_dict_handover
+from CMS import cms_canbus_listener, start_charging_cms, cms_read_dict_handover, stop_charging_cms
 
 cinergia_dict = {}  # Leeres dictionary für cinergia variablen
 evtec_dict = {}     # Leeres dictionary für evtec variablen
@@ -54,6 +54,8 @@ def update_evtec_dict():
 def update_cms_dict():
     global cms_dict
     cms_dict = cms_read_dict_handover()
+    if cms_dict['StateMachineState'] == 'Charge':
+        close_contactor_button.config(state="normal")
     root.after(update_time, update_cms_dict)
     return
 
@@ -274,14 +276,24 @@ def start_charging():
         time.sleep(1)
     if cinergia_dict[16000]['value'] == 5:  # 5: Run:
         print("Erfolgreich gestartet.")
-    canbus_start_charging_thread = threading.Thread(target=start_charging_cms, args=(10, 400, 35), daemon=True)
+    canbus_start_charging_thread = threading.Thread(target=start_charging_cms, args=(10, 400), daemon=True)
     canbus_start_charging_thread.start()
     return
 
 
 # CNG Input
 def stop_charging():
+    stop_charging_cms()
+    if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
+        d = 0
+        # befehl zum öffnen der Schütze senden
+        #if schütze offen:
     cinergia_write_modbus(17002, 0, 'int')
+    return
+
+
+def close_contactor():
+    #befehle wago die schütze zu schließen
     return
 
 ### Sicherheitskriterien von RaPi abfragen ###
@@ -328,10 +340,10 @@ def update_cms_frame():
     global cms_dict
     j = 0
     for keys in cms_dict.keys():
-        existing_widget = information_CMS_frame.grid_slaves(row=j, column=0)
+        existing_widget = cms_frame.grid_slaves(row=j, column=0)
         if existing_widget:
             existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
-        cms_name = ttk.Label(information_CMS_frame, text=f"{keys}:      {cms_dict[keys]}",anchor='w')
+        cms_name = ttk.Label(cms_frame, text=f"{keys}:      {cms_dict[keys]}",anchor='w')
         cms_name.grid(row=j, column=0, padx=5, pady=2, sticky='w')
         j += 1
     root.after(update_time, update_cms_frame)
@@ -468,41 +480,32 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     reset_button = ttk.Button(control_frame_1_0, text="Reset", state="disabled", command=reset_alarm_warning)
     reset_button.grid(row=1, column=2, padx=5, pady=5)
 
-    # Erstellen eines weiteren Frames "Voltage EuT-Side" im Frame_1_0
-    voltage_display_frame = ttk.LabelFrame(frame_1_0, text="Voltage EuT-Side")
-    voltage_display_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+    # Erstellen eines weiteren Frames "Stats EuT-Side" im Frame_1_0
+    stats_display_frame = ttk.LabelFrame(frame_1_0, text="Stats Eut-Side")
+    stats_display_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
     # Erstellen eines Labels zur Anzeige von Spannungswerts im "voltage_display_frame"
-    voltage_un_label_text = ttk.Label(voltage_display_frame, text="Voltage U-N:")
+    voltage_un_label_text = ttk.Label(stats_display_frame, text="Voltage U-N:")
     voltage_un_label_text.grid(row=3, column=0, padx=5, pady=5)
-    voltage_un_label = ttk.Label(voltage_display_frame, text="")
+    voltage_un_label = ttk.Label(stats_display_frame, text="")
     voltage_un_label.grid(row=3, column=1, padx=5, pady=5)
     update_voltage_un()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-    unit_label_un = ttk.Label(voltage_display_frame, text="[V_rms]")
+    unit_label_un = ttk.Label(stats_display_frame, text="[V_rms]")
     unit_label_un.grid(row=3, column=2, padx=5, pady=5)
-
-    # Erstellen eines Frames "Current EuT-Side" im Frame_1_0
-    current_display_frame = ttk.LabelFrame(frame_1_0, text="Current EuT-Side")
-    current_display_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
-    # Erstellen eines Labels zur Anzeige des Stromwerts im "current_display_frame"
-    current_total_label_text = ttk.Label(current_display_frame, text="Current total:")
+    current_total_label_text = ttk.Label(stats_display_frame, text="Current total:")
     current_total_label_text.grid(row=5, column=0, padx=5, pady=5)
-    current_total_label = ttk.Label(current_display_frame, text="")
+    current_total_label = ttk.Label(stats_display_frame, text="")
     current_total_label.grid(row=5, column=1, padx=5, pady=5)
     update_current_total()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-    unit_label_current_total = ttk.Label(current_display_frame, text="[A_rms]")
+    unit_label_current_total = ttk.Label(stats_display_frame, text="[A_rms]")
     unit_label_current_total.grid(row=5, column=2, padx=5, pady=5)
-
-    # Erstellen eines Frames "Power EuT-Side" im Frame_1_0
-    power_display_frame = ttk.LabelFrame(frame_1_0, text="Power EuT-Side")
-    power_display_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
-    # Erstellen eines Labels zur Anzeige der Leistung im Frame "power_display_frame"
-    power_total_label_text = ttk.Label(power_display_frame, text="Power total:")
-    power_total_label_text.grid(row=7, column=1, padx=5, pady=5)
-    power_total_label = ttk.Label(power_display_frame, text="")
-    power_total_label.grid(row=7, column=2, padx=5, pady=5)
+    power_total_label_text = ttk.Label(stats_display_frame, text="Power total:")
+    power_total_label_text.grid(row=7, column=0, padx=5, pady=5)
+    power_total_label = ttk.Label(stats_display_frame, text="")
+    power_total_label.grid(row=7, column=1, padx=5, pady=5)
     update_power_total()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
-    unit_label_power_total = ttk.Label(power_display_frame, text="[W]")
-    unit_label_power_total.grid(row=7, column=3, padx=5, pady=5)
+    unit_label_power_total = ttk.Label(stats_display_frame, text="[W]")
+    unit_label_power_total.grid(row=7, column=2, padx=5, pady=5)
+
 
     #   Funktion zum allgemeinen Erstellen des Alarmfensters
     def create_alarm_frame(frame, title, row, alarm_dict):
@@ -547,6 +550,9 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     # Konfigurieren der Spalten, um die Inhalte zu zentrieren
     no_header_frame_2_0.columnconfigure(0, weight=1)
     no_header_frame_2_0.columnconfigure(1, weight=1)
+    close_contactor_button = ttk.Button(no_header_frame_2_0, text="Schütze schließen", state="disabled", command=close_contactor)
+    close_contactor_button.grid(row=2, column=0, padx=5, pady=5)
+
 
     # Erstellen des Frames "Information CNG" im Frame_2_0
     information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
@@ -580,6 +586,11 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     information_CNG_frame_2_0.columnconfigure(0, weight=1)
     information_CNG_frame_2_0.columnconfigure(1, weight=1)
 
+    cms_frame = ttk.LabelFrame(frame_2_0, text="CMS")
+    cms_frame.grid(row=8, column=0, padx=5, pady=2, sticky="nsew")
+    cms_frame.columnconfigure(0, weight=1)
+    update_cms_frame()
+
     ### VIERTE SPALTE ###
 
     # Erstellen des Frames_3_0 (4. Haupt-Frame von links) "EVSE"
@@ -591,12 +602,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     update_evtec()
 
     """ Erste Spalte - TAB 2 """
-    frame_0_0_2 = ttk.LabelFrame(tab2, text="CMS")
-    frame_0_0_2.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
-    frame_0_0_2.columnconfigure(0, weight=1)
-    information_CMS_frame = ttk.LabelFrame(frame_0_0_2, text="CMS Parameter")
-    information_CMS_frame.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
-    update_cms_frame()
+
 
     notebook.add(tab1, text="Tab1")
     notebook.add(tab2, text="Tab2")

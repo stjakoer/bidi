@@ -66,9 +66,11 @@ def receive_and_decode_signal(signal_name):
     global cms_read_dict
     return cms_read_dict.get(signal_name)
 
-def start_charging_cms(evcurrent, evvoltage, evsoc):
 
+def start_charging_cms(evcurrent, evvoltage):
+    evsoc = 54
     can_tester.start()
+
     can_tester.messages['EVStatusControl']['BCBControl'] = 'Stop'
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Stop'
     can_tester.messages['EVStatusControl']['ChargeProtocolPriority'] = 'DIN_only'

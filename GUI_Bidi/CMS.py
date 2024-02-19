@@ -15,31 +15,30 @@ can_tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automo
 def cms_canbus_listener():
     global cms_read_dict
     cms_read_dict = {
-        "Linkstatus": None,
-        "ErrorCodeLevel3": None,
-        "ErrorCodeLevel2": None,
-        "ErrorCodeLevel1": None,
-        "ErrorCodeLevel0": None,
-        "EVSEEnergyTransferType": None,
-        "AliveCounter": None,   #
+        #"Linkstatus": None,
+        #"ErrorCodeLevel3": None,
+        #"ErrorCodeLevel2": None,
+        #"ErrorCodeLevel1": None,
+        #"ErrorCodeLevel0": None,
+        #"EVSEEnergyTransferType": None,
+        #"AliveCounter": None,   #
         "VoltageMatch": None,   #
         "ControlPilotState": None,  #
         "ControlPilotDutyCycle": None,  #
         "TCPStatus": None,
-        "ActualChargeProtocol": None,   #
+        #"ActualChargeProtocol": None,   #
         "ProximityPinState": None,  #
         "StateMachineState": None,  #
-        "EVSENotificationMaxDelay": None,
-        "EVSENotification": None,
-        "EVSEStatusCode": None,
-        "EVSEPowerLimitAchieved": None,
-        "EVSEVoltageLimitAchieved": None,
-        "EVSECurrentLimitAchieved": None,
+        #"EVSENotificationMaxDelay": None,
+        #"EVSENotification": None,
+        #"EVSEStatusCode": None,
+        #"EVSEPowerLimitAchieved": None,
+        #"EVSEVoltageLimitAchieved": None,
+        #"EVSECurrentLimitAchieved": None,
         "EVSEIsolationStatus": None,
-        "EVSEPresentCurrent": None,
         "EVSEPresentVoltage": None,
-        "EVSECurrentRegulationTolerance": None,
-        "EVSEPeakCurrentRipple": None,
+        #"EVSECurrentRegulationTolerance": None,
+        #"EVSEPeakCurrentRipple": None,
         "EVSEMinVoltage": None,
         "EVSEMaxCurrent": None
     }
@@ -58,23 +57,9 @@ def cms_canbus_listener():
 
 def cms_read_dict_handover():
     global cms_read_dict
+    cms_canbus_listener()
     return cms_read_dict
 
-
-cms_write_dict = {
-    "EVEnergyRequest": {'bot': 'EVDCEnergyLimits', 'value': None},
-    "EVEnergyCapacity": {'bot': 'EVDCEnergyLimits', 'value': None},
-    "EVWeldingDetectionEnable": {'bot': 'EVStatusControl', 'value': None},
-    "EVReady": {'bot': 'EVStatusControl', 'value': None},
-    "ChargeStopIndication": {'bot': 'EVStatusControl', 'value': None},
-    "ChargeProgressIndication": {'bot': 'EVStatusControl', 'value': None},
-    "EVSoC": {'bot': 'EVStatusDisplay', 'value': None},
-    "EVPreChargeVoltage": {'bot': 'EVDCChargeTargets', 'value': None},
-    "EVTargetVoltage": {'bot': 'EVDCChargeTargets', 'value': None},
-    "EVTargetCurrent": {'bot': 'EVDCChargeTargets', 'value': None},
-    "EVMaxVoltage": {'bot': 'EVDCMaxLimits', 'value': None},
-    "EVMaxCurrent": {'bot': 'EVDCMaxLimits', 'value': None}
-}   # dictionary um jedes Signal der Botschaft zuzuordnen
 
 def receive_and_decode_signal(signal_name):
     cms_canbus_listener()
@@ -97,7 +82,7 @@ def start_charging_cms(evcurrent, evvoltage, evsoc):
     can_tester.messages['EVPlugStatus']['EVControlPilotDutyCycle'] = 'SNA'
 
     can_tester.flush_input()
-    assert can_tester.expect('ChargeInfo', timeout=3) is not None, "CME dead?"
+    assert can_tester.expect('ChargeInfo', timeout=5) is not None, "CME dead?"
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Default'},
                              timeout=3) is not None, "CME not unplugged?"
 
@@ -172,9 +157,10 @@ def start_charging_cms(evcurrent, evvoltage, evsoc):
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Charge'}, timeout=3)
     print('Charge')
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    can_tester.stop()
 
-    time.sleep(10)
-
+def stop_charging_cms():
+    can_tester.start()
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Stop'
 
     can_tester.messages['EVDCChargeTargets']['EVTargetVoltage'] = 0
@@ -194,6 +180,8 @@ def start_charging_cms(evcurrent, evvoltage, evsoc):
 
 def main():
     start_charging_cms(10, 350, 23)
+    time.sleep(20)
+    stop_charging_cms()
 
 
 if __name__ == "__main__":

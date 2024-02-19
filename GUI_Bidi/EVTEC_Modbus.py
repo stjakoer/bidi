@@ -82,7 +82,7 @@ def evtec_modbus():
                           (7, 2, 'Current'),
                           (9, 2, 'Power'),
                           (11, 1, 'SOC'),
-                          # (12, 1, 'ConnectorType'),
+                          (12, 1, 'ConnectorType'),
                           (17, 2, 'ChargeTime'),
                           (19, 2, 'ChargedEnergy'),
                           # (21, 2, 'DischargedEnergy'),

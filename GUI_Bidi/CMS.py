@@ -1,7 +1,34 @@
 import time
 import can
 import cantools
-cms_read_dict = {}
+cms_read_dict = {
+    # "Linkstatus": None,
+    # "ErrorCodeLevel3": None,
+    # "ErrorCodeLevel2": None,
+    # "ErrorCodeLevel1": None,
+    # "ErrorCodeLevel0": None,
+    # "EVSEEnergyTransferType": None,
+    # "AliveCounter": None,   #
+    "VoltageMatch": None,  #
+    "ControlPilotState": None,  #
+    "ControlPilotDutyCycle": None,  #
+    "TCPStatus": None,
+    # "ActualChargeProtocol": None,   #
+    "ProximityPinState": None,  #
+    "StateMachineState": None,  #
+    # "EVSENotificationMaxDelay": None,
+    # "EVSENotification": None,
+    # "EVSEStatusCode": None,
+    # "EVSEPowerLimitAchieved": None,
+    # "EVSEVoltageLimitAchieved": None,
+    # "EVSECurrentLimitAchieved": None,
+    "EVSEIsolationStatus": None,
+    "EVSEPresentVoltage": None,
+    # "EVSECurrentRegulationTolerance": None,
+    # "EVSEPeakCurrentRipple": None,
+    "EVSEMinVoltage": None,
+    "EVSEMaxCurrent": None
+}
 
 EVMaxCurrent = 25
 EVMaxVoltage = 450
@@ -14,34 +41,7 @@ can_tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automo
 
 def cms_canbus_listener():
     global cms_read_dict
-    cms_read_dict = {
-        #"Linkstatus": None,
-        #"ErrorCodeLevel3": None,
-        #"ErrorCodeLevel2": None,
-        #"ErrorCodeLevel1": None,
-        #"ErrorCodeLevel0": None,
-        #"EVSEEnergyTransferType": None,
-        #"AliveCounter": None,   #
-        "VoltageMatch": None,   #
-        "ControlPilotState": None,  #
-        "ControlPilotDutyCycle": None,  #
-        "TCPStatus": None,
-        #"ActualChargeProtocol": None,   #
-        "ProximityPinState": None,  #
-        "StateMachineState": None,  #
-        #"EVSENotificationMaxDelay": None,
-        #"EVSENotification": None,
-        #"EVSEStatusCode": None,
-        #"EVSEPowerLimitAchieved": None,
-        #"EVSEVoltageLimitAchieved": None,
-        #"EVSECurrentLimitAchieved": None,
-        "EVSEIsolationStatus": None,
-        "EVSEPresentVoltage": None,
-        #"EVSECurrentRegulationTolerance": None,
-        #"EVSEPeakCurrentRipple": None,
-        "EVSEMinVoltage": None,
-        "EVSEMaxCurrent": None
-    }
+
     start_time = time.time()
     while time.time() - start_time < 0.15:
         raw_message = canBus.recv()

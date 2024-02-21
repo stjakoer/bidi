@@ -178,8 +178,6 @@ def cinergia_modbus():
         elif var_temp == 1:
             cinergia_new[16018]['def'] = "Bipolar"
 
-        return cinergia_new
-
         # register16022
         var_temp = cinergia_new[16022]['value']
         if var_temp == 0:
@@ -196,6 +194,7 @@ def cinergia_modbus():
             cinergia_new[16022]['def'] = "Battery Emulation (not used in AC)"
         elif var_temp == 6:
             cinergia_new[16022]['def'] = "PV Emulation (not used in AC)"
+
         return cinergia_new
 
     cinergia = {}

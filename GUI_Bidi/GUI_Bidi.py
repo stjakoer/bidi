@@ -4,6 +4,7 @@ Created on Tue Oct 24 15:37:44 2023
 
 @author: Team-Bidi
 """
+
 import threading
 import tkinter as tk
 from tkinter import ttk
@@ -23,7 +24,7 @@ cinergia_dict = {}  # Leeres dictionary für cinergia variablen
 evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
 CMS_current_set = 0
-CNG_voltage_set = 40
+CNG_voltage_set = 400
 current_ch = 0
 current_dch = 0
 selected_operation = {}
@@ -134,7 +135,7 @@ def update_sw_bipolar():
     return
 
 def update_sw_control_operation_u():
-    sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16022]['def']}")
+    sw_control_operation_u_label.config(text=f"{cinergia_dict[16022]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Voltage Source, 1: Current Source, 2: Power Source, 3: Impedance AC/Resistance DC, usw...
     root.after(update_time, update_sw_control_operation_u)
 def update_alarm_abr():
@@ -280,19 +281,23 @@ def start_charging():
         time.sleep(1)
     if cinergia_dict[16000]['value'] == 5:  # 5: Run:
         print("Erfolgreich gestartet.")
-    canbus_start_charging_thread = threading.Thread(target=start_charging_cms, args=(10, 400), daemon=True)
+    #isowächter aus
+    canbus_start_charging_thread = threading.Thread(target=start_charging_cms, args=(CMS_current_set, CNG_voltage_set), daemon=True)
     canbus_start_charging_thread.start()
+    #schütze schließen
+    #starten ladevorgang
     return
 
 
 # CNG Input
 def stop_charging():
+    cinergia_write_modbus(17002, 0, 'int')      # Bitte erst schütze öffnen bevor man die cinergia ausmacht
     stop_charging_cms()
     if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
         d = 0
         # befehl zum öffnen der Schütze senden
         #if schütze offen:
-    cinergia_write_modbus(17002, 0, 'int')
+
     return
 
 

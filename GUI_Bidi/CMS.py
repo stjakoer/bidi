@@ -181,7 +181,7 @@ def stop_charging_cms():
 
 
 def main():
-    start_charging_cms(10, 350, 23)
+    start_charging_cms(10, 350)
     time.sleep(20)
     stop_charging_cms()
 

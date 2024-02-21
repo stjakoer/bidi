@@ -123,7 +123,7 @@ def start_charging_cms(evcurrent, evvoltage):
     print('Isolation')
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    can_tester.messages['EVDCChargeTargets']['EVPreChargeVoltage'] = evvoltage+5
+    can_tester.messages['EVDCChargeTargets']['EVPreChargeVoltage'] = evvoltage
     can_tester.messages['EVDCChargeTargets']['EVTargetVoltage'] = evvoltage
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = evcurrent
 

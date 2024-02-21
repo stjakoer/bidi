@@ -133,6 +133,10 @@ def update_sw_bipolar():
     root.after(update_time, update_sw_bipolar)
     return
 
+def update_sw_control_operation_u():
+    sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16022]['def']}")
+    # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Voltage Source, 1: Current Source, 2: Power Source, 3: Impedance AC/Resistance DC, usw...
+    root.after(update_time, update_sw_control_operation_u)
 def update_alarm_abr():
     alarm_def_ABR[0].config(text=f"{cinergia_dict[13000]['def']}")
     alarm_def_ABR[1].config(text=f"{cinergia_dict[13002]['def']}")
@@ -582,6 +586,11 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     sw_ac_dc_selector_u_label = ttk.Label(information_CNG_frame_2_0, text="")
     sw_ac_dc_selector_u_label.grid(row=7, column=1, padx=5, pady=5)
     update_sw_ac_dc_selector_u()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+    sw_control_operation_u_label_text = ttk.Label(information_CNG_frame_2_0, text="Control_Operation_U:")
+    sw_control_operation_u_label_text.grid(row=8, column=0, padx=5, pady=5)
+    sw_control_operation_u_label = ttk.Label(information_CNG_frame_2_0, text="")
+    sw_control_operation_u_label.grid(row=8, column=1, padx=5, pady=5)
+    update_sw_control_operation_u()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
     # Konfigurieren der Spalten, um die Inhalte zu zentrieren
     information_CNG_frame_2_0.columnconfigure(0, weight=1)
     information_CNG_frame_2_0.columnconfigure(1, weight=1)

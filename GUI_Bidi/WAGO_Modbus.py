@@ -9,7 +9,7 @@ if client.open():
 else:
     print("Keine Verbindung zur Wago")
 
-if client.write_multiple_registers(1, [1]):
+if client.write_multiple_registers(1, [1]): # immer Array übergeben!
     print("Erfolgreich")
 else:
     print("Fehler")

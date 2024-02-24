@@ -178,6 +178,23 @@ def cinergia_modbus():
         elif var_temp == 1:
             cinergia_new[16018]['def'] = "Bipolar"
 
+        # register16022
+        var_temp = cinergia_new[16022]['value']
+        if var_temp == 0:
+            cinergia_new[16022]['def'] = "Voltage Source"
+        elif var_temp == 1:
+            cinergia_new[16022]['def'] = "Current Source"
+        elif var_temp == 2:
+            cinergia_new[16022]['def'] = "Power Source"
+        elif var_temp == 3:
+            cinergia_new[16022]['def'] = "Impedance AC/Resistance DC"
+        elif var_temp == 4:
+            cinergia_new[16022]['def'] = "Battery Test (not used in AC)"
+        elif var_temp == 5:
+            cinergia_new[16022]['def'] = "Battery Emulation (not used in AC)"
+        elif var_temp == 6:
+            cinergia_new[16022]['def'] = "PV Emulation (not used in AC)"
+
         return cinergia_new
 
     cinergia = {}

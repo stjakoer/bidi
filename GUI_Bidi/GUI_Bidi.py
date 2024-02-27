@@ -19,11 +19,12 @@ from matplotlib import dates as mdates
 from EVTEC_Modbus import evtec_modbus
 from CINERGIA_Modbus import cinergia_modbus, cinergia_write_modbus
 from WAGO_Modbus import wago_modbus, wago_write_modbus
-from CMS import cms_canbus_listener, start_charging_cms, cms_read_dict_handover, stop_charging_cms
+from CMS import cms_canbus_listener, precharge_cms, start_charging_cms, cms_read_dict_handover, stop_charging_cms
 
 cinergia_dict = {}  # Leeres dictionary für cinergia variablen
 evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
+wago_dict = {}      # Leeres dictionary für wago values
 CMS_current_set = 0
 CNG_voltage_set = 400
 current_ch = 0
@@ -31,7 +32,7 @@ current_dch = 0
 selected_operation = {}
 power_ok = False
 rapi_cng_switch_status = False
-wago_cng_switch_status = False
+wago_status_start = False
 update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 
 can_bus_thread = threading.Thread(target=cms_canbus_listener, daemon=True)
@@ -61,6 +62,12 @@ def update_cms_dict():
     root.after(update_time, update_cms_dict)
     return
 
+
+def update_wago_dict():
+    global wago_dict
+    wago_dict = wago_modbus()
+    root.after(update_time, update_wago_dict)
+    return
 
 # CNG Output
 # Funktion für den aktuellen Status (Grafcet) der CNG
@@ -299,13 +306,24 @@ def start_charging():
         time.sleep(1)
     if cinergia_dict[16000]['value'] == 5:  # 5: Run:
         print("Erfolgreich gestartet.")
-    #isowächter aus
-    canbus_start_charging_thread = threading.Thread(target=start_charging_cms, args=(CMS_current_set, CNG_voltage_set), daemon=True)
-    canbus_start_charging_thread.start()
-    #schütze schließen
-    #starten ladevorgang
+    canbus_manage_cms_charging_thread = threading.Thread(target=manage_cms_charging, daemon=True)
+    canbus_manage_cms_charging_thread.start()
+    # damit der ganze "Ladevorgang" in einem extra thread läuft,
+    # damit die GUI sich weiterhin aktualisiert
     return
 
+
+def manage_cms_charging():
+    global wago_dict
+    wago_write_modbus('turn_off_IMD', 1) # IMD abschalten
+    # ggf. isowächter status abfragen, weiß nicht ob das notwendig ist - worst case gibts einen iso fehler
+    # außerdem kann man der Sache bestimmt vertrauen, dass der IMD zuverlässig abgeschaltet wird
+    precharge_cms(CMS_current_set, CNG_voltage_set) # prcharge + parameter übergeben
+    wago_write_modbus('close_contactor', 1)   # schütze schließen
+    time.sleep(1)  # 1 sekunde warten, damit die schütze Zeit haben zum schließen (ist das 1s oder 1ms???)
+    wago_dict = wago_modbus()   # nochmal die aktuellsten werte abfragen, da das dict nur alle paar sek abgefragt wird
+    if wago_dict['contactor_state']['value'] == 1: # 1, wenn die schütze zu sind
+        start_charging_cms()
 
 # CNG Input
 def stop_charging():
@@ -379,12 +397,18 @@ def update_cms_frame():
     return
 
 cinergia_dict = cinergia_modbus()
+wago_dict = wago_modbus()
 # Sicherheitskriterien von Wago abfragen, 1 = alles richtig, 0 = Fehler:
-wago_cng_switch_status = True
+if wago_dict['wago_status']['value'] == 1: # Wago status übersetzung in True oder False
+    wago_status_start = True
+elif wago_dict['wago_status']['value'] is None: # Wenn keine Verbindung, dass sie dennoch startet
+    wago_status_start = True
+else:
+    wago_status_start = False
 rapi_cng_switch_test()
 
 # Erstellen des GUI-Hauptfensters, wenn Sicherheitskriterien erfüllt sind.
-if rapi_cng_switch_status and wago_cng_switch_status:
+if rapi_cng_switch_status and wago_status_start:
 
     root = tk.Tk()
     root.title("EV-Emulator")
@@ -393,6 +417,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     update_cinergia_dict()
     update_evtec_dict()
     update_cms_dict()
+    update_wago_dict()
 
     """
     #get the screen dimension
@@ -417,7 +442,7 @@ if rapi_cng_switch_status and wago_cng_switch_status:
 
     notebook = ttk.Notebook(root)
     tab1 = ttk.Frame(notebook)
-    tab2 = ttk.Frame(notebook)
+    # tab2 = ttk.Frame(notebook)
     ### ERSTE SPALTE ###
 
     # Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
@@ -639,8 +664,8 @@ if rapi_cng_switch_status and wago_cng_switch_status:
     """ Erste Spalte - TAB 2 """
 
 
-    notebook.add(tab1, text="Tab1")
-    notebook.add(tab2, text="Tab2")
+    notebook.add(tab1, text="Startseite")
+    # notebook.add(tab2, text="Tab2")
     notebook.pack(expand=True, fill='both')
 
     # Starten der GUI
@@ -660,7 +685,7 @@ else:
     if not rapi_cng_switch_status:
         ttk.Button(root, text='Raspberry Pi: Cinergia falsch eingestellt!', command=lambda:
         showerror(title='Drehschalter der CNG falsch eingestellt', message=f"RaPi: Alle Drehschalter auf 1!")).pack(**options)
-    if not wago_cng_switch_status:
+    if not wago_status_start:
         ttk.Button(root, text='WAGO: Cinergia falsch eingestellt!', command=lambda:
         showerror(title='Drehschalter der CNG falsch eingestellt', message=f"WAGO: Noch nicht vergeben.")).pack(**options)
     # run the app

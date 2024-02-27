@@ -18,6 +18,7 @@ from matplotlib import ticker
 from matplotlib import dates as mdates
 from EVTEC_Modbus import evtec_modbus
 from CINERGIA_Modbus import cinergia_modbus, cinergia_write_modbus
+from WAGO_Modbus import wago_modbus, wago_write_modbus
 from CMS import cms_canbus_listener, start_charging_cms, cms_read_dict_handover, stop_charging_cms
 
 cinergia_dict = {}  # Leeres dictionary für cinergia variablen
@@ -64,37 +65,38 @@ def update_cms_dict():
 # CNG Output
 # Funktion für den aktuellen Status (Grafcet) der CNG
 def update_sw_grafcet_state():
-    sw_grafcet_state_label.config(text=f"{cinergia_dict[16000]['def']}")
-    if cinergia_dict[16000]['value'] == 2:  # 2: Standby
-        if power_ok and CMS_current_set != 0:
-            enable_button.config(state="normal")
-        else:
-            enable_button.config(state="disable")
-        disable_button.config(state="disable")
-        start_charging_button.config(state="disable")
-        stop_charging_button.config(state="disable")
-        reset_button.config(state="disable")
-    elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
-        enable_button.config(state="disable")
-        disable_button.config(state="normal")
-        if power_ok and CMS_current_set != 0:
-            start_charging_button.config(state="normal")
-        else:
+    if cinergia_dict[16000]['value'] is not None:
+        sw_grafcet_state_label.config(text=f"{cinergia_dict[16000]['def']}")
+        if cinergia_dict[16000]['value'] == 2:  # 2: Standby
+            if power_ok and CMS_current_set != 0:
+                enable_button.config(state="normal")
+            else:
+                enable_button.config(state="disable")
+            disable_button.config(state="disable")
             start_charging_button.config(state="disable")
-        stop_charging_button.config(state="disable")
-        reset_button.config(state="disable")
-    elif cinergia_dict[16000]['value'] == 5:    # 5: Run
-        enable_button.config(state="disable")
-        disable_button.config(state="disable")
-        start_charging_button.config(state="disable")
-        stop_charging_button.config(state="normal")
-        reset_button.config(state="disable")
-    elif cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:  # 6: Warning; 7: Alarm
-        enable_button.config(state="disable")
-        disable_button.config(state="normal")
-        start_charging_button.config(state="disable")
-        stop_charging_button.config(state="disable")
-        reset_button.config(state="normal")
+            stop_charging_button.config(state="disable")
+            reset_button.config(state="disable")
+        elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
+            enable_button.config(state="disable")
+            disable_button.config(state="normal")
+            if power_ok and CMS_current_set != 0:
+                start_charging_button.config(state="normal")
+            else:
+                start_charging_button.config(state="disable")
+            stop_charging_button.config(state="disable")
+            reset_button.config(state="disable")
+        elif cinergia_dict[16000]['value'] == 5:    # 5: Run
+            enable_button.config(state="disable")
+            disable_button.config(state="disable")
+            start_charging_button.config(state="disable")
+            stop_charging_button.config(state="normal")
+            reset_button.config(state="disable")
+        elif cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:  # 6: Warning; 7: Alarm
+            enable_button.config(state="disable")
+            disable_button.config(state="normal")
+            start_charging_button.config(state="disable")
+            stop_charging_button.config(state="disable")
+            reset_button.config(state="normal")
     # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
     root.after(update_time, update_sw_grafcet_state)
     return
@@ -104,7 +106,8 @@ def update_sw_grafcet_state():
 
 # CNG Output
 def update_sw_ac_dc_selector_u():
-    sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16006]['def']}")
+    if cinergia_dict[16006]['value'] is not None:
+        sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16006]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
     root.after(update_time, update_sw_ac_dc_selector_u)
     return
@@ -113,7 +116,8 @@ def update_sw_ac_dc_selector_u():
 
 # CNG Output
 def update_sw_ge_el_selector():
-    sw_ge_el_selector_label.config(text=f"{cinergia_dict[16012]['def']}")
+    if cinergia_dict[16012]['value'] is not None:
+        sw_ge_el_selector_label.config(text=f"{cinergia_dict[16012]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: EL, 1: GE; noch unklar, ob nutzbar
     root.after(update_time, update_sw_ge_el_selector)
     return
@@ -121,7 +125,8 @@ def update_sw_ge_el_selector():
 
 # CNG Output
 def update_sw_output_connection():
-    sw_output_connection_label.config(text=f"{cinergia_dict[16014]['def']}")
+    if cinergia_dict[16014]['value'] is not None:
+        sw_output_connection_label.config(text=f"{cinergia_dict[16014]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: independent 3 channel, 1: parallel 1 channel
     root.after(update_time, update_sw_output_connection)
     return
@@ -129,31 +134,35 @@ def update_sw_output_connection():
 
 # CNG Output
 def update_sw_bipolar():
-    sw_bipolar_label.config(text=f"{cinergia_dict[16018]['def']}")
+    if cinergia_dict[16018]['value'] is not None:
+        sw_bipolar_label.config(text=f"{cinergia_dict[16018]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: unipolar, 1: bipolar
     root.after(update_time, update_sw_bipolar)
     return
 
 def update_sw_control_operation_u():
-    sw_control_operation_u_label.config(text=f"{cinergia_dict[16022]['def']}")
+    if cinergia_dict[16022]['value'] is not None:
+        sw_control_operation_u_label.config(text=f"{cinergia_dict[16022]['def']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: Voltage Source, 1: Current Source, 2: Power Source, 3: Impedance AC/Resistance DC, usw...
     root.after(update_time, update_sw_control_operation_u)
 def update_alarm_abr():
-    alarm_def_ABR[0].config(text=f"{cinergia_dict[13000]['def']}")
-    alarm_def_ABR[1].config(text=f"{cinergia_dict[13002]['def']}")
-    alarm_def_ABR[2].config(text=f"{cinergia_dict[13004]['def']}")
-    alarm_def_ABR[3].config(text=f"{cinergia_dict[13006]['def']}")
-    alarm_def_ABR[4].config(text=f"{cinergia_dict[13008]['def']}")
+    if cinergia_dict[13000]['value'] is not None:
+        alarm_def_ABR[0].config(text=f"{cinergia_dict[13000]['def']}")
+        alarm_def_ABR[1].config(text=f"{cinergia_dict[13002]['def']}")
+        alarm_def_ABR[2].config(text=f"{cinergia_dict[13004]['def']}")
+        alarm_def_ABR[3].config(text=f"{cinergia_dict[13006]['def']}")
+        alarm_def_ABR[4].config(text=f"{cinergia_dict[13008]['def']}")
     root.after(update_time, update_alarm_abr)
     return
 
 
 def update_alarm_inv():
-    alarm_def_INV[0].config(text=f"{cinergia_dict[23000]['def']}")
-    alarm_def_INV[1].config(text=f"{cinergia_dict[23002]['def']}")
-    alarm_def_INV[2].config(text=f"{cinergia_dict[23004]['def']}")
-    alarm_def_INV[3].config(text=f"{cinergia_dict[23006]['def']}")
-    alarm_def_INV[4].config(text=f"{cinergia_dict[23008]['def']}")
+    if cinergia_dict[23000]['value'] is not None:
+        alarm_def_INV[0].config(text=f"{cinergia_dict[23000]['def']}")
+        alarm_def_INV[1].config(text=f"{cinergia_dict[23002]['def']}")
+        alarm_def_INV[2].config(text=f"{cinergia_dict[23004]['def']}")
+        alarm_def_INV[3].config(text=f"{cinergia_dict[23006]['def']}")
+        alarm_def_INV[4].config(text=f"{cinergia_dict[23008]['def']}")
     root.after(update_time, update_alarm_inv)
     return
 
@@ -161,7 +170,10 @@ def update_alarm_inv():
 # Funktion zum Auslesen der aktuellen Spannung U-NEG (EuT-Side)
 def update_voltage_un():
     global cinergia_dict
-    voltage_un_label.config(text="{:.3f}".format(cinergia_dict[26094]['value']))    # Anzeige auf 2 Dezimalstellen
+    if cinergia_dict[26094]['value'] is None: # Abfrage ob None oder ob ein Wert gelesen werden konnte
+        voltage_un_label.config(text="None")
+    else:
+        voltage_un_label.config(text="{:.3f}".format(cinergia_dict[26094]['value']))    # Anzeige auf 2 Dezimalstellen
     root.after(update_time, update_voltage_un)
     return
 
@@ -169,7 +181,10 @@ def update_voltage_un():
 # Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
 def update_current_total():
     global cinergia_dict
-    current_total_label.config(text="{:.3f}".format(cinergia_dict[26106]['value']))  # Anzeige auf 2 Dezimalstellen
+    if cinergia_dict[26106]['value'] is None:   # Abfrage ob None oder ob ein Wert gelesen werden konnte
+        current_total_label.config(text="None")
+    else:
+        current_total_label.config(text="{:.3f}".format(cinergia_dict[26106]['value']))  # Anzeige auf 2 Dezimalstellen
     root.after(update_time, update_current_total)
     return
 
@@ -177,7 +192,10 @@ def update_current_total():
 # Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
 def update_power_total():
     global cinergia_dict
-    power_total_label.config(text="{:.3f}".format(cinergia_dict[26120]['value']))   # Anzeige auf 2 Dezimalstellen
+    if cinergia_dict[26120]['value'] is None: # Abfrage ob None oder ob ein Wert gelesen werden konnte
+        power_total_label.config(text="None")
+    else:
+        power_total_label.config(text="{:.3f}".format(cinergia_dict[26120]['value']))   # Anzeige auf 2 Dezimalstellen
     root.after(update_time, update_power_total)
     return
 
@@ -314,6 +332,8 @@ def rapi_cng_switch_test():
         # 16006: sw_ac_dc_selector_u; 16014: sw_output_connection; 16018: sw_bipolar
         rapi_cng_switch_status = True
         print("RaPi_CNG_switch_status =", rapi_cng_switch_status)
+    elif cinergia_dict[16006]['value'] is None: # is NONE if no connection to Cinergia
+        rapi_cng_switch_status = True   # Damit die GUI startet, wenn man keine Verbindung zu irgendwas hat
     else:
         rapi_cng_switch_status = False
         print("RaPi_CNG_switch_status =", rapi_cng_switch_status)
@@ -538,8 +558,9 @@ if rapi_cng_switch_status and wago_cng_switch_status:
 
     warning_frame = ttk.Label(frame_1_0, text="")
     warning_frame.grid(row=15, column=0, padx=5, pady=5, sticky="nsew")
-    warning_vector_label_text =ttk.Label(warning_frame, text=f"Waring_Vector_INV:  {cinergia_dict[23010]['def']}")
-    warning_vector_label_text.grid(row=16, column=0, padx=5, pady=5)
+    if cinergia_dict[23010]['value'] is not None:
+        warning_vector_label_text =ttk.Label(warning_frame, text=f"Waring_Vector_INV:  {cinergia_dict[23010]['def']}")
+        warning_vector_label_text.grid(row=16, column=0, padx=5, pady=5)
 
     ### DRITTE SPALTE ###
 

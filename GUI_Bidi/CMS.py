@@ -34,37 +34,39 @@ EVMaxCurrent = 25
 EVMaxVoltage = 450
 EVMaxPower = 450*50
 
-canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
-database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
-can_tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automotive')
+try:
+    canBus = can.interface.Bus(bustype="pcan", channel="PCAN_USBBUS1", bitrate="500000")
+    database_dbc = cantools.db.load_file("ISC_CMS_Automotive.dbc")
+    can_tester = cantools.tester.Tester('CMS', database_dbc, canBus, 'ISC_CMS_Automotive')
+    canConnection = True
+except Exception as e:
+    print('Can\'t connect to CMS')
+    canConnection = False
 
 
 def cms_canbus_listener():
     global cms_read_dict
+    global canConnection
+    if canConnection:   # Abfrage ob der Bus eine Verbindung hat
+        start_time = time.time()
+        while time.time() - start_time < 0.15:
+            raw_message = canBus.recv()
+            if raw_message is not None:
+                coded_message = database_dbc.get_message_by_frame_id(raw_message.arbitration_id)
+                decoded_botschaft = coded_message.decode(raw_message.data)
 
-    start_time = time.time()
-    while time.time() - start_time < 0.15:
-        raw_message = canBus.recv()
-        if raw_message is not None:
-            coded_message = database_dbc.get_message_by_frame_id(raw_message.arbitration_id)
-            decoded_botschaft = coded_message.decode(raw_message.data)
-
-            for keys_dict in cms_read_dict.keys():
-                for key_bot in decoded_botschaft.keys():
-                    if keys_dict == key_bot:
-                        cms_read_dict[keys_dict] = decoded_botschaft[key_bot]
+                for keys_dict in cms_read_dict.keys():
+                    for key_bot in decoded_botschaft.keys():
+                        if keys_dict == key_bot:
+                            cms_read_dict[keys_dict] = decoded_botschaft[key_bot]
+    else:
+        print('Can\'t connect to CMS')
 
 
 def cms_read_dict_handover():
     global cms_read_dict
-    cms_canbus_listener()
+    # cms_canbus_listener() sollte nicht nötig sein, da die funktion im thread läuft. Testen!!
     return cms_read_dict
-
-
-def receive_and_decode_signal(signal_name):
-    cms_canbus_listener()
-    global cms_read_dict
-    return cms_read_dict.get(signal_name)
 
 
 def start_charging_cms(evcurrent, evvoltage):

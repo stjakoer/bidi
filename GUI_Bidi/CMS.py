@@ -69,7 +69,7 @@ def cms_read_dict_handover():
     return cms_read_dict
 
 
-def start_charging_cms(evcurrent, evvoltage):
+def precharge_cms(evcurrent, evvoltage):
     evsoc = 54
     can_tester.start()
 
@@ -155,6 +155,11 @@ def start_charging_cms(evcurrent, evvoltage):
         cnt += 1
         can_tester.flush_input()
 
+    can_tester.stop()
+
+
+def start_charging_cms():
+    can_tester.start()
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Start'
 
     can_tester.flush_input()

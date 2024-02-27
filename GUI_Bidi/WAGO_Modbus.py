@@ -1,19 +1,17 @@
 from pyModbusTCP.client import ModbusClient
 client = ModbusClient(host="192.168.178.202", port=502)
 
-wago_dict = {'status': {'value': None, 'reg-addr': 0},  # Abfrage ob GUI Starten darf
+wago_dict = {'wago_status': {'value': None, 'reg-addr': 0},  # Abfrage ob GUI Starten darf
              'contactor_state': {'value': None, 'reg-addr': 1}, # Ob die Schütze wirklich zu sind
              }
 
 """So kann das Wago Dictionary aufgebaut werden. Ich denke, dass diese beiden Variablen aber reichen
-sollten. Einmal der Status, ob alles OK ist und die GUI starten darf (0 = nicht starten, 1 = starten,
-2 = laden abbrechen) und einmal, dass die Schütze
-wirklich zu sind, damit der Ladevorgang weiter voranschreiten kann"""
+sollten. Einmal der Status, ob alles OK ist und die GUI starten darf (0 = nicht starten, 1 = starten) 
+und einmal, dass die Schütze wirklich zu sind, damit der Ladevorgang weiter voranschreiten kann"""
 
 
 def wago_modbus():
     global wago_dict
-
     if client.open():
         j = 0
         for keys in wago_dict:
@@ -21,10 +19,12 @@ def wago_modbus():
             j += 1
     else:
         print("Keine Verbindung zur Wago!")
+    return wago_dict
 
 
-wago_write_dict = {'close_contactor': 0,
-                   'open_contactor': 1}
+wago_write_dict = {'close_contactor': 0,    # 'name': 'adresse'
+                   'open_contactor': 1,
+                   'turn_off_IMD': 2}
 
 
 def wago_write_modbus(write_name, write_value):

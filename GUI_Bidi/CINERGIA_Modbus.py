@@ -86,7 +86,7 @@ def cinergia_modbus():
             353: "Overload 3",
             1001: "Emergency_Sequence",
             1010: "Mains Lost",
-            1011: "Isolation Device"
+            1011: "Isolation Device",
         }  # alarm description/error code
         warning_dict = {
             0: "WatchDog",
@@ -121,7 +121,7 @@ def cinergia_modbus():
             28: "RSVD",
             29: "RSVD",
             30: "RSVD",
-            31: "RSVD"
+            31: "RSVD",
         }  # warning description
 
         # register3000,13002,13004,13006,13006 & 23000,23002,23004,23006,23008
@@ -197,7 +197,30 @@ def cinergia_modbus():
 
         return cinergia_new
 
-    cinergia = {}
+    cinergia = {13000: {'name': 'Alarm_ABR_1', 'value': None},
+                13002: {'name': 'Alarm_ABR_2', 'value': None},
+                13004: {'name': 'Alarm_ABR_3', 'value': None},
+                13006: {'name': 'Alarm_ABR_4', 'value': None},
+                13008: {'name': 'Alarm_ABR_5', 'value': None},
+                16000: {'name': 'SW_GrafcetState', 'value': None},
+                16006: {'name': 'SW_AC_DC_Selector_U', 'value': None},
+                16012: {'name': 'SW_GE_EL_Selector', 'value': None},
+                16014: {'name': 'SW_OutputConnection', 'value': None},
+                16018: {'name': 'SW_Bipolar', 'value': None},
+                16022: {'name': 'SW_ControlOperationU', 'value': None},
+                23000: {'name': 'Alarm_INV_1', 'value': None},
+                23002: {'name': 'Alarm_INV_2', 'value': None},
+                23004: {'name': 'Alarm_INV_3', 'value': None},
+                23006: {'name': 'Alarm_INV_4', 'value': None},
+                23008: {'name': 'Alarm_INV_5', 'value': None},
+                23010: {'name': 'Waring_Vector_INV', 'value': None},
+                26094: {'name': 'Voltage_Output_U_RMS', 'value': None},
+                26106: {'name': 'Current_Output_Global', 'value': None},
+                26120: {'name': 'Power_Active_Output_Total', 'value': None}
+                }
+    # Dict initialisiert, dass wenn es keine Verbindung zur Cinergia gibt, die Schalterstellungsabfrage nicht
+    # fehlschlägt
+
     client = ModbusClient(host="192.168.2.149", port=502)
     register_addresses = [(13000, 2, 'Alarm_ABR_1', 'int'),
                           (13002, 2, 'Alarm_ABR_2', 'int'),
@@ -236,7 +259,7 @@ def cinergia_modbus():
         client.close()
         cinergia = description(cinergia)
     else:
-        print("Verbindung zur Cinergia konnte nicht hergestellt werden!")
+        print("Read: Verbindung zur Cinergia konnte nicht hergestellt werden!")
 
     return cinergia
 
@@ -246,25 +269,26 @@ def cinergia_write_modbus(register, value_to_write, value_type):
     import struct
     client = ModbusClient(host="192.168.2.149", port=502)
 
-    client.open()
+    if client.open():  # Abfrage ob die Verbindung zur Cinergia aufgebaut werden konnte
+        if value_type == 'float':  # Abfrage nacht type, da float anders umgewandelt wird als integer
+            if isinstance(value_to_write, int):
+                value_to_write = float(value_to_write)
+            value_bytes = struct.pack('>f', value_to_write)
+            byte0 = value_bytes[0]
+            byte1 = value_bytes[1]
+            byte2 = value_bytes[2]
+            byte3 = value_bytes[3]
+        elif value_type == 'int':
+            if isinstance(value_to_write, float):
+                value_to_write = int(value_to_write)
+            byte0 = (value_to_write >> 24) & 0xFF
+            byte1 = (value_to_write >> 16) & 0xFF
+            byte2 = (value_to_write >> 8) & 0xFF
+            byte3 = value_to_write & 0xFF
+        else:
+            print('Es konnte kein Bit-shifting gemacht werden.')
 
-    if value_type == 'float':  # Abfrage nacht type, da float anders umgewandelt wird als integer
-        if isinstance(value_to_write, int):
-            value_to_write = float(value_to_write)
-        value_bytes = struct.pack('>f', value_to_write)
-        byte0 = value_bytes[0]
-        byte1 = value_bytes[1]
-        byte2 = value_bytes[2]
-        byte3 = value_bytes[3]
-    elif value_type == 'int':
-        if isinstance(value_to_write, float):
-            value_to_write = int(value_to_write)
-        byte0 = (value_to_write >> 24) & 0xFF
-        byte1 = (value_to_write >> 16) & 0xFF
-        byte2 = (value_to_write >> 8) & 0xFF
-        byte3 = value_to_write & 0xFF
+        client.write_multiple_registers(register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
     else:
-        print('Es konnte kein Bit-shifting gemacht werden.')
-
-    client.write_multiple_registers(register, [byte0 << 8 | byte1, byte2 << 8 | byte3])
+        print('Write: Es konnte keine Verbindung zur Cinergia aufgebaut werden')
     return

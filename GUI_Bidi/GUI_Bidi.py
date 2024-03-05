@@ -412,7 +412,7 @@ if rapi_cng_switch_status and wago_status_start:
 
     root = tk.Tk()
     root.title("EV-Emulator")
-    root.iconbitmap("Logo_Bidi.ico")
+    # root.iconbitmap("Logo_Bidi.ico")
 
     update_cinergia_dict()
     update_evtec_dict()

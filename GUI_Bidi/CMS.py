@@ -188,8 +188,10 @@ def stop_charging_cms():
 
 
 def main():
-    start_charging_cms(10, 350)
-    time.sleep(20)
+    precharge_cms(10, 350)
+    time.sleep(0.5)
+    start_charging_cms()
+    time.sleep(10)
     stop_charging_cms()
 
 

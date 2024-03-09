@@ -1,3 +1,5 @@
+# funktion():
+
 if canConnection:  # Abfrage ob der Bus eine Verbindung hat
     start_time = time.time()
     while time.time() - start_time < 0.15: # läuft solange, damit wirklich jede nachricht einmal gesendet wurde
@@ -10,3 +12,4 @@ if canConnection:  # Abfrage ob der Bus eine Verbindung hat
                 if "ControlPilotDutyCycle" == key_bot:
                     duty_cycle = decoded_botschaft[key_bot]
                     break   #beendet die while schleife vorzeitig
+# return duty-cycle

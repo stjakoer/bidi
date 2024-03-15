@@ -1,5 +1,5 @@
 from pyModbusTCP.client import ModbusClient
-client = ModbusClient(host="192.168.178.202", port=502)
+client = ModbusClient(host="192.168.2.210", port=502)
 
 wago_dict = {'wago_status': {'value': None, 'reg-addr': 0},  # Abfrage ob GUI Starten darf
              'contactor_state': {'value': None, 'reg-addr': 1}, # Ob die Schütze wirklich zu sind

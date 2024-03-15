@@ -124,7 +124,7 @@ def cinergia_modbus():
             31: "RSVD",
         }  # warning description
 
-        # register3000,13002,13004,13006,13006 & 23000,23002,23004,23006,23008
+        # register 13000,13002,13004,13006,13006 & 23000,23002,23004,23006,23008 Alarme definieren
         for register in [13000, 13002, 13004, 13006, 13008, 23000, 23002, 23004, 23006, 23008]:
             for key in alarm_dict.keys():
                 if cinergia_new[register]['value'] == key:
@@ -135,7 +135,7 @@ def cinergia_modbus():
             if cinergia_new[23010]['value'] == key:
                 cinergia_new[23010]['def'] = warning_dict[key]
 
-        # register16000
+        # register 16000
         var_temp = cinergia_new[16000]['value']
         if var_temp == 2:
             cinergia_new[16000]['def'] = "Standby"
@@ -150,35 +150,35 @@ def cinergia_modbus():
         elif var_temp == 7:
             cinergia_new[16000]['def'] = "Alarm"
 
-        # register16006
+        # register 16006
         var_temp = cinergia_new[16006]['value']
         if var_temp == 0:
             cinergia_new[16006]['def'] = "DC"
         elif var_temp == 1:
             cinergia_new[16006]['def'] = "AC"
 
-        # register16012
+        # register 16012
         var_temp = cinergia_new[16012]['value']
         if var_temp == 0:
             cinergia_new[16012]['def'] = "EL"
         elif var_temp == 1:
             cinergia_new[16012]['def'] = "GE"
 
-        # register16014
+        # register 16014
         var_temp = cinergia_new[16014]['value']
         if var_temp == 0:
             cinergia_new[16014]['def'] = "Independent"
         elif var_temp == 1:
             cinergia_new[16014]['def'] = "  Parallel "
 
-        # register16018
+        # register 16018
         var_temp = cinergia_new[16018]['value']
         if var_temp == 0:
             cinergia_new[16018]['def'] = "Unipolar"
         elif var_temp == 1:
             cinergia_new[16018]['def'] = "Bipolar"
 
-        # register16022
+        # register 16022
         var_temp = cinergia_new[16022]['value']
         if var_temp == 0:
             cinergia_new[16022]['def'] = "Voltage Source"

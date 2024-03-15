@@ -1,11 +1,16 @@
 from pyModbusTCP.client import ModbusClient
 client = ModbusClient(host="192.168.2.210", port=502)
 
-wago_dict = {'wago_status': {'value': None, 'reg-addr': 0},  # Abfrage ob GUI Starten darf
-             'contactor_state': {'value': None, 'reg-addr': 1}, # Ob die Schütze wirklich zu sind
+wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0}, # Abfrage ob AC-GUI Starten darf (Julian)
+             'sps_command_stop_charging_ac': {'value': None, 'reg-addr': 1}, #
+             'sps_command_stop_charging_dc': {'value': None, 'reg-addr': 2},
+             'ccs_lock_closed': {'value': None, 'reg-addr': 3},
+             'ccs_lock_open': {'value': None, 'reg-addr': 4},
+             'wago_dc_security_check': {'value': None, 'reg-addr': 5}, # Abfrage ob DC-GUI Starten darf
+             # hier fehlt noch:  Ob die Schütze wirklich zu sind 'dc_contactor_state': {'value': None, 'reg-addr': 6}
              }
-
-"""So kann das Wago Dictionary aufgebaut werden. Ich denke, dass diese beiden Variablen aber reichen
+""" 240315: JRU: Wurde entsprechend Julians Vorbereitung angepasst, es fehlt noch contactor state.
+Vorher: JKO: So kann das Wago Dictionary aufgebaut werden. Ich denke, dass diese beiden Variablen aber reichen
 sollten. Einmal der Status, ob alles OK ist und die GUI starten darf (0 = nicht starten, 1 = starten) 
 und einmal, dass die Schütze wirklich zu sind, damit der Ladevorgang weiter voranschreiten kann"""
 

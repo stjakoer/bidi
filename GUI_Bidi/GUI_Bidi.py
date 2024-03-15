@@ -399,7 +399,7 @@ def update_cms_frame():
 cinergia_dict = cinergia_modbus()
 wago_dict = wago_modbus()
 # Sicherheitskriterien von Wago abfragen, 1 = alles richtig, 0 = Fehler:
-if wago_dict['wago_dc_security_check']['value'] == 1: # Wago status übersetzung in True oder False
+if wago_dict['wago_dc_security_check']['value'] == [1]: # Wago status übersetzung in True oder False
     wago_status_start = True
 elif wago_dict['wago_dc_security_check']['value'] is None: # Wenn keine Verbindung, dass sie dennoch startet
     wago_status_start = True

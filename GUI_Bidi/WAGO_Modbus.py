@@ -6,7 +6,7 @@ wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0}, # Abfrage
              'sps_command_stop_charging_dc': {'value': None, 'reg-addr': 2},
              'ccs_lock_closed': {'value': None, 'reg-addr': 3},
              'ccs_lock_open': {'value': None, 'reg-addr': 4},
-             'wago_dc_security_check': {'value': None, 'reg-addr': 5}, # Abfrage ob DC-GUI Starten darf
+             'wago_dc_security_check': {'value': None, 'reg-addr': 5} # Abfrage ob DC-GUI Starten darf
              # hier fehlt noch:  Ob die Schütze wirklich zu sind 'dc_contactor_state': {'value': None, 'reg-addr': 6}
              }
 """ 240315: JRU: Wurde entsprechend Julians Vorbereitung angepasst, es fehlt noch contactor state.

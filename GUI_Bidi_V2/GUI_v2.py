@@ -1,6 +1,7 @@
+import threading
 import tkinter as tk
 from tkinter import ttk
-
+from connect.connect_cinergia import cinergia_read_modbus, cinergia_write_modbus
 
 class App(tk.Tk):
     def __init__(self):
@@ -23,7 +24,7 @@ class App(tk.Tk):
 class Control(ttk.LabelFrame):
     def __init__(self, parent):
         super().__init__(parent, text='Control')
-        self.grid(row=0, column=0, sticky='nsew')
+        self.grid(row=0, column=0, sticky='N')
 
         self.voltage = 400
 
@@ -69,17 +70,50 @@ class Control(ttk.LabelFrame):
 class Cinergia(ttk.LabelFrame):
     def __init__(self, parent):
         super().__init__(parent, text='Cinergia')
-        self.grid(row=0, column=1, sticky='nsew')
+        self.grid(row=0, column=1)
 
-        self.create_widgets()
+        self.cng_dict = {}
+        self.labels = {}
 
-    def create_widgets(self):
-        # Erstellen Sie Labels für die Werte
-        value_labels = []
-        for i in range(4):
-            label = ttk.Label(self, text=f"Wert {i+1}: 0")
-            label.pack(side=tk.BOTTOM)
-            value_labels.append(label)
+        self.update_dict()
+
+
+
+    def create_labels(self):
+        for labels in self.labels.values():
+            for label in labels:
+                label.destroy()
+
+        # Erstellen Sie zwei Labels für jeden Eintrag in cng_dict
+        self.labels = {}
+        for i, key in enumerate(self.cng_dict):
+            # Erstellen Sie ein Label für den Namen
+            name_label = ttk.Label(self, text=self.cng_dict[key]['name']+':')
+            name_label.grid(row=i, column=0, sticky='W')  # Platzieren Sie das Label in der i-ten Zeile und der 0-ten Spalte
+
+            # Erstellen Sie ein Label für den Wert
+            value_label = ttk.Label(self, text=self.cng_dict[key]['value'])
+            value_label.grid(row=i, column=1)  # Platzieren Sie das Label in der i-ten Zeile und der 1-ten Spalte
+
+            # Speichern Sie die Labels in self.labels
+            self.labels[key] = (name_label, value_label)
+
+    def update_dict(self):
+        thread = threading.Thread(target=self.update_dict_thread, daemon=True)
+        thread.start()
+
+        self.after(1000, self.update_dict)
+
+    def update_dict_thread(self):
+        self.cng_dict = cinergia_read_modbus()
+        # Aktualisieren der StringVars
+        for key in self.cng_dict:
+            if key in self.labels:
+                name_label, value_label = self.labels[key]
+                value_label.config(text=self.cng_dict[key]['value'])
+
+        if not self.labels:
+            self.create_labels()
 
 
 class Cms(ttk.LabelFrame):
@@ -87,23 +121,11 @@ class Cms(ttk.LabelFrame):
         super().__init__(parent, text='CMS')
         self.grid(row=0, column=2, sticky='nsew')
 
+
 class Evtec(ttk.LabelFrame):
     def __init__(self, parent):
         super().__init__(parent, text='EVTEC')
         self.grid(row=0, column=3, sticky='nsew')
-
-
-class Entry(ttk.Frame):
-    def __init__(self, parent, label_text, button_text, label_background):
-        super().__init__(parent)
-
-        label = ttk.Label(self, text=label_text, background=label_background)
-        button = ttk.Button(self, text=button_text)
-
-        label.pack(expand=True, fill='both')
-        button.pack(expand=True, fill='both', pady=10)
-
-        self.pack(side='left', expand=True, fill='both', padx=20, pady=20)
 
 
 App()

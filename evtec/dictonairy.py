@@ -1,4 +1,4 @@
-from GUI_Bidi.EVTEC_Modbus import evtec_modbus
+from GUI_Bidi.connect_evtec import evtec_modbus
 
 evtec = evtec_modbus()
 

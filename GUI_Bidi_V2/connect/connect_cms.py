@@ -47,7 +47,7 @@ except Exception as e:
 def cms_canbus_listener():
     global cms_read_dict
     global canConnection
-    if canConnection:   # Abfrage ob der Bus eine Verbindung hat
+    if canConnection:   # Abfrage, ob der Bus eine Verbindung hat
         start_time = time.time()
         while time.time() - start_time < 0.15:
             raw_message = canBus.recv()
@@ -61,11 +61,6 @@ def cms_canbus_listener():
                             cms_read_dict[keys_dict] = decoded_botschaft[key_bot]
     else:
         print('Can\'t connect to CMS')
-
-
-def cms_read_dict_handover():
-    global cms_read_dict
-    # cms_canbus_listener() sollte nicht nötig sein, da die funktion im thread läuft. Testen!!
     return cms_read_dict
 
 

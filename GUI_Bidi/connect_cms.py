@@ -65,7 +65,7 @@ def cms_canbus_listener():
 
 def cms_read_dict_handover():
     global cms_read_dict
-    # cms_canbus_listener() sollte nicht nötig sein, da die funktion im thread läuft. Testen!!
+    cms_canbus_listener() # sollte nicht nötig sein, da die funktion im thread läuft. Testen!!
     return cms_read_dict
 
 

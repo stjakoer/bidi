@@ -6,73 +6,85 @@ def evtec_modbus():
         # register 0
         var_temp = evtec_new[0]['value']
         if var_temp == 0:
-            evtec_new[0]['def'] = "Unavailable"
+            evtec_new[0]['value'] = "Unavailable"
         elif var_temp == 1:
-            evtec_new[0]['def'] = "Available"
+            evtec_new[0]['value'] = "Available"
         elif var_temp == 2:
-            evtec_new[0]['def'] = "Occupied"
+            evtec_new[0]['value'] = "Occupied"
         elif var_temp == 3:
-            evtec_new[0]['def'] = "Preparing"
+            evtec_new[0]['value'] = "Preparing"
         elif var_temp == 4:
-            evtec_new[0]['def'] = "Charging"
+            evtec_new[0]['value'] = "Charging"
         elif var_temp == 5:
-            evtec_new[0]['def'] = "Finishing"
+            evtec_new[0]['value'] = "Finishing"
         elif var_temp == 6:
-            evtec_new[0]['def'] = "Suspended EV"
+            evtec_new[0]['value'] = "Suspended EV"
         elif var_temp == 7:
-            evtec_new[0]['def'] = "Suspended EVSE"
+            evtec_new[0]['value'] = "Suspended EVSE"
         elif var_temp == 8:
-            evtec_new[0]['def'] = "Not ready"
+            evtec_new[0]['value'] = "Not ready"
         elif var_temp == 9:
-            evtec_new[0]['def'] = "Faulted"
+            evtec_new[0]['value'] = "Faulted"
         else:
-            evtec_new[0]['def'] = "Couldnt do def!"
+            evtec_new[0]['value'] = "Couldnt do def!"
 
         # register 1
         var_temp = evtec_new[1]['value']
         if var_temp == 0:
-            evtec_new[1]['def'] = "Charging process not started \n(no vehicle connected)"
+            evtec_new[1]['value'] = "Charging process not started \n(no vehicle connected)"
         elif var_temp == 1:
-            evtec_new[1]['def'] = "Connected, waiting for release \n(by RFID or Local)"
+            evtec_new[1]['value'] = "Connected, waiting for release \n(by RFID or Local)"
         elif var_temp == 2:
-            evtec_new[1]['def'] = "Charging process starts"
+            evtec_new[1]['value'] = "Charging process starts"
         elif var_temp == 3:
-            evtec_new[1]['def'] = "Shop"
+            evtec_new[1]['value'] = "Shop"
         elif var_temp == 4:
-            evtec_new[1]['def'] = "Suspended (loading paused)"
+            evtec_new[1]['value'] = "Suspended (loading paused)"
         elif var_temp == 5:
-            evtec_new[1]['def'] = "Charging process successfully \ncompleted (vehicle still plugged in)"
+            evtec_new[1]['value'] = "Charging process successfully \ncompleted (vehicle still plugged in)"
         elif var_temp == 6:
-            evtec_new[1]['def'] = "Charging process completed by \nuser (vehicle still plugged in)"
+            evtec_new[1]['value'] = "Charging process completed by \nuser (vehicle still plugged in)"
         elif var_temp == 7:
-            evtec_new[1]['def'] = "Charging ended with error \n(vehicle still connected)"
+            evtec_new[1]['value'] = "Charging ended with error \n(vehicle still connected)"
         else:
-            evtec_new[1]['def'] = "Couldn't do def!"
+            evtec_new[1]['value'] = "Couldn't do def!"
 
         # register 3
-        evtec_new[3]['def'] = "Actual Output Voltage (DC)"
+        evtec_new[3]['value'] = "Actual Output Voltage (DC)"
         # register 5
-        evtec_new[5]['def'] = "Actual Output Power (Unsigned)"
+        evtec_new[5]['value'] = "Actual Output Power (Unsigned)"
         # register 7
-        evtec_new[7]['def'] = "Actual Output Current (DC)"
+        evtec_new[7]['value'] = "Actual Output Current (DC)"
         # register 9
-        evtec_new[9]['def'] = "Actual OUtput Power"
+        evtec_new[9]['value'] = "Actual OUtput Power"
         # register 12
         var_temp = evtec_new[12]['value']
         if var_temp == 0:
-            evtec_new[12]['def'] = "AC"
+            evtec_new[12]['value'] = "AC"
         elif var_temp == 1:
-            evtec_new[12]['def'] = "CCS"
+            evtec_new[12]['value'] = "CCS"
         elif var_temp == 2:
-            evtec_new[12]['def'] = "CHAdeMO"
+            evtec_new[12]['value'] = "CHAdeMO"
         elif var_temp == 3:
-            evtec_new[12]['def'] = "GBT"
+            evtec_new[12]['value'] = "GBT"
         else:
-            evtec_new[12]['def'] = "Couldnt do def!"
+            evtec_new[12]['value'] = "Couldnt do def!"
 
         return evtec_new
 
-    evtec = {}
+    evtec = {0: {'name': 'State', 'value': None, 'length': 1},
+             1: {'name': 'ChargeState', 'value': None, 'length': 1},
+             2: {'name': 'SessionType', 'value': None, 'length': 1},
+             3: {'name': 'Voltage', 'value': None, 'length': 2},
+             5: {'name': 'PowerUInt', 'value': None, 'length': 2},
+             7: {'name': 'Current', 'value': None, 'length': 2},
+             9: {'name': 'Power', 'value': None, 'length': 2},
+             11: {'name': 'SOC', 'value': None, 'length': 1},
+             12: {'name': 'ConnectorType', 'value': None, 'length': 1},
+             17: {'name': 'ChargeTime', 'value': None, 'length': 2},
+             19: {'name': 'ChargedEnergy', 'value': None, 'length': 2},
+             55: {'name': 'Error', 'value': None, 'length': 4}}
+
     client = ModbusClient(host="192.168.178.201", port=5020, unit_id=2)
     register_addresses = [(0, 1, 'State'),
                           (1, 1, 'ChargeState'),

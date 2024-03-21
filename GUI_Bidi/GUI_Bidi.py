@@ -24,10 +24,11 @@ current_ch = 0
 current_dch = 0
 selected_operation = {}
 power_ok = False
-update_time = 10000  # Zeit bis sich jede Funktion wiederholt
+update_time = 3000  # Zeit bis sich jede Funktion wiederholt
+gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
 
 
-### AKTUALISIERUNG AUSGELESENE WERTE ###
+
 
 
 def update_dicts():
@@ -41,54 +42,53 @@ def update_dicts():
         evtec_dict = evtec_modbus()
         wago_dict = wago_modbus()
         time.sleep(1)
-    #root.after(update_time, update_dicts)
 
 
-#can_bus_thread = threading.Thread(target=update_dicts(), daemon=True)
-#can_bus_thread.start()
 # CNG Output
 # Funktion für den aktuellen Status (Grafcet) der CNG
-def update_sw_grafcet_state():
-    if cinergia_dict[16000]['value'] is not None:
-        sw_grafcet_state_label.config(text=f"{cinergia_dict[16000]['value']}")
-        if cinergia_dict[16000]['value'] == 2:  # 2: Standby
-            if power_ok and CMS_current_set != 0:
-                enable_button.config(state="normal")
-            else:
-                enable_button.config(state="disable")
-            disable_button.config(state="disable")
-            start_charging_button.config(state="disable")
-            stop_charging_button.config(state="disable")
-            reset_button.config(state="disable")
-        elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
-            enable_button.config(state="disable")
-            disable_button.config(state="normal")
-            if power_ok and CMS_current_set != 0:
-                start_charging_button.config(state="normal")
-            else:
-                start_charging_button.config(state="disable")
-            stop_charging_button.config(state="disable")
-            reset_button.config(state="disable")
-        elif cinergia_dict[16000]['value'] == 5:    # 5: Run
-            enable_button.config(state="disable")
-            disable_button.config(state="disable")
-            start_charging_button.config(state="disable")
-            stop_charging_button.config(state="normal")
-            reset_button.config(state="disable")
-        elif cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:  # 6: Warning; 7: Alarm
-            enable_button.config(state="disable")
-            disable_button.config(state="normal")
-            start_charging_button.config(state="disable")
-            stop_charging_button.config(state="disable")
-            reset_button.config(state="normal")
-    # Hier wird der aktuelle Grafcet-Status periodisch abgefragt. Zyklus hier ist 1000 ms
-    root.after(update_time, update_sw_grafcet_state)
+def update_cng_buttons():
+    sw_grafcet_state_label.config(text=f"{cinergia_dict[16000]['value']}")
+    if cinergia_dict[16000]['value'] == 2:  # 2: Standby
+        enable_button.config(state="normal")
+        disable_button.config(state="disable")
+        start_cng_button.config(state="disable")
+        stop_cng_button.config(state="disable")
+        reset_button.config(state="disable")
+    elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
+        enable_button.config(state="disable")
+        disable_button.config(state="normal")
+        start_cng_button.config(state="normal")
+        stop_cng_button.config(state="disable")
+        reset_button.config(state="disable")
+    elif cinergia_dict[16000]['value'] == 5:    # 5: Run
+        enable_button.config(state="disable")
+        disable_button.config(state="disable")
+        start_cng_button.config(state="disable")
+        stop_cng_button.config(state="normal")
+        reset_button.config(state="disable")
+    elif cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:  # 6: Warning; 7: Alarm
+        enable_button.config(state="disable")
+        disable_button.config(state="normal")
+        start_cng_button.config(state="disable")
+        start_cng_button.config(state="disable")
+        reset_button.config(state="normal")
+    root.after(1000, update_cng_buttons)
     return
 
-### SICHERHEITSABFRAGEN ###
+
+def update_ctrl_button():
+    global gui_state
+    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready':
+        start_charging_button.config(state="normal")
+        gui_state = ''
+    else:
+        start_charging_button.config(state="disable")
+    root.after(1000, update_ctrl_button)
 
 
-# CNG Output
+
+#   ==============================================================================================
+
 def update_selectors():
     sw_ac_dc_selector_u_label.config(text=f"{cinergia_dict[16006]['value']}")
     # Entspricht vermutlich 1:1 der Drehschalter Position; 0: DC, 1: AC
@@ -123,53 +123,42 @@ def update_alarm_inv():
     root.after(update_time, update_alarm_inv)
     return
 
-# CNG Output
-# Funktion zum Auslesen der aktuellen Spannung U-NEG (EuT-Side)
-def update_voltage_un():
-    global cinergia_dict
-    voltage_un_label.config(text=(cinergia_dict[26094]['value']))    # Anzeige auf 2 Dezimalstellen
-    root.after(update_time, update_voltage_un)
-    return
 
 # CNG Output
-# Funktion zum Auslesen des aktuellen Gesamt-Stroms (EuT-Side)
-def update_current_total():
+def update_cng_para():
     global cinergia_dict
+    #   Spannung:
+    voltage_un_label.config(text=(cinergia_dict[26094]['value']))
+    #   Strom:
     if cinergia_dict[26106]['value'] is None:   # Abfrage ob None oder ob ein Wert gelesen werden konnte
         current_total_label.config(text="None")
     else:
-        current_total_label.config(text="{:.3f}".format(cinergia_dict[26106]['value']))  # Anzeige auf 2 Dezimalstellen
-    root.after(update_time, update_current_total)
-    return
-
-# CNG Output
-# Funktion zum Auslesen der aktuellen Gesamt-Leistung (EuT-Side)
-def update_power_total():
-    global cinergia_dict
+        current_total_label.config(text="{:.3f}".format(cinergia_dict[26106]['value']))
+    #   Power:
     if cinergia_dict[26120]['value'] is None: # Abfrage ob None oder ob ein Wert gelesen werden konnte
         power_total_label.config(text="None")
     else:
-        power_total_label.config(text="{:.3f}".format(cinergia_dict[26120]['value']))   # Anzeige auf 2 Dezimalstellen
-    root.after(update_time, update_power_total)
+        power_total_label.config(text="{:.3f}".format(cinergia_dict[26120]['value']))
+    root.after(update_time, update_cng_para)
     return
 
+
+#   ==============================================================================================
 # CNG Input
-# Funktionen für die Schaltflächen
 def enable_cng():
     if cinergia_dict[16000]['value'] == 2:  # 2: Standby
         cinergia_write_modbus(17000, 1, 'int')
         cinergia_write_modbus(17004, 0, 'int')  # Einstellen von u (v, w) als Voltage Source: 0
     return
 
-# CNG Input
+
 def disable_cng():
     if cinergia_dict[16000]['value'] >= 4:  # 4: Ready; 5: Run; 6: Warning; 7: Alarm
         cinergia_write_modbus(17000, 0, 'int')
     return
 
-# CNG Input
+
 def reset_alarm_warning():
-    ## ---> Hier noch überlegen, ob Ladevorgang bei Status Alarm automatisch abgebrochen werden soll? Das Gleiche für Status Warning überlegen! ##
     if cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:    # 6: Warning; 7: Alarm
         cinergia_write_modbus(17018, 0, 'int')  # Sequenz erstellen: [0, 1, 0]
         time.sleep(1)
@@ -179,9 +168,9 @@ def reset_alarm_warning():
         time.sleep(1)
     return
 
+#   ================================================================================================
 # Interne Funktion
-### DROPDOWN-MENÜ "CONTROL OPERATION" ###
-# Funktion, die INDIREKT durch Betätigung des Dropdown-Menüs "Control Operation" aufgerufen wird
+# Dropdown:
 def update_operation_combo_states(event):   # Auswahl Charge/Discharge
     global selected_operation, CMS_current_set, CNG_voltage_set, current_ch, current_dch
     selected_operation = control_operation_var.get()
@@ -201,10 +190,10 @@ def update_operation_combo_states(event):   # Auswahl Charge/Discharge
 
     CMS_current_set = current_ch - current_dch
     power_calculation()
-    update_sw_grafcet_state()
+    update_cng_buttons()
     return
 
-# Interne Funktion
+
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_ch_static_combo_selected(event):
     global CMS_current_set, CNG_voltage_set, current_ch, current_dch
@@ -216,7 +205,6 @@ def current_ch_static_combo_selected(event):
     return
 
 
-# Interne Funktion
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_dch_static_combo_selected(event):
     global CMS_current_set, CNG_voltage_set, current_ch, current_dch
@@ -227,7 +215,6 @@ def current_dch_static_combo_selected(event):
     return
 
 
-# Interne Funktion
 # Prüfung der Leistung
 def power_calculation():
     global CNG_voltage_set, power_ok
@@ -242,6 +229,7 @@ def power_calculation():
     return
 
 
+#   ==============================================================================================
 def start_cng():
     cinergia_write_modbus(27666, CNG_voltage_set, 'float')  # Magnitude_Voltage_DC_Global_SP
     cinergia_write_modbus(17020, 1, 'int')  # Trigger_Config
@@ -270,7 +258,7 @@ def manage_cms_charging():
     time.sleep(1)  # 1 sekunde warten, damit die schütze Zeit haben zum schließen (ist das 1s oder 1ms???)
     wago_dict = wago_modbus()   # nochmal die aktuellsten werte abfragen, da das dict nur alle paar sek abgefragt wird
     while True:
-        if wago_dict['contactor_state']['value'] == 1: # 1, wenn die schütze zu sind
+        if wago_dict['contactor_state']['value'] == 1:  # 1, wenn die schütze zu sind
             start_charging_cms()
             break
 
@@ -288,11 +276,13 @@ def stop_charging():
 ### Sicherheitskriterien von RaPi abfragen ###
 
 
-def start_erlaubnis():
+def start_erlaubnis(event):
+    global gui_state
     if cinergia_dict[16006]['value'] == 0 and cinergia_dict[16014]['value'] == 1 and cinergia_dict[16018]['value'] == 0:
         # 16006: sw_ac_dc_selector_u; 16014: sw_output_connection; 16018: sw_bipolar
         if wago_dict['wago_dc_security_check']['value'] == 1:
             start_status_label.config(text='Bereit')
+            gui_state = 'ready'
         else:
             start_status_label.config(text='WAGO blockiert')
     else:
@@ -390,8 +380,8 @@ control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control
 control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 # Bind-Methode ruft die Fkt "update_operation_combo_states(event)" immer bei Benutzung des Dropdown-Menüs auf
-control_operation_combo.bind("<<ComboboxSelected>>", update_operation_combo_states)
 control_operation_combo.bind("<<ComboboxSelected>>", start_erlaubnis)
+control_operation_combo.bind("<<ComboboxSelected>>", update_operation_combo_states)
 no_header_frame_0_0.columnconfigure(0, weight=1)
 no_header_frame_0_0.columnconfigure(1, weight=1)
 
@@ -444,14 +434,14 @@ power_calculation_label_text.grid(row=9, column=1, padx=5, pady=5)
 power_calculation_status_label = ttk.Label(power_calculation_frame, text="")
 power_calculation_status_label.grid(row=9, column=2, padx=5, pady=5)
 power_calculation()
-#Start-Erlaubnis
+#   Start-Erlaubnis
 start_status_frame = ttk.Frame(frame_0_0)
 start_status_frame.grid(row=10, column=0)
 start_status_label = ttk.Label(start_status_frame, text='test')
 start_status_label.grid(row=0, column=0, columnspan=3)
-start_erlaubnis()
+start_erlaubnis('')
 
-
+#   ======================================================================================================
 ### ZWEITE SPALTE ###
 
 # Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
@@ -482,7 +472,7 @@ voltage_un_label_text = ttk.Label(stats_display_frame, text="Voltage U-N:")
 voltage_un_label_text.grid(row=3, column=0, padx=5, pady=5)
 voltage_un_label = ttk.Label(stats_display_frame, text="")
 voltage_un_label.grid(row=3, column=1, padx=5, pady=5)
-update_voltage_un()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+update_cng_para()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_un = ttk.Label(stats_display_frame, text="[V_rms]")
 unit_label_un.grid(row=3, column=2, padx=5, pady=5)
 current_total_label_text = ttk.Label(stats_display_frame, text="Current total:")
@@ -527,6 +517,7 @@ warning_frame.grid(row=15, column=0, padx=5, pady=5, sticky="nsew")
 warning_vector_label_text = ttk.Label(warning_frame, text=f"Waring_Vector_INV:  {cinergia_dict[23010]['value']}")
 warning_vector_label_text.grid(row=16, column=0, padx=5, pady=5)
 
+#   ======================================================================================================
 ### DRITTE SPALTE ###
 
 # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
@@ -545,7 +536,7 @@ stop_charging_button.grid(row=1, column=1, padx=5, pady=5)
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 no_header_frame_2_0.columnconfigure(0, weight=1)
 no_header_frame_2_0.columnconfigure(1, weight=1)
-
+update_ctrl_button()
 
 # Erstellen des Frames "Information CNG" im Frame_2_0
 information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
@@ -554,7 +545,7 @@ sw_grafcet_state_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet
 sw_grafcet_state_label_text.grid(row=3, column=0, padx=5, pady=5)
 sw_grafcet_state_label = ttk.Label(information_CNG_frame_2_0, text="")
 sw_grafcet_state_label.grid(row=3, column=1, padx=5, pady=5)
-update_sw_grafcet_state()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
+update_cng_buttons()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_output_connection_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection State:")
 sw_output_connection_label_text.grid(row=4, column=0, padx=5, pady=5, sticky='W')
 sw_output_connection_label = ttk.Label(information_CNG_frame_2_0, text="")

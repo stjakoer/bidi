@@ -258,10 +258,11 @@ def cinergia_modbus():
 
         client.close()
         cinergia = description(cinergia)
+        status_connection = True
     else:
         print("Read: Verbindung zur Cinergia konnte nicht hergestellt werden!")
-
-    return cinergia
+        status_connection = False
+    return status_connection, cinergia
 
 
 def cinergia_write_modbus(register, value_to_write, value_type):

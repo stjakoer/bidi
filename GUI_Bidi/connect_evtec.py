@@ -126,8 +126,9 @@ def evtec_modbus():
         client.close()
 
         evtec = description(evtec)
+        status_connection = True
     else:
         print("Verbindung zur EVTEC konnte nicht hergestellt werden!")
-
-    return evtec
+        status_connection = False
+    return status_connection, evtec
 

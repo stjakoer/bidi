@@ -1,18 +1,13 @@
 from pyModbusTCP.client import ModbusClient
 client = ModbusClient(host="192.168.2.210", port=502)
 
-wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0}, # Abfrage ob AC-GUI Starten darf (Julian)
-             'sps_command_stop_charging_ac': {'value': None, 'reg-addr': 1}, #
+wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0},  # Abfrage ob AC-GUI Starten darf (Julian)
+             'sps_command_stop_charging_ac': {'value': None, 'reg-addr': 1},    #
              'sps_command_stop_charging_dc': {'value': None, 'reg-addr': 2},
-             'ccs_lock_closed': {'value': None, 'reg-addr': 3},
-             'ccs_lock_open': {'value': None, 'reg-addr': 4},
-             'wago_dc_security_check': {'value': None, 'reg-addr': 5} # Abfrage ob DC-GUI Starten darf
-             # hier fehlt noch:  Ob die Schütze wirklich zu sind 'dc_contactor_state': {'value': None, 'reg-addr': 6}
+             'ccs_lock_status': {'value': None, 'reg-addr': 3},     # 1 = verriegelt ; 0 = nicht verriegelt
+             'contactor_state': {'value': None, 'reg-addr': 4},     # 1 = zu ; 0 = offen
+             'wago_dc_security_check': {'value': None, 'reg-addr': 5}   # Abfrage ob DC-GUI Starten darf
              }
-""" 240315: JRU: Wurde entsprechend Julians Vorbereitung angepasst, es fehlt noch contactor state.
-Vorher: JKO: So kann das Wago Dictionary aufgebaut werden. Ich denke, dass diese beiden Variablen aber reichen
-sollten. Einmal der Status, ob alles OK ist und die GUI starten darf (0 = nicht starten, 1 = starten) 
-und einmal, dass die Schütze wirklich zu sind, damit der Ladevorgang weiter voranschreiten kann"""
 
 
 def wago_modbus():
@@ -22,14 +17,16 @@ def wago_modbus():
         for keys in wago_dict:
             wago_dict[keys]['value'] = client.read_input_registers(j, 1) # j = register & 1 entspricht die Breite
             j += 1
+        status_connection = True
     else:
         print("Keine Verbindung zur Wago!")
-    return wago_dict
+        status_connection = False
+    return status_connection, wago_dict
 
 
-wago_write_dict = {'close_contactor': 0,    # 'name': 'adresse'
-                   'open_contactor': 1,
-                   'turn_off_IMD': 2}
+wago_write_dict = {'contactor': 0,    # 'name': 'adresse'
+                   'ccs_lock': 1,
+                   'IMD': 2}
 
 
 def wago_write_modbus(write_name, write_value):

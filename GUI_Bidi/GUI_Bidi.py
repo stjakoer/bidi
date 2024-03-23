@@ -26,6 +26,7 @@ selected_operation = {}
 power_ok = False
 update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
+all_connected = False   # Um zu speichern, ob alle Verbunden sind.
 
 
 
@@ -36,11 +37,16 @@ def update_dicts():
     global cms_dict
     global evtec_dict
     global wago_dict
+    global all_connected
     while True:
-        cinergia_dict = cinergia_modbus()
-        cms_dict = cms_read_dict_handover()
-        evtec_dict = evtec_modbus()
-        wago_dict = wago_modbus()
+        cinergia_status, cinergia_dict = cinergia_modbus()
+        cms_status, cms_dict = cms_read_dict_handover()
+        evtec_status, evtec_dict = evtec_modbus()
+        wago_status, wago_dict = wago_modbus()
+        if cinergia_status and cms_status and evtec_status and wago_status:
+            all_connected = True
+        else:
+            all_connected = False
         time.sleep(1)
 
 
@@ -252,14 +258,25 @@ def start_charging():
 
 def manage_cms_charging():
     global wago_dict
-    wago_write_modbus('turn_off_IMD', 1)
-    precharge_cms(CMS_current_set, CNG_voltage_set) # prcharge + parameter übergeben
-    wago_write_modbus('close_contactor', 1)   # schütze schließen
-    time.sleep(1)  # 1 sekunde warten, damit die schütze Zeit haben zum schließen (ist das 1s oder 1ms???)
-    wago_dict = wago_modbus()   # nochmal die aktuellsten werte abfragen, da das dict nur alle paar sek abgefragt wird
+    global all_connected
+    wago_write_modbus('ccs_lock', 1)
+    while True:
+        if wago_dict['ccs_lock_status']['value'] == 1:
+            break
+    wago_write_modbus('IMD', 0)
+    precharge_cms(CMS_current_set, CNG_voltage_set)  # prcharge + parameter übergeben
+    wago_write_modbus('contactor', 1)   # schütze schließen
     while True:
         if wago_dict['contactor_state']['value'] == 1:  # 1, wenn die schütze zu sind
             start_charging_cms()
+            break
+    while True:
+        if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
+            stop_charging()     # Normales beenden
+            break
+    while True:
+        if not all_connected:    # wenn cng die Verbindung verliert....? Notwendig
+            stop_charging()     # Normales beenden
             break
 
 
@@ -267,9 +284,11 @@ def manage_cms_charging():
 def stop_charging():
     stop_charging_cms()
     if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
+        wago_write_modbus('contactor', 0)
+        time.sleep(1)
+        wago_write_modbus('IMD', 1)
+        wago_write_modbus('ccs_lock', 0)
         pass
-        # befehl zum öffnen der Schütze senden
-        #if schütze offen:
 
     return
 

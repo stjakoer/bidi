@@ -65,8 +65,9 @@ def cms_canbus_listener():
 
 def cms_read_dict_handover():
     global cms_read_dict
+    global canConnection
     cms_canbus_listener()
-    return cms_read_dict
+    return canConnection, cms_read_dict
 
 
 def precharge_cms(evcurrent, evvoltage):

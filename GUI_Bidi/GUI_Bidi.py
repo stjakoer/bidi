@@ -47,6 +47,7 @@ def update_dicts():
             all_connected = True
         else:
             all_connected = False
+            #Aufruf der Charge Abbruch funktion
         time.sleep(1)
 
 
@@ -259,12 +260,14 @@ def start_charging():
 def manage_cms_charging():
     global wago_dict
     global all_connected
+    global cms_dict
     wago_write_modbus('ccs_lock', 1)
     while True:
         if wago_dict['ccs_lock_status']['value'] == 1:
             break
     wago_write_modbus('IMD', 0)
     precharge_cms(CMS_current_set, CNG_voltage_set)  # prcharge + parameter übergeben
+    #evtec spannung abfragen und schauen ob precharge erfolgreich war
     wago_write_modbus('contactor', 1)   # schütze schließen
     while True:
         if wago_dict['contactor_state']['value'] == 1:  # 1, wenn die schütze zu sind
@@ -274,8 +277,10 @@ def manage_cms_charging():
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
             stop_charging()     # Normales beenden
             break
-    while True:
         if not all_connected:    # wenn cng die Verbindung verliert....? Notwendig
+            stop_charging()     # Normales beenden
+            break
+        if not cms_dict['StateMachineState'] == 'Charge':
             stop_charging()     # Normales beenden
             break
 
@@ -283,13 +288,14 @@ def manage_cms_charging():
 # CNG Input
 def stop_charging():
     stop_charging_cms()
-    if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
-        wago_write_modbus('contactor', 0)
-        time.sleep(1)
-        wago_write_modbus('IMD', 1)
-        wago_write_modbus('ccs_lock', 0)
-        pass
-
+    while True:
+        if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
+            wago_write_modbus('contactor', 0)
+            time.sleep(1)
+            wago_write_modbus('IMD', 1)
+            time.sleep(1)
+            wago_write_modbus('ccs_lock', 0)
+            break
     return
 
 ### Sicherheitskriterien von RaPi abfragen ###

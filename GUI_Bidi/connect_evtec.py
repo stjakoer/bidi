@@ -49,14 +49,6 @@ def evtec_modbus():
         else:
             evtec_new[1]['value'] = "Couldn't do def!"
 
-        # register 3
-        evtec_new[3]['value'] = "Actual Output Voltage (DC)"
-        # register 5
-        evtec_new[5]['value'] = "Actual Output Power (Unsigned)"
-        # register 7
-        evtec_new[7]['value'] = "Actual Output Current (DC)"
-        # register 9
-        evtec_new[9]['value'] = "Actual OUtput Power"
         # register 12
         var_temp = evtec_new[12]['value']
         if var_temp == 0:
@@ -85,7 +77,7 @@ def evtec_modbus():
              19: {'name': 'ChargedEnergy', 'value': None, 'length': 2},
              55: {'name': 'Error', 'value': None, 'length': 4}}
 
-    client = ModbusClient(host="192.168.178.201", port=5020, unit_id=2)
+    client = ModbusClient(host="192.168.2.201", port=5020, unit_id=2)
     register_addresses = [(0, 1, 'State'),
                           (1, 1, 'ChargeState'),
                           (2, 1, 'SessionType'),

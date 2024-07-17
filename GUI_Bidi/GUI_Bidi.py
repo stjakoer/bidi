@@ -259,19 +259,21 @@ def manage_cms_charging():
     global wago_dict
     global all_connected
     global cms_dict
-    wago_write_modbus('ccs_lock', 1)
+    wago_write_modbus('ccs_lock_close', 1)
     while True:
-        if wago_dict['ccs_lock_status']['value'] == 1:
+        if wago_dict['ccs_lock_close']['value'] == 1:
             break
-    wago_write_modbus('IMD', 0)
-    precharge_cms(CMS_current_set, CNG_voltage_set)  # prcharge + parameter übergeben
     while True:
-        if (CNG_voltage_set+10) >= evtec_dict[3]['value'] >= (CNG_voltage_set-10):
+        if wago_dict['dcplus_contactor_state_open']['value'] == 1 and wago_dict['dcminus_contactor_state_open']['value'] == 1:
+            break
+    precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
+    while True:
+        if (CNG_voltage_set+10) >= evtec_dict[3]['value'] >= (CNG_voltage_set-10):              # cms spannung nehmen anstatt an evtec
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
     #evtec spannung abfragen und schauen ob precharge erfolgreich war
-    wago_write_modbus('contactor', 1)   # schütze schließen
+    wago_write_modbus('close_contactor', 1)   # schütze schließen
     while True:
-        if wago_dict['contactor_state']['value'] == 1:  # 1, wenn die schütze zu sind
+        if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
             start_charging_cms()
             break
     while True:
@@ -291,11 +293,9 @@ def stop_charging():
     stop_charging_cms()
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
-            wago_write_modbus('contactor', 0)
+            wago_write_modbus('close_contactor', 0)
             time.sleep(1)
-            wago_write_modbus('IMD', 1)
-            time.sleep(1)
-            wago_write_modbus('ccs_lock', 0)
+            wago_write_modbus('ccs_lock_open', 1)
             break
     return
 

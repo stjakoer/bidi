@@ -30,8 +30,6 @@ all_connected = False   # Um zu speichern, ob alle Verbunden sind.
 
 
 
-
-
 def update_dicts():
     global cinergia_dict
     global cms_dict
@@ -267,6 +265,9 @@ def manage_cms_charging():
             break
     wago_write_modbus('IMD', 0)
     precharge_cms(CMS_current_set, CNG_voltage_set)  # prcharge + parameter übergeben
+    while True:
+        if (CNG_voltage_set+10) >= evtec_dict[3]['value'] >= (CNG_voltage_set-10):
+            break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
     #evtec spannung abfragen und schauen ob precharge erfolgreich war
     wago_write_modbus('contactor', 1)   # schütze schließen
     while True:

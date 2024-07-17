@@ -2,7 +2,7 @@ from pyModbusTCP.client import ModbusClient
 client = ModbusClient(host="192.168.2.210", port=502)
 
 wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0},  # Abfrage ob AC-GUI Starten darf (Julian)
-             'sps_command_stop_charging_ac': {'value': None, 'reg-addr': 1},    #
+             'sps_command_stop_charging_ac': {'value': None, 'reg-addr': 1},
              'sps_command_stop_charging_dc': {'value': None, 'reg-addr': 2},
              'ccs_lock_status': {'value': None, 'reg-addr': 3},     # 1 = verriegelt ; 0 = nicht verriegelt
              'contactor_state': {'value': None, 'reg-addr': 4},     # 1 = zu ; 0 = offen

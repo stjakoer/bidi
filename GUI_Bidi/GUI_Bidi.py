@@ -9,6 +9,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 import time
+from connect_gpio import control_indicator_light
 from connect_evtec import evtec_modbus
 from connect_cinergia import cinergia_modbus, cinergia_write_modbus
 from connect_wago import wago_modbus, wago_write_modbus
@@ -47,7 +48,6 @@ def update_dicts():
             all_connected = False
             #Aufruf der Charge Abbruch funktion
         time.sleep(1)
-
 
 # CNG Output
 # Funktion für den aktuellen Status (Grafcet) der CNG
@@ -278,9 +278,11 @@ def manage_cms_charging():
             break
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
+            control_indicator_light('rot', 'an')
             stop_charging()     # Normales beenden
             break
         if not all_connected:    # wenn cng die Verbindung verliert....? Notwendig
+            control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
         if not cms_dict['StateMachineState'] == 'Charge':
@@ -310,14 +312,17 @@ def start_erlaubnis(event):
         # 16006: sw_ac_dc_selector_u; 16014: sw_output_connection; 16018: sw_bipolar
         if wago_dict['wago_dc_security_check']['value'] == 1:
             start_status_label.config(text='Bereit')
+            control_indicator_light('grün','an')
             gui_state = 'ready'
         else:
             start_status_label.config(text='WAGO blockiert')
+            control_indicator_light('grün', 'aus')
     else:
         start_status_label.config(text='CNG blockiert')
     return
 
-
+#================================================================================================
+#GUI FRAMES
 def update_evtec():
     global evtec_dict
     j = 0

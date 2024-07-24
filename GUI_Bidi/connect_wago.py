@@ -15,10 +15,14 @@ wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0},  # Abfrag
 def wago_modbus():
     global wago_dict
     if client.open():
-        j = 0
-        for keys in wago_dict:
-            wago_dict[keys]['value'] = client.read_input_registers(j, 1) # j = register & 1 entspricht die Breite
-            j += 1
+        for key in wago_dict:
+            reg_addr = wago_dict[key]['reg-addr']
+            regs = client.read_input_registers(reg_addr, 1)
+            value = regs
+            if regs:
+                wago_dict[key]['value'] = value[0]
+            else:
+                wago_dict[key]['value'] = None
         status_connection = True
     else:
         print("Keine Verbindung zur Wago!")
@@ -26,7 +30,7 @@ def wago_modbus():
     return status_connection, wago_dict
 
 
-wago_write_dict = {'close_contactor': 0,    # 'name': 'adress'
+wago_write_dict = {'close_contactor': 0,    # 'name': 'address'
                    'ccs_lock_close': 1,
                    'ccs_lock_open': 2}
 
@@ -38,7 +42,7 @@ def wago_write_modbus(write_name, write_value):
                 # Abfrage ob schreiben erfolgreich war
                 print("Erfolgreich")
             else:
-                print("Fehler beim schreiben der Wago")
+                print("Fehler beim Schreiben der Wago")
 
 
 def main():

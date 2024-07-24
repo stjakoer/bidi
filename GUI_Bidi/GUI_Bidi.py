@@ -9,7 +9,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 import time
-from connect_gpio import control_indicator_light
+#from connect_gpio import control_indicator_light
 from connect_evtec import evtec_modbus
 from connect_cinergia import cinergia_modbus, cinergia_write_modbus
 from connect_wago import wago_modbus, wago_write_modbus
@@ -20,7 +20,7 @@ evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
 wago_dict = {}      # Leeres dictionary für wago values
 CMS_current_set = 0
-CNG_voltage_set = 400
+CNG_voltage_set = 35
 current_ch = 0
 current_dch = 0
 selected_operation = {}
@@ -236,6 +236,7 @@ def power_calculation():
 
 #   ==============================================================================================
 def start_cng():
+    global CNG_voltage_set
     cinergia_write_modbus(27666, CNG_voltage_set, 'float')  # Magnitude_Voltage_DC_Global_SP
     cinergia_write_modbus(17020, 1, 'int')  # Trigger_Config
     if cinergia_dict[16000]['value'] == 4:  # 4: Ready
@@ -278,11 +279,11 @@ def manage_cms_charging():
             break
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
-            control_indicator_light('rot', 'an')
+#            control_indicator_light('rot', 'an')
             stop_charging()     # Normales beenden
             break
         if not all_connected:    # wenn cng die Verbindung verliert....? Notwendig
-            control_indicator_light('rot','an')
+#            control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
         if not cms_dict['StateMachineState'] == 'Charge':
@@ -306,19 +307,19 @@ def stop_charging():
 ### Sicherheitskriterien von RaPi abfragen ###
 
 
-def start_erlaubnis(event):
+def start_erlaubnis():
     global gui_state
     if cinergia_dict[16006]['value'] == 0 and cinergia_dict[16014]['value'] == 1 and cinergia_dict[16018]['value'] == 0:
         # 16006: sw_ac_dc_selector_u; 16014: sw_output_connection; 16018: sw_bipolar
         if wago_dict['wago_dc_security_check']['value'] == 1:
             start_status_label.config(text='Bereit')
-            control_indicator_light('grün','an')
-            gui_state = 'ready'
+#            control_indicator_light('grün','an')
         else:
             start_status_label.config(text='WAGO blockiert')
-            control_indicator_light('grün', 'aus')
+#            control_indicator_light('grün', 'aus')
     else:
         start_status_label.config(text='CNG blockiert')
+    root.after(update_time, start_erlaubnis)
     return
 
 #================================================================================================
@@ -387,7 +388,7 @@ root.attributes('-topmost', 1)
 """
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(10)
+time.sleep(30)
 
 notebook = ttk.Notebook(root)
 tab1 = ttk.Frame(notebook)
@@ -469,7 +470,7 @@ start_status_frame = ttk.Frame(frame_0_0)
 start_status_frame.grid(row=10, column=0)
 start_status_label = ttk.Label(start_status_frame, text='test')
 start_status_label.grid(row=0, column=0, columnspan=3)
-start_erlaubnis('')
+start_erlaubnis()
 
 #   ======================================================================================================
 ### ZWEITE SPALTE ###

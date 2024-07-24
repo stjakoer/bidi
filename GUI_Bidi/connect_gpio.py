@@ -31,9 +31,3 @@ def control_indicator_light(color, state):
         print(f"Leuchtmelder {color} auf {state} gestellt.")
 
 
-
-def main():
-
-if __name__ == "__main__":
-    main()
-

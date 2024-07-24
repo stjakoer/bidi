@@ -62,7 +62,10 @@ def update_cng_buttons():
     elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
         enable_button.config(state="disable")
         disable_button.config(state="normal")
-        start_cng_button.config(state="normal")
+        if power_ok and CMS_current_set != 0:
+            start_cng_button.config(state="normal")
+        else:
+            start_cng_button.config(state="disable")
         stop_cng_button.config(state="disable")
         reset_button.config(state="disable")
     elif cinergia_dict[16000]['value'] == 5:    # 5: Run
@@ -83,9 +86,10 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready':
+    print(cinergia_dict[26094]['value'])
+    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
         start_charging_button.config(state="normal")
-        gui_state = ''
+#        gui_state = ''
     else:
         start_charging_button.config(state="disable")
     root.after(1000, update_ctrl_button)
@@ -237,13 +241,14 @@ def power_calculation():
 #   ==============================================================================================
 def start_cng():
     global CNG_voltage_set
-    cinergia_write_modbus(27666, CNG_voltage_set, 'float')  # Magnitude_Voltage_DC_Global_SP
-    cinergia_write_modbus(17020, 1, 'int')  # Trigger_Config
     if cinergia_dict[16000]['value'] == 4:  # 4: Ready
         cinergia_write_modbus(17002, 1, 'int')  # RunReady
         time.sleep(1)
     if cinergia_dict[16000]['value'] == 5:  # 5: Run:
         print("Erfolgreich gestartet.")
+    cinergia_write_modbus(27666, CNG_voltage_set, 'float')  # Magnitude_Voltage_DC_Global_SP
+    time.sleep(1)
+    cinergia_write_modbus(17020, 1, 'int')  # Trigger_Config
 
 
 def stop_cng():
@@ -314,6 +319,7 @@ def start_erlaubnis():
         if wago_dict['wago_dc_security_check']['value'] == 1:
             start_status_label.config(text='Bereit')
 #            control_indicator_light('grün','an')
+            gui_state = 'ready'
         else:
             start_status_label.config(text='WAGO blockiert')
 #            control_indicator_light('grün', 'aus')

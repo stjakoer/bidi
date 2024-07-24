@@ -268,9 +268,9 @@ def manage_cms_charging():
             break
     precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
     while True:
-        if (CNG_voltage_set+10) >= evtec_dict[3]['value'] >= (CNG_voltage_set-10):              # cms spannung nehmen anstatt an evtec
+        if (CNG_voltage_set+10) >= cms_dict["EVSEPresentVoltage"] >= (CNG_voltage_set-10):
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
-    #evtec spannung abfragen und schauen ob precharge erfolgreich war
+        #CMS spannung abfragen und schauen ob precharge erfolgreich war
     wago_write_modbus('close_contactor', 1)   # schütze schließen
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
@@ -375,10 +375,7 @@ screen_height = root.winfo_screenheight()
 
 window_width = screen_width
 window_height = screen_height
-print(screen_width)
-print(screen_height)
-print(window_width)
-print(window_height)
+
 # find the center point
 center_x = int(screen_width/2 - window_width / 2)
 center_y = int(screen_height/2 - window_height / 2)
@@ -390,7 +387,7 @@ root.attributes('-topmost', 1)
 """
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(30)
+time.sleep(10)
 
 notebook = ttk.Notebook(root)
 tab1 = ttk.Frame(notebook)

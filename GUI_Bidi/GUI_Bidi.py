@@ -86,10 +86,8 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    print(cinergia_dict[26094]['value'])
     if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
         start_charging_button.config(state="normal")
-#        gui_state = ''
     else:
         start_charging_button.config(state="disable")
     root.after(1000, update_ctrl_button)
@@ -265,6 +263,7 @@ def manage_cms_charging():
     global wago_dict
     global all_connected
     global cms_dict
+    wago_write_modbus('ccs_lock_open', 0)
     wago_write_modbus('ccs_lock_close', 1)
     while True:
         if wago_dict['ccs_lock_close']['value'] == 1:
@@ -305,6 +304,7 @@ def stop_charging():
             break
     while True:
         if cms_dict['EVSEPresentVoltage'] <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
+            wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
             break
     return
@@ -323,8 +323,10 @@ def start_erlaubnis():
         else:
             start_status_label.config(text='WAGO blockiert')
 #            control_indicator_light('grün', 'aus')
+            gui_state = ''
     else:
         start_status_label.config(text='CNG blockiert')
+        gui_state = ''
     root.after(update_time, start_erlaubnis)
     return
 
@@ -417,7 +419,6 @@ control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control
 control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 # Bind-Methode ruft die Fkt "update_operation_combo_states(event)" immer bei Benutzung des Dropdown-Menüs auf
-control_operation_combo.bind("<<ComboboxSelected>>", start_erlaubnis)
 control_operation_combo.bind("<<ComboboxSelected>>", update_operation_combo_states)
 no_header_frame_0_0.columnconfigure(0, weight=1)
 no_header_frame_0_0.columnconfigure(1, weight=1)

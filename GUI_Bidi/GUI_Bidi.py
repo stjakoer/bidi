@@ -377,25 +377,8 @@ def update_cms_frame():
 
 root = tk.Tk()
 root.title("EV-Emulator")
-#root.geometry('1920x1080')
+root.geometry('1260x680')
 # root.iconbitmap("Logo_Bidi.ico")
-
-
-#get the screen dimension
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-
-window_width = screen_width
-window_height = screen_height
-
-# find the center point
-center_x = int(screen_width/2 - window_width / 2)
-center_y = int(screen_height/2 - window_height / 2)
-
-# set the position of the window to the center of the screen
-root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-root.resizable(False, False)
-root.attributes('-topmost', 1)
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()

@@ -9,7 +9,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 import time
-#from connect_gpio import control_indicator_light
+from connect_gpio import control_indicator_light
 from connect_evtec import evtec_modbus
 from connect_cinergia import cinergia_modbus, cinergia_write_modbus
 from connect_wago import wago_modbus, wago_write_modbus
@@ -20,7 +20,7 @@ evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
 wago_dict = {}      # Leeres dictionary für wago values
 CMS_current_set = 0
-CNG_voltage_set = 35
+CNG_voltage_set = 240
 current_ch = 0
 current_dch = 0
 selected_operation = {}
@@ -277,17 +277,18 @@ def manage_cms_charging():
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
         #CMS spannung abfragen und schauen ob precharge erfolgreich war
     wago_write_modbus('close_contactor', 1)   # schütze schließen
+    print("Schütze durch Raspberry Pi geschlossen")
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
             start_charging_cms()
             break
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
-#            control_indicator_light('rot', 'an')
+            control_indicator_light('rot', 'an')
             stop_charging()     # Normales beenden
             break
         if not all_connected:    # wenn cng die Verbindung verliert....? Notwendig
-#            control_indicator_light('rot','an')
+            control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
         if not cms_dict['StateMachineState'] == 'Charge':
@@ -301,6 +302,7 @@ def stop_charging():
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
             wago_write_modbus('close_contactor', 0)
+            print("Schütze durch Raspberry Pi geöffnet")
             break
     while True:
         if cms_dict['EVSEPresentVoltage'] <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
@@ -318,14 +320,15 @@ def start_erlaubnis():
         # 16006: sw_ac_dc_selector_u; 16014: sw_output_connection; 16018: sw_bipolar
         if wago_dict['wago_dc_security_check']['value'] == 1:
             start_status_label.config(text='Bereit')
-#            control_indicator_light('grün','an')
+            control_indicator_light('grün','an')
             gui_state = 'ready'
         else:
             start_status_label.config(text='WAGO blockiert')
-#            control_indicator_light('grün', 'aus')
+            control_indicator_light('grün', 'aus')
             gui_state = ''
     else:
         start_status_label.config(text='CNG blockiert')
+        control_indicator_light('grün', 'aus')
         gui_state = ''
     root.after(update_time, start_erlaubnis)
     return

@@ -294,8 +294,8 @@ def manage_cms_charging():
         if not cms_dict['StateMachineState'] == 'Charge':
             stop_charging()     # Normales beenden
             break
-
-
+    if wago_dict['sps_command_stop_charging_dc']['value'] == 0 and all_connected:
+        control_indicator_light('rot', 'aus')
 # CNG Input
 def stop_charging():
     stop_charging_cms()
@@ -377,10 +377,10 @@ def update_cms_frame():
 
 root = tk.Tk()
 root.title("EV-Emulator")
-root.geometry('1920x1080')
+#root.geometry('1920x1080')
 # root.iconbitmap("Logo_Bidi.ico")
 
-"""
+
 #get the screen dimension
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -396,7 +396,7 @@ center_y = int(screen_height/2 - window_height / 2)
 root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
 root.resizable(False, False)
 root.attributes('-topmost', 1)
-"""
+
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
 time.sleep(30)

@@ -6,8 +6,8 @@ import sys
 
 # Dictionary zur Zuordnung der Farben
 COLOR_PIN_MAP = {
-    'rot': 5,
-    'grün': 6,
+    'rot': 6,
+    'grün': 5,
 }
 # Dictionary zur Zuordnung von Zustand zu GPIO-Zuständen
 STATE_GPIO_MAP = {

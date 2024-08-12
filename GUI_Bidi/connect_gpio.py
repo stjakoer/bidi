@@ -1,3 +1,5 @@
+import time
+
 import RPi.GPIO as GPIO
 import signal
 import sys
@@ -31,3 +33,11 @@ def control_indicator_light(color, state):
         print(f"Leuchtmelder {color} auf {state} gestellt.")
 
 
+def main():
+    control_indicator_light('rot','an')
+    time.sleep(2)
+    control_indicator_light('rot','aus')
+
+
+if __name__ == "__main__":
+    main()

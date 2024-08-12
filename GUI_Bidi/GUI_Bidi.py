@@ -311,6 +311,7 @@ def stop_charging():
     wago_write_modbus('stop_imd', 0)
     wago_write_modbus('ccs_lock_close', 0)
     wago_write_modbus('ccs_lock_open', 1)
+    print(cms_dict['EVSEPresentCurrent'])
     #while True:
      #   if cms_dict['StateMachineState'] == 'ShutOff' and int(cms_dict['EVSEPresentCurrent']) < 1:
       #      wago_write_modbus('close_contactor', 0)

@@ -32,7 +32,8 @@ def wago_modbus():
 
 wago_write_dict = {'close_contactor': 0,    # 'name': 'address'
                    'ccs_lock_close': 1,
-                   'ccs_lock_open': 2}
+                   'ccs_lock_open': 2,
+                   'stop_imd': 3}
 
 
 def wago_write_modbus(write_name, write_value):

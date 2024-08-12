@@ -287,6 +287,8 @@ def manage_cms_charging():
             print("Schütze durch Raspberry Pi geschlossen")
             start_charging_cms()
             break
+
+
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
             control_indicator_light('rot', 'an')

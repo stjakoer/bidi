@@ -86,7 +86,7 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
+    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict['ControlPilotState'] == "B":
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")

@@ -1,11 +1,13 @@
+import time
+
 import RPi.GPIO as GPIO
 import signal
 import sys
 
 # Dictionary zur Zuordnung der Farben
 COLOR_PIN_MAP = {
-    'rot': 5,
-    'grün': 6,
+    'rot': 6,
+    'grün': 5,
 }
 # Dictionary zur Zuordnung von Zustand zu GPIO-Zuständen
 STATE_GPIO_MAP = {
@@ -31,3 +33,15 @@ def control_indicator_light(color, state):
         print(f"Leuchtmelder {color} auf {state} gestellt.")
 
 
+def main():
+    control_indicator_light('rot','an')
+    time.sleep(2)
+    control_indicator_light('rot','aus')
+    time.sleep(5)
+    control_indicator_light('grün','an')
+    time.sleep(2)
+    control_indicator_light('grün','aus')
+
+
+if __name__ == "__main__":
+    main()

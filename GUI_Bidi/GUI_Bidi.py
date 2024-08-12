@@ -13,7 +13,7 @@ from connect_gpio import control_indicator_light
 from connect_evtec import evtec_modbus
 from connect_cinergia import cinergia_modbus, cinergia_write_modbus
 from connect_wago import wago_modbus, wago_write_modbus
-from connect_cms import precharge_cms, start_charging_cms, cms_read_dict_handover, stop_charging_cms
+from connect_cms import precharge_cms, start_charging_cms, cms_read_dict_handover, stop_charging_cms, start_cms
 
 cinergia_dict = {}  # Leeres dictionary für cinergia variablen
 evtec_dict = {}     # Leeres dictionary für evtec variablen
@@ -86,7 +86,7 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict['ControlPilotState'] == "B":
+    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")
@@ -263,8 +263,13 @@ def manage_cms_charging():
     global wago_dict
     global all_connected
     global cms_dict
-    wago_write_modbus('ccs_lock_open', 0)
-    wago_write_modbus('ccs_lock_close', 1)
+    start_cms()
+    while True:
+        if cms_dict['ControlPilotState'] == "B":
+            time.sleep(1)
+            wago_write_modbus('ccs_lock_open', 0)
+            wago_write_modbus('ccs_lock_close', 1)
+            break
     while True:
         if wago_dict['ccs_lock_close']['value'] == 1:
             break

@@ -71,10 +71,8 @@ def cms_read_dict_handover():
     return canConnection, cms_read_dict
 
 
-def precharge_cms(evcurrent, evvoltage):
-    evsoc = 54
+def start_cms():
     can_tester.start()
-
     can_tester.messages['EVStatusControl']['BCBControl'] = 'Stop'
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Stop'
     can_tester.messages['EVStatusControl']['ChargeProtocolPriority'] = 'DIN_only'
@@ -93,6 +91,11 @@ def precharge_cms(evcurrent, evvoltage):
                              timeout=3) is not None, "CME not unplugged?"
 
     print('Please plug in...')
+    can_tester.stop()
+
+def precharge_cms(evcurrent, evvoltage):
+    evsoc = 54
+    can_tester.start()
 
     can_tester.flush_input()
     assert can_tester.expect('ChargeInfo', {'ControlPilotState': 'B'}), "Didn't detect plug-in within 10s"

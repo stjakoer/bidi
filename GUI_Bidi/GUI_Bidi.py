@@ -135,7 +135,7 @@ def update_alarm_inv():
 def update_cng_para():
     global cinergia_dict
     #   Spannung:
-    voltage_un_label.config(text=(cinergia_dict[26094]['value']))
+    voltage_un_label.config(text=round((cinergia_dict[26094]['value']), 1))
     #   Strom:
     if cinergia_dict[26106]['value'] is None:   # Abfrage ob None oder ob ein Wert gelesen werden konnte
         current_total_label.config(text="None")

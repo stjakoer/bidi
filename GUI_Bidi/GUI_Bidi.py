@@ -264,12 +264,12 @@ def manage_cms_charging():
     global all_connected
     global cms_dict
     start_cms()
-    wago_write_modbus('stop_imd', 1)
     while True:
         if cms_dict['ControlPilotState'] == "B":
             time.sleep(1)
             wago_write_modbus('ccs_lock_open', 0)
             wago_write_modbus('ccs_lock_close', 1)
+            wago_write_modbus('stop_imd', 1)
             break
     while True:
         if wago_dict['ccs_lock_close']['value'] == 1:
@@ -278,11 +278,13 @@ def manage_cms_charging():
         if wago_dict['dcplus_contactor_state_open']['value'] == 1 and wago_dict['dcminus_contactor_state_open']['value'] == 1:
             break
     precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
+    cms_status, cms_dict = cms_read_dict_handover() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         if int(cms_dict["EVSEPresentVoltage"]) < (CNG_voltage_set+10) and int(cms_dict["EVSEPresentVoltage"]) > (CNG_voltage_set-10):
+            print("CNG und EVTEC Spannung gleich")
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
-        #CMS spannung abfragen und schauen ob precharge erfolgreich war
     wago_write_modbus('close_contactor', 1)   # schütze schließen
+    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
             print("Schütze durch Raspberry Pi geschlossen")

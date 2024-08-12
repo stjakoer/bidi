@@ -168,7 +168,7 @@ def start_charging_cms():
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Start'
 
     can_tester.flush_input()
-    assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Charge'}, timeout=3)
+    assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Charge'}, timeout=15)
     print('Charge')
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     can_tester.stop()

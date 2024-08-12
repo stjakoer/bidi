@@ -24,6 +24,7 @@ cms_read_dict = {
     # "EVSECurrentLimitAchieved": None,
     "EVSEIsolationStatus": None,
     "EVSEPresentVoltage": None,
+    "EVSEPresentCurrent": None,
     # "EVSECurrentRegulationTolerance": None,
     # "EVSEPeakCurrentRipple": None,
     "EVSEMinVoltage": None,

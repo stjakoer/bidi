@@ -280,12 +280,14 @@ def manage_cms_charging():
     precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
     cms_status, cms_dict = cms_read_dict_handover() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
+        print(int(cms_dict["EVSEPresentVoltage"]))
         if int(cms_dict["EVSEPresentVoltage"]) < (CNG_voltage_set+10) and int(cms_dict["EVSEPresentVoltage"]) > (CNG_voltage_set-10):
             print("CNG und EVTEC Spannung gleich")
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
     wago_write_modbus('close_contactor', 1)   # schütze schließen
     wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
+        print("Warten auf Schütze")
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
             print("Schütze durch Raspberry Pi geschlossen")
             start_charging_cms()

@@ -20,7 +20,7 @@ evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
 wago_dict = {}      # Leeres dictionary für wago values
 CMS_current_set = 0
-CNG_voltage_set = 400
+CNG_voltage_set = 240
 current_ch = 0
 current_dch = 0
 selected_operation = {}
@@ -62,7 +62,10 @@ def update_cng_buttons():
     elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
         enable_button.config(state="disable")
         disable_button.config(state="normal")
-        start_cng_button.config(state="normal")
+        if power_ok and CMS_current_set != 0:
+            start_cng_button.config(state="normal")
+        else:
+            start_cng_button.config(state="disable")
         stop_cng_button.config(state="disable")
         reset_button.config(state="disable")
     elif cinergia_dict[16000]['value'] == 5:    # 5: Run
@@ -83,9 +86,8 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready':
+    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
         start_charging_button.config(state="normal")
-        gui_state = ''
     else:
         start_charging_button.config(state="disable")
     root.after(1000, update_ctrl_button)
@@ -236,13 +238,15 @@ def power_calculation():
 
 #   ==============================================================================================
 def start_cng():
-    cinergia_write_modbus(27666, CNG_voltage_set, 'float')  # Magnitude_Voltage_DC_Global_SP
-    cinergia_write_modbus(17020, 1, 'int')  # Trigger_Config
+    global CNG_voltage_set
     if cinergia_dict[16000]['value'] == 4:  # 4: Ready
         cinergia_write_modbus(17002, 1, 'int')  # RunReady
         time.sleep(1)
     if cinergia_dict[16000]['value'] == 5:  # 5: Run:
         print("Erfolgreich gestartet.")
+    cinergia_write_modbus(27666, CNG_voltage_set, 'float')  # Magnitude_Voltage_DC_Global_SP
+    time.sleep(1)
+    cinergia_write_modbus(17020, 1, 'int')  # Trigger_Config
 
 
 def stop_cng():
@@ -259,6 +263,7 @@ def manage_cms_charging():
     global wago_dict
     global all_connected
     global cms_dict
+    wago_write_modbus('ccs_lock_open', 0)
     wago_write_modbus('ccs_lock_close', 1)
     while True:
         if wago_dict['ccs_lock_close']['value'] == 1:
@@ -272,6 +277,7 @@ def manage_cms_charging():
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
         #CMS spannung abfragen und schauen ob precharge erfolgreich war
     wago_write_modbus('close_contactor', 1)   # schütze schließen
+    print("Schütze durch Raspberry Pi geschlossen")
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
             start_charging_cms()
@@ -288,17 +294,19 @@ def manage_cms_charging():
         if not cms_dict['StateMachineState'] == 'Charge':
             stop_charging()     # Normales beenden
             break
-
-
+    if wago_dict['sps_command_stop_charging_dc']['value'] == 0 and all_connected:
+        control_indicator_light('rot', 'aus')
 # CNG Input
 def stop_charging():
     stop_charging_cms()
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and cms_dict['EVSEPresentCurrent'] < 1:
             wago_write_modbus('close_contactor', 0)
+            print("Schütze durch Raspberry Pi geöffnet")
             break
     while True:
         if cms_dict['EVSEPresentVoltage'] <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
+            wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
             break
     return
@@ -306,7 +314,7 @@ def stop_charging():
 ### Sicherheitskriterien von RaPi abfragen ###
 
 
-def start_erlaubnis(event):
+def start_erlaubnis():
     global gui_state
     if cinergia_dict[16006]['value'] == 0 and cinergia_dict[16014]['value'] == 1 and cinergia_dict[16018]['value'] == 0:
         # 16006: sw_ac_dc_selector_u; 16014: sw_output_connection; 16018: sw_bipolar
@@ -317,8 +325,12 @@ def start_erlaubnis(event):
         else:
             start_status_label.config(text='WAGO blockiert')
             control_indicator_light('grün', 'aus')
+            gui_state = ''
     else:
         start_status_label.config(text='CNG blockiert')
+        control_indicator_light('grün', 'aus')
+        gui_state = ''
+    root.after(update_time, start_erlaubnis)
     return
 
 #================================================================================================
@@ -365,29 +377,12 @@ def update_cms_frame():
 
 root = tk.Tk()
 root.title("EV-Emulator")
-root.geometry('1920x1080')
+root.geometry('1260x680')
 # root.iconbitmap("Logo_Bidi.ico")
 
-"""
-#get the screen dimension
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-
-window_width = screen_width
-window_height = screen_height
-
-# find the center point
-center_x = int(screen_width/2 - window_width / 2)
-center_y = int(screen_height/2 - window_height / 2)
-
-# set the position of the window to the center of the screen
-root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
-root.resizable(False, False)
-root.attributes('-topmost', 1)
-"""
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(10)
+time.sleep(30)
 
 notebook = ttk.Notebook(root)
 tab1 = ttk.Frame(notebook)
@@ -410,7 +405,6 @@ control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control
 control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 # Bind-Methode ruft die Fkt "update_operation_combo_states(event)" immer bei Benutzung des Dropdown-Menüs auf
-control_operation_combo.bind("<<ComboboxSelected>>", start_erlaubnis)
 control_operation_combo.bind("<<ComboboxSelected>>", update_operation_combo_states)
 no_header_frame_0_0.columnconfigure(0, weight=1)
 no_header_frame_0_0.columnconfigure(1, weight=1)
@@ -469,7 +463,7 @@ start_status_frame = ttk.Frame(frame_0_0)
 start_status_frame.grid(row=10, column=0)
 start_status_label = ttk.Label(start_status_frame, text='test')
 start_status_label.grid(row=0, column=0, columnspan=3)
-start_erlaubnis('')
+start_erlaubnis()
 
 #   ======================================================================================================
 ### ZWEITE SPALTE ###

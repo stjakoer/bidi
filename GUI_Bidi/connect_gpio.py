@@ -37,6 +37,10 @@ def main():
     control_indicator_light('rot','an')
     time.sleep(2)
     control_indicator_light('rot','aus')
+    time.sleep(5)
+    control_indicator_light('grün','an')
+    time.sleep(2)
+    control_indicator_light('grün','aus')
 
 
 if __name__ == "__main__":

@@ -403,12 +403,12 @@ frame_0_0.columnconfigure(0, weight=1)
 
 # Erstellen eines Frames im Frame_0_0 für "Control Operation"
 no_header_frame_0_0 = ttk.LabelFrame(frame_0_0, text="")
-no_header_frame_0_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+no_header_frame_0_0.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "no_header_frame_0_0", sowie Positionierung
 control_operation_var = tk.StringVar()
 control_operation_label = ttk.Label(no_header_frame_0_0, text="Control Operation:")
 control_operation_label.grid(row=1, column=0, padx=5, pady=5)
-control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Charge", "Discharge"], state="readonly")
+control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Charge", "Discharge"], state="readonly", width=20)
 control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 # Bind-Methode ruft die Fkt "update_operation_combo_states(event)" immer bei Benutzung des Dropdown-Menüs auf
@@ -431,7 +431,7 @@ current_ch_control_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
 current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current in A:")
 current_ch_static_label.grid(row=5, column=0, padx=5, pady=5)
-current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly")
+current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=20)
 current_ch_static_combo.grid(row=5, column=1, padx=5, pady=5)
 current_ch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
@@ -447,7 +447,7 @@ current_dch_control_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
 current_dch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current in A:")
 current_dch_static_label.grid(row=7, column=0, padx=5, pady=5)
-current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly")
+current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=20)
 current_dch_static_combo.grid(row=7, column=1, padx=5, pady=5)
 current_dch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion

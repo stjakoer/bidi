@@ -29,7 +29,14 @@ update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
 all_connected = False   # Um zu speichern, ob alle Verbunden sind.
 
+def cleanup_and_exit():
+    print("Cleanup...")
+    # Setzt alle Lichter auf aus
+    control_indicator_light('rot', 'aus')
+    control_indicator_light('rot', 'aus')
 
+    print("Programm sicher beendet.")
+    root.destroy()
 
 def update_dicts():
     global cinergia_dict
@@ -392,6 +399,7 @@ def update_cms_frame():
 
 root = tk.Tk()
 root.title("EV-Emulator")
+root.protocol("WM_DELETE_WINDOW", cleanup_and_exit)
 root.geometry('1260x680')
 # root.iconbitmap("Logo_Bidi.ico")
 

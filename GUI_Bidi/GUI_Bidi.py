@@ -315,7 +315,7 @@ def manage_cms_charging():
         if wago_dict['dcplus_contactor_state_open']['value'] == 1 and wago_dict['dcminus_contactor_state_open']['value'] == 1:
             break
     precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
-    cms_status, cms_dict = cms_read_dict_handover() # aktuellstes dictionary holen um Zeit zu sparen
+    cms_status, cms_dict = cms_read_dict_handover()  # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         print(int(cms_dict["EVSEPresentVoltage"]))
         if int(cms_dict["EVSEPresentVoltage"]) < (CNG_voltage_set+10) and int(cms_dict["EVSEPresentVoltage"]) > (CNG_voltage_set-10):
@@ -324,12 +324,10 @@ def manage_cms_charging():
     wago_write_modbus('close_contactor', 1)   # schütze schließen
 #    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
-        print("Warten auf Schütze")
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
             print("Schütze durch Raspberry Pi geschlossen")
             start_charging_cms()
             break
-
 
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
@@ -344,7 +342,6 @@ def manage_cms_charging():
 # CNG Input
 def stop_charging():
     stop_charging_cms()
-    print(cms_dict['EVSEPresentCurrent'])
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
             wago_write_modbus('close_contactor', 0)
@@ -353,6 +350,7 @@ def stop_charging():
             print("IMD gestartet")
             break
     while True:
+        print(cms_dict['EVSEPresentVoltage'])
         if int(cms_dict['EVSEPresentVoltage']) <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
             wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
@@ -663,7 +661,7 @@ information_EVTEC_frame_3_0.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
 update_evtec()
 
 # ScrolledText-Widget erstellen innerhalb von frame_3_0
-text_widget = ScrolledText(frame_3_0, height=20, width=60)
+text_widget = ScrolledText(frame_3_0, height=15, width=30)
 text_widget.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
 # Umleitung der Standardausgabe an das Text-Widget

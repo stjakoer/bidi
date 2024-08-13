@@ -15,7 +15,7 @@ from connect_gpio import control_indicator_light
 from connect_evtec import evtec_modbus
 from connect_cinergia import cinergia_modbus, cinergia_write_modbus
 from connect_wago import wago_modbus, wago_write_modbus
-from connect_cms import precharge_cms, start_charging_cms, cms_read_dict_handover, stop_charging_cms, start_cms
+from connect_cms import precharge_cms, start_charging_cms, cms_read_dict_handover, stop_charging_cms, start_cms, adjust_current_cms
 
 cinergia_dict = {}  # Leeres dictionary für cinergia variablen
 evtec_dict = {}     # Leeres dictionary für evtec variablen
@@ -241,6 +241,8 @@ def current_ch_static_combo_selected(event):
     CMS_current_set = current_ch - current_dch
     # Anzeige der erwarteten Ladeleistung:
     power_calculation()
+    if power_ok and cms_dict["StateMachineState"] == 'Charge':
+        adjust_current_cms(current_ch)
     return
 
 

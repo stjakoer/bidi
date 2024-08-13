@@ -235,7 +235,7 @@ def update_operation_combo_states(event):   # Auswahl Charge/Discharge
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def current_ch_static_combo_selected(event):
-    global CMS_current_set, CNG_voltage_set, current_ch, current_dch
+    global CMS_current_set, CNG_voltage_set, current_ch, current_dch, power_ok
     current_ch = current_ch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
     CMS_current_set = current_ch - current_dch
@@ -425,7 +425,7 @@ def update_cms_frame():
 root = tk.Tk()
 root.title("EV-Emulator")
 root.protocol("WM_DELETE_WINDOW", cleanup_and_exit)
-root.geometry('1260x600')
+root.geometry('1260x630')
 # root.iconbitmap("Logo_Bidi.ico")
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)

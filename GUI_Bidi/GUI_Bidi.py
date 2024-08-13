@@ -35,7 +35,15 @@ def cleanup_and_exit():
     control_indicator_light('rot', 'aus')
     control_indicator_light('rot', 'aus')
 
+    # Ladevorgang nochmal beenden
+    stop_charging_cms()
+    wago_write_modbus('close_contactor', 0)
+    wago_write_modbus('stop_imd', 0)
+    wago_write_modbus('ccs_lock_close', 0)
+    wago_write_modbus('ccs_lock_open', 1)
+
     print("Programm sicher beendet.")
+    # Fenster zerstören
     root.destroy()
 
 def update_dicts():

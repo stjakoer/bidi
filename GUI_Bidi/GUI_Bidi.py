@@ -235,6 +235,11 @@ def power_calculation():
         power_ok = True
     return
 
+def light_control():
+    if wago_dict['sps_command_stop_charging_dc']['value'] == 0 and all_connected:
+        control_indicator_light('rot', 'aus')
+    root.after(update_time, light_control)
+    return
 
 #   ==============================================================================================
 def start_cng():
@@ -285,7 +290,7 @@ def manage_cms_charging():
             print("CNG und EVTEC Spannung gleich")
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
     wago_write_modbus('close_contactor', 1)   # schütze schließen
-    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
+#    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         print("Warten auf Schütze")
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
@@ -303,11 +308,7 @@ def manage_cms_charging():
             control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
-        #if not cms_dict['StateMachineState'] == 'Charge':
-         #   stop_charging()     # Normales beenden
-          #  break
-    if wago_dict['sps_command_stop_charging_dc']['value'] == 0 and all_connected:
-        control_indicator_light('rot', 'aus')
+
 # CNG Input
 def stop_charging():
     stop_charging_cms()
@@ -397,15 +398,14 @@ root.geometry('1260x680')
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(1)
+time.sleep(30)
 
 notebook = ttk.Notebook(root)
-tab1 = ttk.Frame(notebook)
 
 ### ERSTE SPALTE ###
 
 # Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
-frame_0_0 = ttk.LabelFrame(tab1, text="Charge Parameter")
+frame_0_0 = ttk.LabelFrame(ext="Charge Parameter")
 frame_0_0.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 frame_0_0.columnconfigure(0, weight=1)
 
@@ -484,7 +484,7 @@ start_erlaubnis()
 ### ZWEITE SPALTE ###
 
 # Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
-frame_1_0 = ttk.LabelFrame(tab1, text="Controllable Load")
+frame_1_0 = ttk.LabelFrame(text="Controllable Load")
 frame_1_0.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 frame_1_0.columnconfigure(1, weight=1)
 
@@ -560,7 +560,7 @@ warning_vector_label_text.grid(row=16, column=0, padx=5, pady=5)
 ### DRITTE SPALTE ###
 
 # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
-frame_2_0 = ttk.LabelFrame(tab1, text="Charge Process")
+frame_2_0 = ttk.LabelFrame(text="Charge Process")
 frame_2_0.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
 frame_2_0.columnconfigure(2, weight=1)
 
@@ -622,7 +622,7 @@ update_cms_frame()
 ### VIERTE SPALTE ###
 
 # Erstellen des Frames_3_0 (4. Haupt-Frame von links) "EVSE"
-frame_3_0 = ttk.LabelFrame(tab1, text="EVSE")
+frame_3_0 = ttk.LabelFrame(text="EVSE")
 frame_3_0.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
 frame_3_0.columnconfigure(0, weight=1)
 information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
@@ -632,8 +632,6 @@ update_evtec()
 """ Erste Spalte - TAB 2 """
 
 
-notebook.add(tab1, text="Startseite")
-# notebook.add(tab2, text="Tab2")
 notebook.pack(expand=True, fill='both')
 
 # Starten der GUI

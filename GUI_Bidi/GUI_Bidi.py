@@ -35,7 +35,7 @@ def cleanup_and_exit():
     print("Cleanup...")
     # Setzt alle Lichter auf aus
     control_indicator_light('rot', 'aus')
-    control_indicator_light('rot', 'aus')
+    control_indicator_light('grün', 'aus')
 
     # Ladevorgang nochmal beenden
     stop_charging_cms()

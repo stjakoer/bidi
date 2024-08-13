@@ -470,7 +470,7 @@ current_ch_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
 current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current [A]:")
 current_ch_static_label.grid(row=5, column=0, padx=5, pady=2)
-current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
+current_ch_static_combo = ttk.Radiobutton(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
 current_ch_static_combo.grid(row=5, column=1, padx=5, pady=2)
 current_ch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion

@@ -173,10 +173,12 @@ def start_charging_cms():
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     can_tester.stop()
 
+
 def adjust_current_cms(evcurrent):
     can_tester.start()
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = evcurrent
-    can_tester.stop
+    can_tester.stop()
+
 
 def stop_charging_cms():
     can_tester.start()

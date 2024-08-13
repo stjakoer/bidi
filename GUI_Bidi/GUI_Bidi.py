@@ -303,9 +303,9 @@ def manage_cms_charging():
             control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
-        if not cms_dict['StateMachineState'] == 'Charge':
-            stop_charging()     # Normales beenden
-            break
+        #if not cms_dict['StateMachineState'] == 'Charge':
+         #   stop_charging()     # Normales beenden
+          #  break
     if wago_dict['sps_command_stop_charging_dc']['value'] == 0 and all_connected:
         control_indicator_light('rot', 'aus')
 # CNG Input

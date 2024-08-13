@@ -123,6 +123,7 @@ def precharge_cms(evcurrent, evvoltage):
 
     can_tester.messages['EVStatusDisplay']['EVErrorCode'] = 0
     can_tester.messages['EVStatusDisplay']['EVSoC'] = evsoc
+    can_tester.messages['EVStatusControl']['EVReady'] = 'True'
 
     can_tester.flush_input()
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'Isolation'}, timeout=20)
@@ -164,7 +165,6 @@ def precharge_cms(evcurrent, evvoltage):
 
 def start_charging_cms():
     can_tester.start()
-    can_tester.messages['EVStatusControl']['EVReady'] = 'True'
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Start'
 
     can_tester.flush_input()

@@ -182,8 +182,9 @@ def stop_charging_cms():
 
     can_tester.flush_input()
     assert can_tester.expect('ChargeInfo', {'StateMachineState': 'ShutOff'}) or \
-           can_tester.expect('ChargeInfo', {'StateMachineState': 'SNA'})
-    print('ShutOff or SNA')
+           can_tester.expect('ChargeInfo', {'StateMachineState': 'SNA'}) or \
+           can_tester.expect('ChargeInfo', {'StateMachineState': 'Default'})
+    print('ShutOff or SNA or Default')
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     print('Waiting for Unplug')

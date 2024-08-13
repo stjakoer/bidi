@@ -311,21 +311,19 @@ def manage_cms_charging():
 # CNG Input
 def stop_charging():
     stop_charging_cms()
-    wago_write_modbus('close_contactor', 0)
-    wago_write_modbus('stop_imd', 0)
-    wago_write_modbus('ccs_lock_close', 0)
-    wago_write_modbus('ccs_lock_open', 1)
     print(cms_dict['EVSEPresentCurrent'])
-    #while True:
-     #   if cms_dict['StateMachineState'] == 'ShutOff' and int(cms_dict['EVSEPresentCurrent']) < 1:
-      #      wago_write_modbus('close_contactor', 0)
-       #     print("Schütze durch Raspberry Pi geöffnet")
-        #    break
-    #while True:
-     #   if int(cms_dict['EVSEPresentVoltage']) <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
-      #      wago_write_modbus('ccs_lock_close', 0)
-       #     wago_write_modbus('ccs_lock_open', 1)
-        #    break
+    while True:
+        if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
+            wago_write_modbus('close_contactor', 0)
+            print("Schütze durch Raspberry Pi geöffnet")
+            wago_write_modbus('stop_imd', 0)
+            print("IMD gestartet")
+            break
+    while True:
+        if int(cms_dict['EVSEPresentVoltage']) <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
+            wago_write_modbus('ccs_lock_close', 0)
+            wago_write_modbus('ccs_lock_open', 1)
+            break
     return
 
 ### Sicherheitskriterien von RaPi abfragen ###

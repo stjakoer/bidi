@@ -5,6 +5,8 @@ Created on Tue Oct 24 15:37:44 2023
 @author: Team-Bidi
 """
 
+from tkinter.scrolledtext import ScrolledText
+import sys
 import threading
 import tkinter as tk
 from tkinter import ttk
@@ -42,9 +44,24 @@ def cleanup_and_exit():
     wago_write_modbus('ccs_lock_close', 0)
     wago_write_modbus('ccs_lock_open', 1)
 
+    # Kommandozeile wieder ins Normale Terminal umleiten
+    sys.stdout = sys.__stdout__
     print("Programm sicher beendet.")
     # Fenster zerstören
     root.destroy()
+
+# wird benötigt um das Terminal in der GUI auszugeben
+class RedirectedOutput:
+    def __init__(self, text_widget):
+        self.text_widget = text_widget
+
+    def write(self, string):
+        self.text_widget.insert(tk.END, string)
+        self.text_widget.see(tk.END)  # Scrollt zum Ende, wenn neue Zeilen hinzugefügt werden
+
+    def flush(self):
+        pass  # Für die Kompatibilität mit `sys.stdout`
+
 
 def update_dicts():
     global cinergia_dict
@@ -409,7 +426,7 @@ def update_cms_frame():
 root = tk.Tk()
 root.title("EV-Emulator")
 root.protocol("WM_DELETE_WINDOW", cleanup_and_exit)
-root.geometry('1260x620')
+root.geometry('1260x600')
 # root.iconbitmap("Logo_Bidi.ico")
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)
@@ -495,6 +512,13 @@ start_status_frame.grid(row=10, column=0)
 start_status_label = ttk.Label(start_status_frame, text='test')
 start_status_label.grid(row=0, column=0, columnspan=3)
 start_erlaubnis()
+
+# ScrolledText-Widget erstellen
+text_widget = ScrolledText(root, height=20, width=60)
+text_widget.pack(pady=10, padx=10)
+
+# Umleitung der Standardausgabe an das Text-Widget
+sys.stdout = RedirectedOutput(text_widget)
 
 #   ======================================================================================================
 ### ZWEITE SPALTE ###

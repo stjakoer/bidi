@@ -241,8 +241,10 @@ def current_ch_static_combo_selected(event):
     CMS_current_set = current_ch - current_dch
     # Anzeige der erwarteten Ladeleistung:
     power_calculation()
+    print("Powercalc abgeschlossen")
     if power_ok and cms_dict["StateMachineState"] == 'Charge':
         adjust_current_cms(current_ch)
+        print("Strom geschrieben")
     return
 
 

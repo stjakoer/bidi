@@ -513,13 +513,6 @@ start_status_label = ttk.Label(start_status_frame, text='test')
 start_status_label.grid(row=0, column=0, columnspan=3)
 start_erlaubnis()
 
-# ScrolledText-Widget erstellen
-text_widget = ScrolledText(root, height=20, width=60)
-text_widget.pack(pady=10, padx=10)
-
-# Umleitung der Standardausgabe an das Text-Widget
-sys.stdout = RedirectedOutput(text_widget)
-
 #   ======================================================================================================
 ### ZWEITE SPALTE ###
 
@@ -668,6 +661,13 @@ frame_3_0.columnconfigure(0, weight=1)
 information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
 information_EVTEC_frame_3_0.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
 update_evtec()
+
+# ScrolledText-Widget erstellen
+text_widget = ScrolledText(frame_3_0, height=20, width=60)
+text_widget.pack(pady=10, padx=10)
+
+# Umleitung der Standardausgabe an das Text-Widget
+sys.stdout = RedirectedOutput(text_widget)
 
 # Starten der GUI
 root.mainloop()

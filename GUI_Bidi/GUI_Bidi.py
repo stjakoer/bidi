@@ -657,7 +657,7 @@ frame_3_0 = ttk.LabelFrame(text="EVSE")
 frame_3_0.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
 frame_3_0.columnconfigure(0, weight=1)
 information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
-information_EVTEC_frame_3_0.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
+information_EVTEC_frame_3_0.grid(row=1, column=0, padx=5, pady=2, sticky="nsew")
 update_evtec()
 
 # ScrolledText-Widget erstellen innerhalb von frame_3_0

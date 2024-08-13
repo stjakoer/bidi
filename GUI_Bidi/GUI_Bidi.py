@@ -409,31 +409,31 @@ def update_cms_frame():
 root = tk.Tk()
 root.title("EV-Emulator")
 root.protocol("WM_DELETE_WINDOW", cleanup_and_exit)
-root.geometry('1260x680')
+root.geometry('1260x620')
 # root.iconbitmap("Logo_Bidi.ico")
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(30)
+time.sleep(1)
 
 notebook = ttk.Notebook(root)
 
 ### ERSTE SPALTE ###
 
 # Erstellen des Frames_0_0 (1. Haupt-Frame von links) "Charge Parameter"
-frame_0_0 = ttk.LabelFrame(ext="Charge Parameter")
-frame_0_0.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+frame_0_0 = ttk.LabelFrame(text="Charge Parameter")
+frame_0_0.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 frame_0_0.columnconfigure(0, weight=1)
 
 # Erstellen eines Frames im Frame_0_0 für "Control Operation"
 no_header_frame_0_0 = ttk.LabelFrame(frame_0_0, text="")
-no_header_frame_0_0.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+no_header_frame_0_0.grid(row=1, column=0, padx=5, pady=2, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "no_header_frame_0_0", sowie Positionierung
 control_operation_var = tk.StringVar()
 control_operation_label = ttk.Label(no_header_frame_0_0, text="Control Operation:")
-control_operation_label.grid(row=1, column=0, padx=5, pady=5)
+control_operation_label.grid(row=1, column=0, padx=5, pady=2)
 control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Charge", "Discharge"], state="readonly", width=7)
-control_operation_combo.grid(row=1, column=1, padx=5, pady=5)
+control_operation_combo.grid(row=1, column=1, padx=5, pady=2)
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 # Bind-Methode ruft die Fkt "update_operation_combo_states(event)" immer bei Benutzung des Dropdown-Menüs auf
 control_operation_combo.bind("<<ComboboxSelected>>", update_operation_combo_states)
@@ -442,21 +442,21 @@ no_header_frame_0_0.columnconfigure(1, weight=1)
 
 # Erstellen des Frames "Voltage Control" im Frame_0_0
 voltage_control_frame = ttk.LabelFrame(frame_0_0, text="Voltage Control --> Cinergia")
-voltage_control_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+voltage_control_frame.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 # Erstellen der Spannungsausgabe im "voltage_control_frame", sowie Positionierung
 voltage_static_label = ttk.Label(voltage_control_frame, text=f"Voltage fixed on {CNG_voltage_set}V.")
-voltage_static_label.grid(row=3, column=0, padx=5, pady=5)
+voltage_static_label.grid(row=3, column=0, padx=5, pady=2)
 voltage_static_label.config(state="normal")
 
 # Erstellen des Frames "Charge Current → CMS" im Frame_0_0
 current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current → CMS")
-current_ch_control_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
+current_ch_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "current_ch_control_frame", sowie Positionierung
 current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current [A]:")
-current_ch_static_label.grid(row=5, column=0, padx=5, pady=5)
+current_ch_static_label.grid(row=5, column=0, padx=5, pady=2)
 current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
-current_ch_static_combo.grid(row=5, column=1, padx=5, pady=5)
+current_ch_static_combo.grid(row=5, column=1, padx=5, pady=2)
 current_ch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected)  # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
@@ -466,13 +466,13 @@ current_ch_control_frame.columnconfigure(1, weight=1)
 
 # Erstellen des Frames "Discharge Current → CMS" im Frame_0_0
 current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current →  CMS")
-current_dch_control_frame.grid(row=6, column=0, padx=10, pady=10, sticky="nsew")
+current_dch_control_frame.grid(row=6, column=0, padx=10, pady=5, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "current_dch_control_frame", sowie Positionierung
 current_dch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current [A]:")
-current_dch_static_label.grid(row=7, column=0, padx=5, pady=5)
+current_dch_static_label.grid(row=7, column=0, padx=5, pady=2)
 current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
-current_dch_static_combo.grid(row=7, column=1, padx=5, pady=5)
+current_dch_static_combo.grid(row=7, column=1, padx=5, pady=2)
 current_dch_static_combo.config(state="disabled")
 # Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
 current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected)  # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
@@ -481,13 +481,13 @@ current_dch_control_frame.columnconfigure(0, weight=1)
 current_dch_control_frame.columnconfigure(1, weight=1)
 # Erstellen des Frames "Power Calculation" im Frame_0_0
 power_calculation_frame = ttk.LabelFrame(frame_0_0, text="Power Calculation")
-power_calculation_frame.grid(row=8, column=0, padx=10, pady=10, sticky="nsew")
+power_calculation_frame.grid(row=8, column=0, padx=10, pady=5, sticky="nsew")
 power_calculation_label = ttk.Label(power_calculation_frame, text=f"Expected power is:")
-power_calculation_label.grid(row=9, column=0, padx=5, pady=5)
+power_calculation_label.grid(row=9, column=0, padx=5, pady=2)
 power_calculation_label_text = ttk.Label(power_calculation_frame, text="")
-power_calculation_label_text.grid(row=9, column=1, padx=5, pady=5)
+power_calculation_label_text.grid(row=9, column=1, padx=5, pady=2)
 power_calculation_status_label = ttk.Label(power_calculation_frame, text="")
-power_calculation_status_label.grid(row=9, column=2, padx=5, pady=5)
+power_calculation_status_label.grid(row=9, column=2, padx=5, pady=2)
 power_calculation()
 #   Start-Erlaubnis
 start_status_frame = ttk.Frame(frame_0_0)
@@ -501,56 +501,56 @@ start_erlaubnis()
 
 # Erstellen des Frames_1_0 (2. Haupt-Frame von links) "Controllable Load"
 frame_1_0 = ttk.LabelFrame(text="Controllable Load")
-frame_1_0.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+frame_1_0.grid(row=0, column=1, padx=10, pady=2, sticky="nsew")
 frame_1_0.columnconfigure(1, weight=1)
 
 # Erstellen des Frames "Control Cinergia" im Frame_1_0
 control_frame_1_0 = ttk.LabelFrame(frame_1_0, text="Control Cinergia")
-control_frame_1_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+control_frame_1_0.grid(row=1, column=0, padx=10, pady=2, sticky="nsew")
 # Erstellen der Schaltflächen "Enable CNG", "Disable CNG" und "Reset" im "control_frame_1_0", sowie Positionierung
 enable_button = ttk.Button(control_frame_1_0, text="Enable CNG", command=enable_cng)
-enable_button.grid(row=1, column=0, padx=5, pady=5)
+enable_button.grid(row=1, column=0, padx=5, pady=2)
 disable_button = ttk.Button(control_frame_1_0, text="Disable CNG", state="disabled", command=disable_cng)
-disable_button.grid(row=1, column=1, padx=5, pady=5)
+disable_button.grid(row=1, column=1, padx=5, pady=2)
 reset_button = ttk.Button(control_frame_1_0, text="Reset", state="disabled", command=reset_alarm_warning)
-reset_button.grid(row=2, column=0, columnspan=2, pady=5)
+reset_button.grid(row=2, column=0, columnspan=2, pady=2)
 start_cng_button = ttk.Button(control_frame_1_0, text="Start CNG", state="disabled", command=start_cng)
-start_cng_button.grid(row=3, column=0, padx=5, pady=5)
+start_cng_button.grid(row=3, column=0, padx=5, pady=2)
 stop_cng_button = ttk.Button(control_frame_1_0, text="Stop CNG", state="normal", command=stop_cng)
-stop_cng_button.grid(row=3, column=1, padx=5, pady=5)
+stop_cng_button.grid(row=3, column=1, padx=5, pady=2)
 
 # Erstellen eines weiteren Frames "Stats EuT-Side" im Frame_1_0
 stats_display_frame = ttk.LabelFrame(frame_1_0, text="Stats Eut-Side")
-stats_display_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+stats_display_frame.grid(row=2, column=0, padx=10, pady=2, sticky="nsew")
 # Erstellen eines Labels zur Anzeige von Spannungswerts im "voltage_display_frame"
 voltage_un_label_text = ttk.Label(stats_display_frame, text="Voltage U-N:")
-voltage_un_label_text.grid(row=3, column=0, padx=5, pady=5)
+voltage_un_label_text.grid(row=3, column=0, padx=5, pady=2)
 voltage_un_label = ttk.Label(stats_display_frame, text="")
-voltage_un_label.grid(row=3, column=1, padx=5, pady=5)
+voltage_un_label.grid(row=3, column=1, padx=5, pady=2)
   # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_un = ttk.Label(stats_display_frame, text="[V_rms]")
-unit_label_un.grid(row=3, column=2, padx=5, pady=5)
+unit_label_un.grid(row=3, column=2, padx=5, pady=2)
 current_total_label_text = ttk.Label(stats_display_frame, text="Current total:")
-current_total_label_text.grid(row=5, column=0, padx=5, pady=5)
+current_total_label_text.grid(row=5, column=0, padx=5, pady=2)
 current_total_label = ttk.Label(stats_display_frame, text="")
-current_total_label.grid(row=5, column=1, padx=5, pady=5)
+current_total_label.grid(row=5, column=1, padx=5, pady=2)
 # update_current_total()   Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_current_total = ttk.Label(stats_display_frame, text="[A_rms]")
-unit_label_current_total.grid(row=5, column=2, padx=5, pady=5)
+unit_label_current_total.grid(row=5, column=2, padx=5, pady=2)
 power_total_label_text = ttk.Label(stats_display_frame, text="Power total:")
-power_total_label_text.grid(row=7, column=0, padx=5, pady=5)
+power_total_label_text.grid(row=7, column=0, padx=5, pady=2)
 power_total_label = ttk.Label(stats_display_frame, text="")
-power_total_label.grid(row=7, column=1, padx=5, pady=5)
+power_total_label.grid(row=7, column=1, padx=5, pady=2)
 # update_power_total()   Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 unit_label_power_total = ttk.Label(stats_display_frame, text="[W]")
-unit_label_power_total.grid(row=7, column=2, padx=5, pady=5)
+unit_label_power_total.grid(row=7, column=2, padx=5, pady=2)
 update_cng_para()
 
 #   Funktion zum allgemeinen Erstellen des Alarmfensters
 def create_alarm_frame(frame, title, row, alarm_dict):
     alarm_texts = ["Alarm 1:", "Alarm 2:", "Alarm 3:", "Alarm 4:", "Alarm 5:"]
     alarm_display_frame = ttk.LabelFrame(frame, text=title)
-    alarm_display_frame.grid(row=row, column=0, padx=10, pady=5, sticky="nsew")
+    alarm_display_frame.grid(row=row, column=0, padx=10, pady=2, sticky="nsew")
     for i, alarm_text in enumerate(alarm_texts, start=9):
         alarm_label_text = ttk.Label(alarm_display_frame, text=alarm_text)
         alarm_label_text.grid(row=i, column=1, padx=5, pady=2)
@@ -568,26 +568,26 @@ create_alarm_frame(frame_1_0, "Alarm E.U.T. side [INV]", 14, alarm_def_INV)
 update_alarm_inv()
 
 warning_frame = ttk.Label(frame_1_0, text="")
-warning_frame.grid(row=15, column=0, padx=5, pady=5, sticky="nsew")
+warning_frame.grid(row=15, column=0, padx=5, pady=2, sticky="nsew")
 warning_vector_label_text = ttk.Label(warning_frame, text=f"Waring_Vector_INV:  {cinergia_dict[23010]['value']}")
-warning_vector_label_text.grid(row=16, column=0, padx=5, pady=5)
+warning_vector_label_text.grid(row=16, column=0, padx=5, pady=2)
 
 #   ======================================================================================================
 ### DRITTE SPALTE ###
 
 # Erstellen des Frames_2_0 (3. Haupt-Frame von links) "Charge Process"
 frame_2_0 = ttk.LabelFrame(text="Charge Process")
-frame_2_0.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
+frame_2_0.grid(row=0, column=3, padx=10, pady=5, sticky="nsew")
 frame_2_0.columnconfigure(2, weight=1)
 
 # Erstellen eines Frames im Frame_2_0
 no_header_frame_2_0 = ttk.LabelFrame(frame_2_0, text="")
-no_header_frame_2_0.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+no_header_frame_2_0.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 # Erstellen der Schaltflächen "Start Charging", "Stop Charging"
 start_charging_button = ttk.Button(no_header_frame_2_0, text="Start Charging", state="disabled", command=start_charging)
-start_charging_button.grid(row=1, column=0, padx=5, pady=5)
+start_charging_button.grid(row=1, column=0, padx=5, pady=2)
 stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="normal", command=stop_charging)
-stop_charging_button.grid(row=1, column=1, padx=5, pady=5)
+stop_charging_button.grid(row=1, column=1, padx=5, pady=2)
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 no_header_frame_2_0.columnconfigure(0, weight=1)
 no_header_frame_2_0.columnconfigure(1, weight=1)
@@ -595,36 +595,36 @@ update_ctrl_button()
 
 # Erstellen des Frames "Information CNG" im Frame_2_0
 information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
-information_CNG_frame_2_0.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+information_CNG_frame_2_0.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 sw_grafcet_state_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet State:")
-sw_grafcet_state_label_text.grid(row=3, column=0, padx=5, pady=5)
+sw_grafcet_state_label_text.grid(row=3, column=0, padx=5, pady=2)
 sw_grafcet_state_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_grafcet_state_label.grid(row=3, column=1, padx=5, pady=5)
+sw_grafcet_state_label.grid(row=3, column=1, padx=5, pady=2)
 update_cng_buttons()  # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_output_connection_label_text = ttk.Label(information_CNG_frame_2_0, text="Output Connection State:")
-sw_output_connection_label_text.grid(row=4, column=0, padx=5, pady=5, sticky='W')
+sw_output_connection_label_text.grid(row=4, column=0, padx=5, pady=2, sticky='W')
 sw_output_connection_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_output_connection_label.grid(row=4, column=1, padx=5, pady=5)
+sw_output_connection_label.grid(row=4, column=1, padx=5, pady=2)
 
 sw_bipolar_label_text = ttk.Label(information_CNG_frame_2_0, text="Bipolar State:")
-sw_bipolar_label_text.grid(row=5, column=0, padx=5, pady=5, sticky='W')
+sw_bipolar_label_text.grid(row=5, column=0, padx=5, pady=2, sticky='W')
 sw_bipolar_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_bipolar_label.grid(row=5, column=1, padx=5, pady=5)
+sw_bipolar_label.grid(row=5, column=1, padx=5, pady=2)
 
 sw_ge_el_selector_label_text = ttk.Label(information_CNG_frame_2_0, text="GE_EL_Selector:")
-sw_ge_el_selector_label_text.grid(row=6, column=0, padx=5, pady=5, sticky='W')
+sw_ge_el_selector_label_text.grid(row=6, column=0, padx=5, pady=2, sticky='W')
 sw_ge_el_selector_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ge_el_selector_label.grid(row=6, column=1, padx=5, pady=5)
+sw_ge_el_selector_label.grid(row=6, column=1, padx=5, pady=2)
 
 sw_ac_dc_selector_u_label_text = ttk.Label(information_CNG_frame_2_0, text="AC_DC_Selector_U:")
-sw_ac_dc_selector_u_label_text.grid(row=7, column=0, padx=5, pady=5, sticky='W')
+sw_ac_dc_selector_u_label_text.grid(row=7, column=0, padx=5, pady=2, sticky='W')
 sw_ac_dc_selector_u_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_ac_dc_selector_u_label.grid(row=7, column=1, padx=5, pady=5)
+sw_ac_dc_selector_u_label.grid(row=7, column=1, padx=5, pady=2)
   # Aufruf der Funktion, Übergabe an vorherige Label-Variable (text="")
 sw_control_operation_u_label_text = ttk.Label(information_CNG_frame_2_0, text="Control_Operation_U:")
-sw_control_operation_u_label_text.grid(row=8, column=0, padx=5, pady=5, sticky='W')
+sw_control_operation_u_label_text.grid(row=8, column=0, padx=5, pady=2, sticky='W')
 sw_control_operation_u_label = ttk.Label(information_CNG_frame_2_0, text="")
-sw_control_operation_u_label.grid(row=8, column=1, padx=5, pady=5)
+sw_control_operation_u_label.grid(row=8, column=1, padx=5, pady=2)
 update_selectors()
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 information_CNG_frame_2_0.columnconfigure(0, weight=1)
@@ -644,11 +644,6 @@ frame_3_0.columnconfigure(0, weight=1)
 information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
 information_EVTEC_frame_3_0.grid(row=1, column=4, padx=5, pady=2, sticky="nsew")
 update_evtec()
-
-""" Erste Spalte - TAB 2 """
-
-
-notebook.pack(expand=True, fill='both')
 
 # Starten der GUI
 root.mainloop()

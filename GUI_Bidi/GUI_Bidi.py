@@ -317,7 +317,6 @@ def manage_cms_charging():
     precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
     cms_status, cms_dict = cms_read_dict_handover()  # aktuellstes dictionary holen um Zeit zu sparen
     while True:
-        print(int(cms_dict["EVSEPresentVoltage"]))
         if int(cms_dict["EVSEPresentVoltage"]) < (CNG_voltage_set+10) and int(cms_dict["EVSEPresentVoltage"]) > (CNG_voltage_set-10):
             print("CNG und EVTEC Spannung gleich")
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat

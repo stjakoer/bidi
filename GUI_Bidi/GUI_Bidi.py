@@ -338,7 +338,7 @@ def stop_charging():
             break
     while True:
         print(cms_dict['EVSEPresentVoltage'])
-        if int(cms_dict['EVSEPresentVoltage']) <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
+        if (int(cms_dict['EVSEPresentVoltage']) <= 60 or cms_dict['EVSEPresentVoltage'] == 'SNA') and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
             wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
             break

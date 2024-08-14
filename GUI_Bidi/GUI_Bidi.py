@@ -102,7 +102,10 @@ def update_cng_buttons():
         enable_button.config(state="disable")
         disable_button.config(state="disable")
         start_cng_button.config(state="disable")
-        stop_cng_button.config(state="normal")
+        if cms_dict["StateMachineState"] == 'Charge':
+            stop_cng_button.config(state="disable")
+        else:
+            stop_cng_button.config(state="normal")
         reset_button.config(state="disable")
     elif cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:  # 6: Warning; 7: Alarm
         enable_button.config(state="disable")
@@ -116,7 +119,7 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
+    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge':
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")

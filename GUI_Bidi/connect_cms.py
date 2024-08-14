@@ -179,6 +179,8 @@ def adjust_current_cms(evcurrent):
     can_tester.flush_input()
     time.sleep(0.1)
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = evcurrent
+    time.sleep(0.1)
+    can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = evcurrent
     can_tester.stop()
 
 

@@ -21,7 +21,6 @@ cinergia_dict = {}  # Leeres dictionary für cinergia variablen
 evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
 wago_dict = {}      # Leeres dictionary für wago values
-CMS_current_set = 0
 CNG_voltage_set = 400
 set_current = 0
 selected_operation = {}
@@ -93,7 +92,7 @@ def update_cng_buttons():
     elif cinergia_dict[16000]['value'] == 4:    # 4: Ready
         enable_button.config(state="disable")
         disable_button.config(state="normal")
-        if power_ok and CMS_current_set != 0:
+        if power_ok and set_current != 0:
             start_cng_button.config(state="normal")
         else:
             start_cng_button.config(state="disable")
@@ -117,7 +116,7 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and CMS_current_set != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
+    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")
@@ -210,7 +209,7 @@ def reset_alarm_warning():
 # Interne Funktion
 # Dropdown:
 def update_operation_combo_states():   # Auswahl Charge/Discharge
-    global selected_operation, CMS_current_set, CNG_voltage_set, set_current
+    global selected_operation, CNG_voltage_set, set_current
     selected_operation = control_operation_var.get()
     print("Die Operation-Variable lautet:", selected_operation)
     set_current = 0
@@ -230,7 +229,7 @@ def update_operation_combo_states():   # Auswahl Charge/Discharge
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def set_current_static_combo_selected():
-    global CMS_current_set, CNG_voltage_set, set_current, power_ok
+    global CNG_voltage_set, set_current, power_ok
     set_current = set_current_static_slider.get()
     set_current_static_set_button.config(text="Set New Value")
     print("Slider bestätigt: ", set_current, "A")
@@ -303,7 +302,7 @@ def manage_cms_charging():
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 1 and wago_dict['dcminus_contactor_state_open']['value'] == 1:
             break
-    precharge_cms(CMS_current_set, CNG_voltage_set)  # precharge + parameter übergeben
+    precharge_cms(set_current, CNG_voltage_set)  # precharge + parameter übergeben
     cms_status, cms_dict = cms_read_dict_handover()  # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         if int(cms_dict["EVSEPresentVoltage"]) < (CNG_voltage_set+10) and int(cms_dict["EVSEPresentVoltage"]) > (CNG_voltage_set-10):
@@ -417,7 +416,7 @@ root.geometry('1260x630')
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(30)
+time.sleep(1)
 
 notebook = ttk.Notebook(root)
 
@@ -457,7 +456,7 @@ set_current_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
 set_current_static_var = tk.IntVar()  # Variable als Integer definieren
 set_current_static_label = ttk.Label(set_current_control_frame, text="Current [A]:")
 set_current_static_label.grid(row=5, column=0, padx=5, pady=2)
-set_current_static_slider = tk.Scale(set_current_control_frame, from_=28, to=0, width=120, length=330, sliderlength=40, orient="vertical")
+set_current_static_slider = tk.Scale(set_current_control_frame, from_=28, to=0, width=120, length=280, sliderlength=30, orient="vertical")
 set_current_static_slider.grid(row=6, column=0, padx=5, pady=2)
 set_current_static_set_button = ttk.Button(set_current_control_frame, text="Set Current", command=set_current_static_combo_selected)
 set_current_static_set_button.grid(row=7, column=0, padx=5, pady=2)

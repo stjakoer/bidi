@@ -22,9 +22,8 @@ evtec_dict = {}     # Leeres dictionary für evtec variablen
 cms_dict = {}       # Leeres dictionary für cms values
 wago_dict = {}      # Leeres dictionary für wago values
 CMS_current_set = 0
-CNG_voltage_set = 240
-current_ch = 0
-current_dch = 0
+CNG_voltage_set = 400
+set_current = 0
 selected_operation = {}
 power_ok = False
 update_time = 3000  # Zeit bis sich jede Funktion wiederholt
@@ -210,60 +209,46 @@ def reset_alarm_warning():
 #   ================================================================================================
 # Interne Funktion
 # Dropdown:
-def update_operation_combo_states(event):   # Auswahl Charge/Discharge
-    global selected_operation, CMS_current_set, CNG_voltage_set, current_ch, current_dch
+def update_operation_combo_states():   # Auswahl Charge/Discharge
+    global selected_operation, CMS_current_set, CNG_voltage_set, set_current
     selected_operation = control_operation_var.get()
-    print("Die Operation-Variable lautet:", selected_operation, "; Datentyp:", type(selected_operation))
-    current_ch = 0
-    current_dch = 0
-    current_ch_static_combo.set("0")
-    current_dch_static_combo.set("0")
+    print("Die Operation-Variable lautet:", selected_operation)
+    set_current = 0
+
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Charge":
-        current_ch_static_combo.config(state="normal")
-        current_dch_static_combo.config(state="disabled")
+        set_current_static_set_button.config(state="enable")
     elif selected_operation == "Discharge":
-        current_dch_static_combo.config(state="normal")
-        current_ch_static_combo.config(state="disabled")
+        print("Aktuell noch nicht unterstützt")
+        set_current_static_set_button.config(state="disable")
 
-    CMS_current_set = current_ch - current_dch
     power_calculation()
     update_cng_buttons()
     return
 
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def current_ch_static_combo_selected():
-    global CMS_current_set, CNG_voltage_set, current_ch, current_dch, power_ok
-    current_ch = current_ch_static_var.get()
-    print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
-    CMS_current_set = current_ch - current_dch
+def set_current_static_combo_selected():
+    global CMS_current_set, CNG_voltage_set, set_current, power_ok
+    set_current = set_current_static_slider.get()
+    set_current_static_set_button.config(text="Set New Value")
+    print("Slider bestätigt: ", set_current, "A")
     # Anzeige der erwarteten Ladeleistung:
     power_calculation()
     print("Powercalc abgeschlossen")
     if power_ok and cms_dict["StateMachineState"] == 'Charge':
-        adjust_current_cms(current_ch)
+        adjust_current_cms(set_current)     #  Hier später Unterscheidung zwischen Charge und Discharge treffen
         print("Strom geschrieben")
-    return
-
-
-# Anzeige, dass Dropdown-Menü betätigt wurde
-def current_dch_static_combo_selected(event):
-    global CMS_current_set, CNG_voltage_set, current_ch, current_dch
-    current_dch = current_dch_static_var.get()
-    print("Dropdown-Menü von Current [static] betätigt", current_dch, "A", "; Datentyp:", type(current_dch))
-    CMS_current_set = current_ch - current_dch
-    power_calculation()
     return
 
 
 # Prüfung der Leistung
 def power_calculation():
-    global CNG_voltage_set, power_ok
-    calculated_power = CNG_voltage_set * CMS_current_set
+    global CNG_voltage_set, power_ok, set_current
+    calculated_power = CNG_voltage_set * set_current
     power_calculation_label_text.config(text=f"{calculated_power}W")
-    if abs(calculated_power) > 10000:
+    if calculated_power > 10000:
         power_calculation_status_label.config(text="Error, to high!")#
         power_ok = False
     else:
@@ -432,7 +417,7 @@ root.geometry('1260x630')
 
 update_thread = threading.Thread(target=update_dicts, daemon=True)
 update_thread.start()
-time.sleep(1)
+time.sleep(30)
 
 notebook = ttk.Notebook(root)
 
@@ -444,17 +429,14 @@ frame_0_0.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
 frame_0_0.columnconfigure(0, weight=1)
 
 # Erstellen eines Frames im Frame_0_0 für "Control Operation"
-no_header_frame_0_0 = ttk.LabelFrame(frame_0_0, text="")
+no_header_frame_0_0 = ttk.LabelFrame(frame_0_0, text="Control Operation:")
 no_header_frame_0_0.grid(row=1, column=0, padx=5, pady=2, sticky="nsew")
 # Erstellen des Dropdown-Menüs im "no_header_frame_0_0", sowie Positionierung
-control_operation_var = tk.StringVar()
-control_operation_label = ttk.Label(no_header_frame_0_0, text="Control Operation:")
-control_operation_label.grid(row=1, column=0, padx=5, pady=2)
-control_operation_combo = ttk.Combobox(no_header_frame_0_0, textvariable=control_operation_var, values=["Charge", "Discharge"], state="readonly", width=7)
-control_operation_combo.grid(row=1, column=1, padx=5, pady=2)
-# Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
-# Bind-Methode ruft die Fkt "update_operation_combo_states(event)" immer bei Benutzung des Dropdown-Menüs auf
-control_operation_combo.bind("<<ComboboxSelected>>", update_operation_combo_states)
+control_operation_var = tk.StringVar(value="")
+control_operation_selector_ch = tk.Radiobutton(no_header_frame_0_0, variable=control_operation_var, text="Charge", value="Charge", command=update_operation_combo_states)
+control_operation_selector_ch.grid(row=2, column=0, padx=5, pady=2)
+control_operation_selector_dch = tk.Radiobutton(no_header_frame_0_0, variable=control_operation_var, text="Discharge", value="Discharge", command=update_operation_combo_states)
+control_operation_selector_dch.grid(row=2, column=1, padx=5, pady=2)
 no_header_frame_0_0.columnconfigure(0, weight=1)
 no_header_frame_0_0.columnconfigure(1, weight=1)
 
@@ -466,43 +448,23 @@ voltage_static_label = ttk.Label(voltage_control_frame, text=f"Voltage fixed on 
 voltage_static_label.grid(row=3, column=0, padx=5, pady=2)
 voltage_static_label.config(state="normal")
 
-# Erstellen des Frames "Charge Current → CMS" im Frame_0_0
-current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current → CMS")
-current_ch_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
+# Erstellen des Frames "Current → CMS" im Frame_0_0
+set_current_control_frame = ttk.LabelFrame(frame_0_0, text="Current → CMS")
+set_current_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
 
 
-# Erstellen des Dropdown-Menüs im "current_ch_control_frame", sowie Positionierung
-current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
-current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current [A]:")
-current_ch_static_label.grid(row=5, column=0, padx=5, pady=2)
-current_ch_static_slider = ttk.Scale(current_ch_control_frame, from_=0, to=28, orient="horizontal")
-current_ch_static_slider.grid(row=6, column=0, padx=5, pady=2)
-current_ch_static_set_button = ttk.Button(current_ch_control_frame, text="Set", command=current_ch_static_combo_selected)
-current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
-current_ch_static_combo.grid(row=5, column=1, padx=5, pady=2)
-current_ch_static_combo.config(state="disabled")
-# Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
-current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_selected)  # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
+# Erstellen des Dropdown-Menüs im "set_current_control_frame", sowie Positionierung
+set_current_static_var = tk.IntVar()  # Variable als Integer definieren
+set_current_static_label = ttk.Label(set_current_control_frame, text="Current [A]:")
+set_current_static_label.grid(row=5, column=0, padx=5, pady=2)
+set_current_static_slider = tk.Scale(set_current_control_frame, from_=28, to=0, width=120, length=330, sliderlength=40, orient="vertical")
+set_current_static_slider.grid(row=6, column=0, padx=5, pady=2)
+set_current_static_set_button = ttk.Button(set_current_control_frame, text="Set Current", command=set_current_static_combo_selected)
+set_current_static_set_button.grid(row=7, column=0, padx=5, pady=2)
+set_current_static_set_button.config(state="disabled")
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
-current_ch_control_frame.columnconfigure(0, weight=1)
-current_ch_control_frame.columnconfigure(1, weight=1)
-
-
-# Erstellen des Frames "Discharge Current → CMS" im Frame_0_0
-current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current →  CMS")
-current_dch_control_frame.grid(row=6, column=0, padx=10, pady=5, sticky="nsew")
-# Erstellen des Dropdown-Menüs im "current_dch_control_frame", sowie Positionierung
-current_dch_static_var = tk.IntVar()  # Variable als Integer definieren
-current_dch_static_label = ttk.Label(current_dch_control_frame, text="Discharge Current [A]:")
-current_dch_static_label.grid(row=7, column=0, padx=5, pady=2)
-current_dch_static_combo = ttk.Combobox(current_dch_control_frame, textvariable=current_dch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
-current_dch_static_combo.grid(row=7, column=1, padx=5, pady=2)
-current_dch_static_combo.config(state="disabled")
-# Verknüpfung der Dropdown-Auswahl an die zugehörige Eventfunktion
-current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_selected)  # --> Funktion wird nur zur Anzeige der Betätigung des Dropdown-Menüs im Terminal verwendet
-# Konfigurieren der Spalten, um die Inhalte zu zentrieren
-current_dch_control_frame.columnconfigure(0, weight=1)
-current_dch_control_frame.columnconfigure(1, weight=1)
+set_current_control_frame.columnconfigure(0, weight=1)
+set_current_control_frame.columnconfigure(1, weight=1)
 
 
 # Erstellen des Frames "Power Calculation" im Frame_0_0

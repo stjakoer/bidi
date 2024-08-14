@@ -237,10 +237,8 @@ def set_current_static_combo_selected():
     print("Slider bestätigt: ", set_current, "A")
     # Anzeige der erwarteten Ladeleistung:
     power_calculation()
-    print("Powercalc abgeschlossen")
     if power_ok and cms_dict["StateMachineState"] == 'Charge':
         adjust_current_cms(set_current)     #  Hier später Unterscheidung zwischen Charge und Discharge treffen
-        print("Strom geschrieben")
     return
 
 
@@ -249,7 +247,7 @@ def power_calculation():
     global CNG_voltage_set, power_ok, set_current
     calculated_power = CNG_voltage_set * set_current
     power_calculation_label_text.config(text=f"{calculated_power}W")
-    if calculated_power > 10000:
+    if abs(calculated_power) > 10000:
         power_calculation_status_label.config(text="Error, to high!")#
         power_ok = False
     else:

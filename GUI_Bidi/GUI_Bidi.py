@@ -234,7 +234,7 @@ def update_operation_combo_states(event):   # Auswahl Charge/Discharge
 
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
-def current_ch_static_combo_selected(event):
+def current_ch_static_combo_selected():
     global CMS_current_set, CNG_voltage_set, current_ch, current_dch, power_ok
     current_ch = current_ch_static_var.get()
     print("Dropdown-Menü von Current [static] betätigt:", current_ch, "A", "; Datentyp:", type(current_ch))
@@ -469,10 +469,15 @@ voltage_static_label.config(state="normal")
 # Erstellen des Frames "Charge Current → CMS" im Frame_0_0
 current_ch_control_frame = ttk.LabelFrame(frame_0_0, text="Charge Current → CMS")
 current_ch_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="nsew")
+
+
 # Erstellen des Dropdown-Menüs im "current_ch_control_frame", sowie Positionierung
 current_ch_static_var = tk.IntVar()  # Variable als Integer definieren
 current_ch_static_label = ttk.Label(current_ch_control_frame, text="Charge Current [A]:")
 current_ch_static_label.grid(row=5, column=0, padx=5, pady=2)
+current_ch_static_slider = ttk.Scale(current_ch_control_frame, from_=0, to=28, orient="horizontal")
+current_ch_static_slider.grid(row=6, column=0, padx=5, pady=2)
+current_ch_static_set_button = ttk.Button(current_ch_control_frame, text="Set", command=current_ch_static_combo_selected)
 current_ch_static_combo = ttk.Combobox(current_ch_control_frame, textvariable=current_ch_static_var, values=["4", "8", "12", "16", "20", "24", "28"], state="readonly", width=5)
 current_ch_static_combo.grid(row=5, column=1, padx=5, pady=2)
 current_ch_static_combo.config(state="disabled")
@@ -481,6 +486,7 @@ current_ch_static_combo.bind("<<ComboboxSelected>>", current_ch_static_combo_sel
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 current_ch_control_frame.columnconfigure(0, weight=1)
 current_ch_control_frame.columnconfigure(1, weight=1)
+
 
 # Erstellen des Frames "Discharge Current → CMS" im Frame_0_0
 current_dch_control_frame = ttk.LabelFrame(frame_0_0, text="Discharge Current →  CMS")
@@ -497,6 +503,8 @@ current_dch_static_combo.bind("<<ComboboxSelected>>", current_dch_static_combo_s
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 current_dch_control_frame.columnconfigure(0, weight=1)
 current_dch_control_frame.columnconfigure(1, weight=1)
+
+
 # Erstellen des Frames "Power Calculation" im Frame_0_0
 power_calculation_frame = ttk.LabelFrame(frame_0_0, text="Power Calculation")
 power_calculation_frame.grid(row=8, column=0, padx=10, pady=5, sticky="nsew")

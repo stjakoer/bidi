@@ -49,6 +49,10 @@ def evtec_modbus():
         else:
             evtec_new[1]['value'] = "Couldn't do def!"
 
+        # register 11
+        var_temp = evtec_new[11]['value']
+        evtec_new[11]['value'] = var_temp/10
+
         # register 12
         var_temp = evtec_new[12]['value']
         if var_temp == 0:

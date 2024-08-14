@@ -102,7 +102,10 @@ def update_cng_buttons():
         enable_button.config(state="disable")
         disable_button.config(state="disable")
         start_cng_button.config(state="disable")
-        stop_cng_button.config(state="normal")
+        if cms_dict["StateMachineState"] == 'Charge':
+            stop_cng_button.config(state="disable")
+        else:
+            stop_cng_button.config(state="normal")
         reset_button.config(state="disable")
     elif cinergia_dict[16000]['value'] == 6 or cinergia_dict[16000]['value'] == 7:  # 6: Warning; 7: Alarm
         enable_button.config(state="disable")
@@ -116,7 +119,7 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set:
+    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge':
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")
@@ -214,13 +217,12 @@ def update_operation_combo_states():   # Auswahl Charge/Discharge
     print("Die Operation-Variable lautet:", selected_operation)
     set_current = 0
 
-
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Charge":
-        set_current_static_set_button.config(state="enable")
+        current_set_button.config(state="enable")
     elif selected_operation == "Discharge":
         print("Aktuell noch nicht unterstützt")
-        set_current_static_set_button.config(state="disable")
+        current_set_button.config(state="disable")
 
     power_calculation()
     update_cng_buttons()
@@ -231,14 +233,12 @@ def update_operation_combo_states():   # Auswahl Charge/Discharge
 def set_current_static_combo_selected():
     global CNG_voltage_set, set_current, power_ok
     set_current = set_current_static_slider.get()
-    set_current_static_set_button.config(text="Set New Value")
+    current_set_button.config(text="Set New Value")
     print("Slider bestätigt: ", set_current, "A")
     # Anzeige der erwarteten Ladeleistung:
     power_calculation()
-    print("Powercalc abgeschlossen")
     if power_ok and cms_dict["StateMachineState"] == 'Charge':
         adjust_current_cms(set_current)     #  Hier später Unterscheidung zwischen Charge und Discharge treffen
-        print("Strom geschrieben")
     return
 
 
@@ -247,7 +247,7 @@ def power_calculation():
     global CNG_voltage_set, power_ok, set_current
     calculated_power = CNG_voltage_set * set_current
     power_calculation_label_text.config(text=f"{calculated_power}W")
-    if calculated_power > 10000:
+    if abs(calculated_power) > 10000:
         power_calculation_status_label.config(text="Error, to high!")#
         power_ok = False
     else:
@@ -338,7 +338,7 @@ def stop_charging():
             break
     while True:
         print(cms_dict['EVSEPresentVoltage'])
-        if int(cms_dict['EVSEPresentVoltage']) <= 60 and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
+        if (int(cms_dict['EVSEPresentVoltage']) <= 60 or cms_dict['EVSEPresentVoltage'] == 'SNA') and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
             wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
             break
@@ -474,9 +474,9 @@ set_current_static_label = ttk.Label(set_current_control_frame, text="Current [A
 set_current_static_label.grid(row=5, column=0, padx=5, pady=2)
 set_current_static_slider = tk.Scale(set_current_control_frame, from_=28, to=0, width=120, length=280, sliderlength=30, orient="vertical")
 set_current_static_slider.grid(row=6, column=0, padx=5, pady=2)
-set_current_static_set_button = ttk.Button(set_current_control_frame, text="Set Current", command=set_current_static_combo_selected)
-set_current_static_set_button.grid(row=7, column=0, padx=5, pady=2)
-set_current_static_set_button.config(state="disabled")
+current_set_button = ttk.Button(set_current_control_frame, text="Set Current", command=set_current_static_combo_selected)
+current_set_button.grid(row=7, column=0, padx=5, pady=2)
+current_set_button.config(state="disabled")
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 set_current_control_frame.columnconfigure(0, weight=1)
 set_current_control_frame.columnconfigure(1, weight=1)

@@ -395,7 +395,7 @@ def update_evtec():
 
 
 def update_cms_frame():
-    global cms_dict
+    """global cms_dict
     j = 0
     for keys in cms_dict.keys():
         existing_widget = cms_frame.grid_slaves(row=j, column=0)
@@ -403,7 +403,15 @@ def update_cms_frame():
             existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
         cms_name = ttk.Label(cms_frame, text=f"{keys}:      {cms_dict[keys]}",anchor='w')
         cms_name.grid(row=j, column=0, padx=5, pady=2, sticky='w')
-        j += 1
+        j += 1"""
+
+    global cms_dict
+    for widget in cms_frame.grid_slaves():
+        widget.destroy()  # Zerstöre alle vorhandenen Widgets in diesem Frame
+
+    for j, (key, value) in enumerate(cms_dict.items()):
+        cms_name = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w')
+        cms_name.grid(row=j, column=0, padx=5, pady=2, sticky='w')
     root.after(update_time, update_cms_frame)
     return
 

@@ -368,30 +368,38 @@ def start_erlaubnis():
 
 #================================================================================================
 #GUI FRAMES
-def update_evtec():
-    global evtec_dict
-    j = 0
-    for i in evtec_dict.keys():
-        evtec_name = ttk.Label(information_EVTEC_frame_3_0, text=f"{evtec_dict[i]['name']}:")
+def initialize_evtec_frame():
+    global evtec_dict, evtec_labels
+
+    # Widgets erstellen
+    evtec_labels = {}
+    for j, (i, data) in enumerate(evtec_dict.items()):
+        evtec_name = ttk.Label(information_EVTEC_frame_3_0, text=f"{data['name']}:")
         evtec_name.grid(row=j, column=0, padx=5, pady=2)
+
         evtec_def = ttk.Label(information_EVTEC_frame_3_0, text="")
+        evtec_def.grid(row=j, column=1, padx=5, pady=2)
 
-        existing_widget = information_EVTEC_frame_3_0.grid_slaves(row=j, column=1)
-        if existing_widget:
-            existing_widget[0].destroy()  # Zerstöre das vorhandene Widget
-        if i in [0, 1, 12]:
-            evtec_def.config(text=f"{evtec_dict[i]['value']}")
-            evtec_def.grid(row=j, column=1, padx=5, pady=2)
-        else:
-            if isinstance(evtec_dict[i]['value'], float):
-                evtec_def.config(text=f"{evtec_dict[i]['value']:.3f}")
+        evtec_labels[i] = evtec_def  # Speichern des Labels für spätere Aktualisierungen
+
+
+def update_evtec():
+    global evtec_dict, evtec_labels
+
+    # Nur die Werte aktualisieren
+    for i, data in evtec_dict.items():
+        if i in evtec_labels:
+            evtec_def = evtec_labels[i]
+            if i in [0, 1, 12]:
+                evtec_def.config(text=f"{data['value']}")
             else:
-                evtec_def.config(text=f"{evtec_dict[i]['value']}")
-            evtec_def.grid(row=j, column=1, padx=5, pady=2)
-        j += 1
+                if isinstance(data['value'], float):
+                    evtec_def.config(text=f"{data['value']:.3f}")
+                else:
+                    evtec_def.config(text=f"{data['value']}")
 
+    # Aktualisierung nach einer bestimmten Zeit planen
     root.after(update_time, update_evtec)
-    return
 
 
 def initialize_cms_frame():
@@ -639,6 +647,7 @@ frame_3_0.grid(row=0, column=4, padx=5, pady=2, sticky="nsew")
 frame_3_0.columnconfigure(0, weight=1)
 information_EVTEC_frame_3_0 = ttk.LabelFrame(frame_3_0, text="EVTEC Parameter")
 information_EVTEC_frame_3_0.grid(row=1, column=0, padx=5, pady=2, sticky="nsew")
+initialize_evtec_frame()
 update_evtec()
 
 # ScrolledText-Widget erstellen innerhalb von frame_3_0

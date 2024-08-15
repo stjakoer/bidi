@@ -30,6 +30,7 @@ gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
 all_connected = False   # Um zu speichern, ob alle Verbunden sind.
 laden_gestartet = False
 
+
 def cleanup_and_exit():
     print("Cleanup...<3")
     # Kommandozeile wieder ins Normale Terminal umleiten
@@ -116,7 +117,7 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge' and laden_gestartet != False:
+    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge' and laden_gestartet == False:
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")
@@ -287,7 +288,6 @@ def manage_cms_charging():
     global wago_dict
     global all_connected
     global cms_dict
-    global laden_gestartet
     start_cms()
     while True:
         if cms_dict['ControlPilotState'] == "B":
@@ -315,7 +315,6 @@ def manage_cms_charging():
             print("Schütze durch Raspberry Pi geschlossen")
             start_charging_cms()
             break
-    laden_gestartet = False
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
             control_indicator_light('rot', 'an')
@@ -328,7 +327,11 @@ def manage_cms_charging():
 
 
 def stop_charging():
+    global laden_gestartet
+
     stop_charging_button.config(state="disabled")
+    laden_gestartet = False
+
     stop_ch_thread = threading.Thread(target=manage_stop_charging, daemon=True)
     stop_ch_thread.start()
 

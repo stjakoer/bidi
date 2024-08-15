@@ -428,7 +428,7 @@ def initialize_cms_frame():
     # Widgets erstellen
     labels = {}
     for j, (key, value) in enumerate(cms_dict.items()):
-        label = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w')
+        label = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w', width=40)
         label.grid(row=j, column=0, padx=5, pady=2, sticky='w')
         labels[key] = label
 
@@ -654,7 +654,7 @@ information_CNG_frame_2_0.columnconfigure(0, weight=1)
 information_CNG_frame_2_0.columnconfigure(1, weight=1)
 
 cms_frame = ttk.LabelFrame(frame_2_0, text="CMS")
-cms_frame.grid(row=8, column=0, padx=5, pady=2, length=400, sticky="nsew")
+cms_frame.grid(row=8, column=0, padx=5, pady=2, sticky="nsew")
 cms_frame.columnconfigure(0, weight=1)
 initialize_cms_frame()
 update_cms_frame()

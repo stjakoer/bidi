@@ -309,6 +309,7 @@ def manage_cms_charging():
             print("CNG und EVTEC Spannung gleich")
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
     wago_write_modbus('close_contactor', 1)   # schütze schließen
+    stop_charging_button.config(state="enabled")
 #    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
@@ -602,7 +603,7 @@ no_header_frame_2_0.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 # Erstellen der Schaltflächen "Start Charging", "Stop Charging"
 start_charging_button = ttk.Button(no_header_frame_2_0, text="Start Charging", state="disabled", command=start_charging)
 start_charging_button.grid(row=1, column=0, padx=5, pady=2)
-stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="normal", command=stop_charging)
+stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="disabled", command=stop_charging)
 stop_charging_button.grid(row=1, column=1, padx=5, pady=2)
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 no_header_frame_2_0.columnconfigure(0, weight=1)

@@ -30,18 +30,14 @@ gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
 all_connected = False   # Um zu speichern, ob alle Verbunden sind.
 
 def cleanup_and_exit():
-    print("Cleanup...")
-    # Setzt alle Lichter auf aus
-    control_indicator_light('rot', 'aus')
-    control_indicator_light('grün', 'aus')
+    print("Cleanup...<3")
     # Kommandozeile wieder ins Normale Terminal umleiten
     sys.stdout = sys.__stdout__
     # Ladevorgang nochmal beenden
-    stop_charging_cms()
-    wago_write_modbus('close_contactor', 0)
-    wago_write_modbus('stop_imd', 0)
-    wago_write_modbus('ccs_lock_close', 0)
-    wago_write_modbus('ccs_lock_open', 1)
+    stop_charging()
+    # Setzt alle Lichter auf aus
+    control_indicator_light('rot', 'aus')
+    control_indicator_light('grün', 'aus')
 
 
     print("Programm sicher beendet.")

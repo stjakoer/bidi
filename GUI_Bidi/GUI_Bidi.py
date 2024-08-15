@@ -324,6 +324,7 @@ def manage_cms_charging():
 
 
 def stop_charging():
+    stop_charging_button.config(state="disabled")
     stop_ch_thread = threading.Thread(target=manage_stop_charging, daemon=True)
     stop_ch_thread.start()
 
@@ -346,6 +347,7 @@ def manage_stop_charging():
             wago_write_modbus('ccs_lock_open', 1)
             print("Schütze geöffnet")
             break
+    stop_charging_button.config(state="enabled")
     return
 
 ### Sicherheitskriterien von RaPi abfragen ###

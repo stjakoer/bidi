@@ -322,8 +322,14 @@ def manage_cms_charging():
             stop_charging()     # Normales beenden
             break
 
-# CNG Input
+
 def stop_charging():
+    stop_ch_thread = threading.Thread(target=manage_stop_charging, daemon=True)
+    stop_ch_thread.start()
+
+
+# CNG Input
+def manage_stop_charging():
     stop_charging_cms()
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
@@ -333,6 +339,7 @@ def stop_charging():
             print("IMD gestartet")
             break
     while True:
+        print(cms_dict['StateMachineState'])
         if cms_dict['StateMachineState'] == 'ShutOff' and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:
             wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)

@@ -296,6 +296,7 @@ def manage_cms_charging():
     global all_connected
     global cms_dict
     start_cms()
+    cms_status, cms_dict = cms_read_dict_handover()
     while True:
         if cms_dict['ControlPilotState'] == "B":
             time.sleep(1)

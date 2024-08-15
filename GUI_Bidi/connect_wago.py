@@ -41,6 +41,12 @@ def wago_write_modbus(write_name, write_value):
         if keys == write_name:
             if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
                 print("Fehler beim Schreiben der Wago")
+                if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
+                    print("2. Versuch Wago schreiben gescheitert")
+                    if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
+                        print("3. Versuch Wago schreiben gescheitert --- KAPUUUUTT")
+
+
 
 
 def main():

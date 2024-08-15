@@ -37,6 +37,13 @@ def cleanup_and_exit():
     sys.stdout = sys.__stdout__
     # Ladevorgang nochmal beenden
     stop_charging()
+    #Alles zurücksetzen
+    time.sleep(2)
+    wago_write_modbus('close_contactor', 0)
+    wago_write_modbus('stop_imd', 0)
+    time.sleep(1)
+    wago_write_modbus('ccs_lock_close', 0)
+    wago_write_modbus('ccs_lock_open', 1)
     # Setzt alle Lichter auf aus
     control_indicator_light('rot', 'aus')
     control_indicator_light('grün', 'aus')
@@ -611,7 +618,7 @@ update_ctrl_button()
 
 # Erstellen des Frames "Information CNG" im Frame_2_0
 information_CNG_frame_2_0 = ttk.LabelFrame(frame_2_0, text="Information CNG")
-information_CNG_frame_2_0.grid(row=2, column=0, padx=10, pady=5, length=300, sticky="nsew")
+information_CNG_frame_2_0.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 sw_grafcet_state_label_text = ttk.Label(information_CNG_frame_2_0, text="Grafcet State:")
 sw_grafcet_state_label_text.grid(row=3, column=0, padx=5, pady=2)
 sw_grafcet_state_label = ttk.Label(information_CNG_frame_2_0, text="")
@@ -647,7 +654,7 @@ information_CNG_frame_2_0.columnconfigure(0, weight=1)
 information_CNG_frame_2_0.columnconfigure(1, weight=1)
 
 cms_frame = ttk.LabelFrame(frame_2_0, text="CMS")
-cms_frame.grid(row=8, column=0, padx=5, pady=2, sticky="nsew")
+cms_frame.grid(row=8, column=0, padx=5, pady=2, length=400, sticky="nsew")
 cms_frame.columnconfigure(0, weight=1)
 initialize_cms_frame()
 update_cms_frame()

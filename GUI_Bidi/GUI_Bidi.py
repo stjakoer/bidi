@@ -337,7 +337,9 @@ def manage_stop_charging():
             print("Schütze durch Raspberry Pi geöffnet")
             wago_write_modbus('stop_imd', 0)
             print("IMD gestartet")
+        if wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:
             break
+        time.sleep(0.1)
     while True:
         print(cms_dict['StateMachineState'])
         if cms_dict['StateMachineState'] == 'ShutOff' and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:

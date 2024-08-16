@@ -363,7 +363,7 @@ def manage_stop_charging():
         stop_charging_cms()
     cinergia_status, cinergia_dict = cinergia_modbus()
     while True:
-        if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
+        if cms_dict['StateMachineState'] == 'ShutOff' and abs(round(cinergia_dict[26106]['value'], 0)) < 1:
             wago_write_modbus('close_contactor', 0)
             wago_write_modbus('stop_imd', 0)
             print("IMD gestartet")

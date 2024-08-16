@@ -124,7 +124,9 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge' and laden_gestartet == False:
+    if (power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and
+        round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge' and
+        laden_gestartet == False) and cms_dict["VoltageMatch"] != True:
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")
@@ -321,7 +323,7 @@ def manage_cms_charging():
 #    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
-            print("Schütze durch Raspberry Pi geschlossen")
+            print("Schütze geschlossen")
             start_charging_cms()
             break
     while True:
@@ -351,17 +353,17 @@ def manage_stop_charging():
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
             wago_write_modbus('close_contactor', 0)
-            print("Schütze durch Raspberry Pi geöffnet")
             wago_write_modbus('stop_imd', 0)
             print("IMD gestartet")
+            wago_status, wago_dict = wago_modbus()
         if wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:
+            print("Schütze geöffnet!")
             break
         time.sleep(0.1)
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:
             wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
-            print("Schütze geöffnet")
             break
     return
 
@@ -429,7 +431,7 @@ def initialize_cms_frame():
     # Widgets erstellen
     labels = {}
     for j, (key, value) in enumerate(cms_dict.items()):
-        label = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w', width=40)
+        label = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w', width=37)
         label.grid(row=j, column=0, padx=5, pady=2, sticky='w')
         labels[key] = label
 

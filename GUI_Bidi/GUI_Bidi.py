@@ -332,13 +332,18 @@ def manage_cms_charging():
             break
     while True:
         print("Warten auf Störung")
+        print(wago_dict['sps_command_stop_charging_dc']['value'])
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
+            print(wago_dict['sps_command_stop_charging_dc']['value'])
+            print("rot an")
             control_indicator_light('rot', 'an')
             stop_charging()     # Normales beenden
             break
         if not all_connected:    # wenn cng die Verbindung verliert....? Notwendig
             control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
+            break
+        if laden_gestartet == False:    # damit das Warten auf Störungen beendet wird, sobald stop_charging gedrückt wird
             break
 
 

@@ -357,7 +357,9 @@ def stop_charging():
 def manage_stop_charging():
     global wago_dict
     stop_charging_cms()
-    print("Stop_charging_cms beendet")
+    if not cms_dict['StateMachineState'] == 'ShutOff':
+        print("2. Versuch Stop charge")
+        stop_charging_cms()
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
             wago_write_modbus('close_contactor', 0)

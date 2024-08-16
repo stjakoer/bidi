@@ -38,16 +38,18 @@ wago_write_dict = {'close_contactor': 0,    # 'name': 'address'
 
 
 def wago_write_modbus(write_name, write_value):
+    client.open()
     for keys in wago_write_dict:
         if keys == write_name:
             if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
                 print("Fehler beim Schreiben der Wago")
-                time.sleep(0.1)
+                time.sleep(0.5)
                 if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
-                    print("2. Versuch Wago schreiben gescheitert")
-                    time.sleep(0.1)
+                    print("2. Versuch Wago")
+                    time.sleep(0.5)
                     if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
-                        print("3. Versuch Wago schreiben gescheitert --- KAPUUUUTT")
+                        print("3. Versuch Wago")
+    client.close()
 
 
 

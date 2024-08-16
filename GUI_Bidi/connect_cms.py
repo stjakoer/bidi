@@ -194,8 +194,13 @@ def stop_charging_cms():
 
     print("Wait for Shutoff/SNA or Default")
     time.sleep(0.5)
-    can_tester.flush_input()
-    assert can_tester.expect('ChargeInfo', lambda data: data['StateMachineState'] in ['ShutOff', 'Default', 'SNA'])
+    while True:
+        can_tester.flush_input()
+        chargeinfo = can_tester.expect('ChargeInfo')
+        statemstate = chargeinfo['StateMachineState']
+        if statemstate == 'ShutOff':
+            break
+        #   assert can_tester.expect('ChargeInfo', lambda data: data['StateMachineState'] in ['ShutOff', 'Default', 'SNA', 'SessionStop'])
 
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

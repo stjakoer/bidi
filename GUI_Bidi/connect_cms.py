@@ -187,6 +187,8 @@ def adjust_current_cms(evcurrent):
 def stop_charging_cms():
     can_tester.start()
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Stop'
+    print("Laden beendet")
+    can_tester.messages['EVStatusControl']['EVReady'] = 'False'
 
     can_tester.messages['EVDCChargeTargets']['EVTargetVoltage'] = 0
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = 0
@@ -203,7 +205,7 @@ def stop_charging_cms():
             print("ShutOff")
             break"""
 
-    can_tester.messages['EVStatusControl']['EVReady'] = 'False'
+
         #   assert can_tester.expect('ChargeInfo', lambda data: data['StateMachineState'] in ['ShutOff', 'Default', 'SNA', 'SessionStop'])
 
 

@@ -155,7 +155,7 @@ def precharge_cms(evcurrent, evvoltage):
             voltage = 0.0
         if current == 'SNA':
             current = 0.0
-        print("%10d sec Voltage: %f, Current: %f" % (cnt, voltage, current))
+        #   print("%10d sec Voltage: %f, Current: %f" % (cnt, voltage, current))
         time.sleep(0.1)
         cnt += 1
         can_tester.flush_input()
@@ -187,25 +187,31 @@ def adjust_current_cms(evcurrent):
 def stop_charging_cms():
     can_tester.start()
     can_tester.messages['EVStatusControl']['ChargeProgressIndication'] = 'Stop'
-    can_tester.messages['EVStatusControl']['EVReady'] = 'False'
+    print("Laden beendet")
+#    can_tester.messages['EVStatusControl']['EVReady'] = 'False'
 
     can_tester.messages['EVDCChargeTargets']['EVTargetVoltage'] = 0
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = 0
-    print("Wait for Shutoff/SNA or Default")
+
     can_tester.flush_input()
+    assert can_tester.expect('ChargeInfo', {'StateMachineState': 'ShutOff'})
+    print('ShutOff')
+    """
     while True:
-        if can_tester.expect('ChargeInfo', {'StateMachineState': 'ShutOff'}) or \
-           can_tester.expect('ChargeInfo', {'StateMachineState': 'SNA'}) or \
-           can_tester.expect('ChargeInfo', {'StateMachineState': 'Default'}):
-            print('ShutOff or SNA or Default')
-            break
-        time.sleep(0.5)
-        print('Warten auf StateMachineState')
+        can_tester.flush_input()
+        chargeinfo = can_tester.expect('ChargeInfo')
+        statemstate = chargeinfo['StateMachineState']
+        if statemstate == 'ShutOff':
+            print("ShutOff")
+            break"""
+
+
+        #   assert can_tester.expect('ChargeInfo', lambda data: data['StateMachineState'] in ['ShutOff', 'Default', 'SNA', 'SessionStop'])
+
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    print('Waiting for Unplug')
-    can_tester.flush_input()
+    #can_tester.flush_input()
     #assert can_tester.expect('ChargeInfo', {'ControlPilotState': 'E'})  #ausgekommentiert, da er sich da sonst aufhängt
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     can_tester.stop()

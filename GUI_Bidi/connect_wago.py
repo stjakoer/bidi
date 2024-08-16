@@ -1,4 +1,5 @@
 from pyModbusTCP.client import ModbusClient
+import time
 client = ModbusClient(host="192.168.2.210", port=502)
 
 wago_dict = {'wago_ac_security_check': {'value': None, 'reg-addr': 0},  # Abfrage ob AC-GUI Starten darf (Julian)
@@ -37,13 +38,20 @@ wago_write_dict = {'close_contactor': 0,    # 'name': 'address'
 
 
 def wago_write_modbus(write_name, write_value):
+    client.open()
     for keys in wago_write_dict:
         if keys == write_name:
-            if client.write_multiple_registers(wago_write_dict[keys], [write_value]):
-                # Abfrage ob schreiben erfolgreich war
-                print("Erfolgreich")
-            else:
+            if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
                 print("Fehler beim Schreiben der Wago")
+                time.sleep(0.5)
+                if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
+                    print("2. Versuch Wago")
+                    time.sleep(0.5)
+                    if not client.write_multiple_registers(wago_write_dict[keys], [write_value]):
+                        print("3. Versuch Wago")
+    client.close()
+
+
 
 
 def main():

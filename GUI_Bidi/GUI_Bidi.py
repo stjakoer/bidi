@@ -28,22 +28,28 @@ power_ok = False
 update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
 all_connected = False   # Um zu speichern, ob alle Verbunden sind.
+laden_gestartet = False
+discharge_multiplicator = 0
+
 
 def cleanup_and_exit():
-    print("Cleanup...")
+    print("Cleanup...<3")
+    # Kommandozeile wieder ins Normale Terminal umleiten
+    sys.stdout = sys.__stdout__
+    # Ladevorgang nochmal beenden
+    stop_charging()
+    #Alles zurücksetzen
+    time.sleep(2)
+    wago_write_modbus('close_contactor', 0)
+    wago_write_modbus('stop_imd', 0)
+    time.sleep(1)
+    wago_write_modbus('ccs_lock_close', 0)
+    wago_write_modbus('ccs_lock_open', 1)
     # Setzt alle Lichter auf aus
     control_indicator_light('rot', 'aus')
     control_indicator_light('grün', 'aus')
 
-    # Ladevorgang nochmal beenden
-    stop_charging_cms()
-    wago_write_modbus('close_contactor', 0)
-    wago_write_modbus('stop_imd', 0)
-    wago_write_modbus('ccs_lock_close', 0)
-    wago_write_modbus('ccs_lock_open', 1)
 
-    # Kommandozeile wieder ins Normale Terminal umleiten
-    sys.stdout = sys.__stdout__
     print("Programm sicher beendet.")
     # Fenster zerstören
     root.destroy()
@@ -119,7 +125,9 @@ def update_cng_buttons():
 
 def update_ctrl_button():
     global gui_state
-    if power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge':
+    if (power_ok and set_current != 0 and cinergia_dict[16000]['value'] == 5 and gui_state == 'ready' and
+        round(cinergia_dict[26094]['value'], 0) == CNG_voltage_set and cms_dict["StateMachineState"] != 'Charge' and
+        laden_gestartet == False) and cms_dict["VoltageMatch"] != True and cms_dict["ControlPilotState"] != "B":
         start_charging_button.config(state="normal")
     else:
         start_charging_button.config(state="disable")
@@ -212,17 +220,19 @@ def reset_alarm_warning():
 # Interne Funktion
 # Dropdown:
 def update_operation_combo_states():   # Auswahl Charge/Discharge
-    global selected_operation, CNG_voltage_set, set_current
+    global selected_operation, CNG_voltage_set, set_current, discharge_multiplicator
     selected_operation = control_operation_var.get()
     print("Die Operation-Variable lautet:", selected_operation)
     set_current = 0
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Charge":
+        discharge_multiplicator = 1
         current_set_button.config(state="enable")
     elif selected_operation == "Discharge":
         print("Aktuell noch nicht unterstützt")
-        current_set_button.config(state="disable")
+        discharge_multiplicator = -1
+        current_set_button.config(state="enable")
 
     power_calculation()
     update_cng_buttons()
@@ -231,8 +241,9 @@ def update_operation_combo_states():   # Auswahl Charge/Discharge
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def set_current_static_combo_selected():
-    global CNG_voltage_set, set_current, power_ok
+    global CNG_voltage_set, set_current, power_ok, discharge_multiplicator
     set_current = set_current_static_slider.get()
+    set_current = discharge_multiplicator * set_current
     current_set_button.config(text="Set New Value")
     print("Slider bestätigt: ", set_current, "A")
     # Anzeige der erwarteten Ladeleistung:
@@ -279,6 +290,8 @@ def stop_cng():
 
 
 def start_charging():
+    global laden_gestartet
+    laden_gestartet = True
     canbus_manage_cms_charging_thread = threading.Thread(target=manage_cms_charging, daemon=True)
     canbus_manage_cms_charging_thread.start()
     return
@@ -289,6 +302,7 @@ def manage_cms_charging():
     global all_connected
     global cms_dict
     start_cms()
+    cms_status, cms_dict = cms_read_dict_handover()
     while True:
         if cms_dict['ControlPilotState'] == "B":
             time.sleep(1)
@@ -309,13 +323,13 @@ def manage_cms_charging():
             print("CNG und EVTEC Spannung gleich")
             break       # schauen, dass der precharge +/- 10 V von der CNG Spannung erreicht hat
     wago_write_modbus('close_contactor', 1)   # schütze schließen
+    stop_charging_button.config(state="enabled")
 #    wago_status, wago_dict = wago_modbus() # aktuellstes dictionary holen um Zeit zu sparen
     while True:
         if wago_dict['dcplus_contactor_state_open']['value'] == 0 and wago_dict['dcminus_contactor_state_open']['value'] == 0:  # Wenn 0 = Schütz zu
-            print("Schütze durch Raspberry Pi geschlossen")
+            print("Schütze geschlossen")
             start_charging_cms()
             break
-
     while True:
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
             control_indicator_light('rot', 'an')
@@ -325,22 +339,44 @@ def manage_cms_charging():
             control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
+        if laden_gestartet == False:    # damit das Warten auf Störungen beendet wird, sobald stop_charging gedrückt wird
+            break
+
+
+def stop_charging():
+    global laden_gestartet
+
+    stop_charging_button.config(state="disabled")
+    laden_gestartet = False
+
+    stop_ch_thread = threading.Thread(target=manage_stop_charging, daemon=True)
+    stop_ch_thread.start()
+
 
 # CNG Input
-def stop_charging():
+def manage_stop_charging():
+    global wago_dict
+    global cinergia_dict
     stop_charging_cms()
+    if not cms_dict['StateMachineState'] == 'ShutOff':
+        print("2. Versuch Stop charge")
+        stop_charging_cms()
+    cinergia_status, cinergia_dict = cinergia_modbus()
     while True:
-        if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
+        if cms_dict['StateMachineState'] == 'ShutOff' and abs(round(cinergia_dict[26106]['value'], 0)) < 1:
             wago_write_modbus('close_contactor', 0)
-            print("Schütze durch Raspberry Pi geöffnet")
             wago_write_modbus('stop_imd', 0)
             print("IMD gestartet")
+            wago_status, wago_dict = wago_modbus()
+        if wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:
+            print("Schütze geöffnet!")
             break
+        time.sleep(0.1)
+    wago_status, wago_dict = wago_modbus()
     while True:
-        if cms_dict['StateMachineState'] == 'ShutOff' and wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 0:
+        if wago_dict['dcminus_contactor_state_open']['value'] == 1 and wago_dict['dcplus_contactor_state_open']['value'] == 1:
             wago_write_modbus('ccs_lock_close', 0)
             wago_write_modbus('ccs_lock_open', 1)
-            print("Schütze geöffnet")
             break
     return
 
@@ -408,7 +444,7 @@ def initialize_cms_frame():
     # Widgets erstellen
     labels = {}
     for j, (key, value) in enumerate(cms_dict.items()):
-        label = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w')
+        label = ttk.Label(cms_frame, text=f"{key}: {value}", anchor='w', width=37)
         label.grid(row=j, column=0, padx=5, pady=2, sticky='w')
         labels[key] = label
 
@@ -589,7 +625,7 @@ no_header_frame_2_0.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 # Erstellen der Schaltflächen "Start Charging", "Stop Charging"
 start_charging_button = ttk.Button(no_header_frame_2_0, text="Start Charging", state="disabled", command=start_charging)
 start_charging_button.grid(row=1, column=0, padx=5, pady=2)
-stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="normal", command=stop_charging)
+stop_charging_button = ttk.Button(no_header_frame_2_0, text="Stop Charging", state="disabled", command=stop_charging)
 stop_charging_button.grid(row=1, column=1, padx=5, pady=2)
 # Konfigurieren der Spalten, um die Inhalte zu zentrieren
 no_header_frame_2_0.columnconfigure(0, weight=1)

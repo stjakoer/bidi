@@ -191,7 +191,6 @@ def stop_charging_cms():
     can_tester.messages['EVDCChargeTargets']['EVTargetVoltage'] = 0
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = 0
 
-    print("Wait for Shutoff!")
     #can_tester.flush_input()
     #assert can_tester.expect('ChargeInfo', {'StateMachineState': 'ShutOff'})
     #print('ShutOff')

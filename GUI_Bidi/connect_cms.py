@@ -155,7 +155,7 @@ def precharge_cms(evcurrent, evvoltage):
             voltage = 0.0
         if current == 'SNA':
             current = 0.0
-        print("%10d sec Voltage: %f, Current: %f" % (cnt, voltage, current))
+        #   print("%10d sec Voltage: %f, Current: %f" % (cnt, voltage, current))
         time.sleep(0.1)
         cnt += 1
         can_tester.flush_input()

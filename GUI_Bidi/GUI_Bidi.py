@@ -145,21 +145,21 @@ def update_selectors():
 
 
 def update_alarm_abr():
-    alarm_def_ABR[0].config(text=f"{cinergia_dict[13000]['value']}")
-    alarm_def_ABR[1].config(text=f"{cinergia_dict[13002]['value']}")
-    alarm_def_ABR[2].config(text=f"{cinergia_dict[13004]['value']}")
-    alarm_def_ABR[3].config(text=f"{cinergia_dict[13006]['value']}")
-    alarm_def_ABR[4].config(text=f"{cinergia_dict[13008]['value']}")
+    alarm_def_ABR[0].config(text=f"{cinergia_dict[13000]['value']}: {cinergia_dict[13000]['def']}")
+    alarm_def_ABR[1].config(text=f"{cinergia_dict[13002]['value']}: {cinergia_dict[13002]['def']}")
+    alarm_def_ABR[2].config(text=f"{cinergia_dict[13004]['value']}: {cinergia_dict[13004]['def']}")
+    alarm_def_ABR[3].config(text=f"{cinergia_dict[13006]['value']}: {cinergia_dict[13006]['def']}")
+    alarm_def_ABR[4].config(text=f"{cinergia_dict[13008]['value']}: {cinergia_dict[13008]['def']}")
     root.after(update_time, update_alarm_abr)
     return
 
 
 def update_alarm_inv():
-    alarm_def_INV[0].config(text=f"{cinergia_dict[23000]['value']}")
-    alarm_def_INV[1].config(text=f"{cinergia_dict[23002]['value']}")
-    alarm_def_INV[2].config(text=f"{cinergia_dict[23004]['value']}")
-    alarm_def_INV[3].config(text=f"{cinergia_dict[23006]['value']}")
-    alarm_def_INV[4].config(text=f"{cinergia_dict[23008]['value']}")
+    alarm_def_INV[0].config(text=f"{cinergia_dict[23000]['value']}: {cinergia_dict[23000]['def']}")
+    alarm_def_INV[1].config(text=f"{cinergia_dict[23002]['value']}: {cinergia_dict[23002]['def']}")
+    alarm_def_INV[2].config(text=f"{cinergia_dict[23004]['value']}: {cinergia_dict[23004]['def']}")
+    alarm_def_INV[3].config(text=f"{cinergia_dict[23006]['value']}: {cinergia_dict[23006]['def']}")
+    alarm_def_INV[4].config(text=f"{cinergia_dict[23008]['value']}: {cinergia_dict[23008]['def']}")
     root.after(update_time, update_alarm_inv)
     return
 

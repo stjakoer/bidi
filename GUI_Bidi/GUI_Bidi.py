@@ -331,11 +331,7 @@ def manage_cms_charging():
             start_charging_cms()
             break
     while True:
-        print("Warten auf Störung")
-        print(wago_dict['sps_command_stop_charging_dc']['value'])
         if wago_dict['sps_command_stop_charging_dc']['value'] == 1:    # wenn von wago der "not-aus" kommt
-            print(wago_dict['sps_command_stop_charging_dc']['value'])
-            print("rot an")
             control_indicator_light('rot', 'an')
             stop_charging()     # Normales beenden
             break
@@ -361,6 +357,7 @@ def stop_charging():
 def manage_stop_charging():
     global wago_dict
     stop_charging_cms()
+    print("Stop_charging_cms beendet")
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
             wago_write_modbus('close_contactor', 0)

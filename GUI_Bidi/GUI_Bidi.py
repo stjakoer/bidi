@@ -356,10 +356,12 @@ def stop_charging():
 # CNG Input
 def manage_stop_charging():
     global wago_dict
+    global cinergia_dict
     stop_charging_cms()
     if not cms_dict['StateMachineState'] == 'ShutOff':
         print("2. Versuch Stop charge")
         stop_charging_cms()
+    cinergia_status, cinergia_dict = cinergia_modbus()
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and round(cinergia_dict[26106]['value'], 0) < 1:
             wago_write_modbus('close_contactor', 0)

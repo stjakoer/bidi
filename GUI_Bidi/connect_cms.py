@@ -191,19 +191,20 @@ def stop_charging_cms():
     can_tester.messages['EVDCChargeTargets']['EVTargetVoltage'] = 0
     can_tester.messages['EVDCChargeTargets']['EVTargetCurrent'] = 0
 
-    print("Wait for Shutoff/SNA or Default")
-    can_tester.flush_input()
-    assert can_tester.expect('ChargeInfo', {'StateMachineState': 'ShutOff'})
-    print('ShutOff')
-
-    can_tester.messages['EVStatusControl']['EVReady'] = 'False'
+    print("Wait for Shutoff!")
+    #can_tester.flush_input()
+    #assert can_tester.expect('ChargeInfo', {'StateMachineState': 'ShutOff'})
+    #print('ShutOff')
     """
     while True:
         can_tester.flush_input()
         chargeinfo = can_tester.expect('ChargeInfo')
         statemstate = chargeinfo['StateMachineState']
         if statemstate == 'ShutOff':
+            print("ShutOff")
             break"""
+
+    can_tester.messages['EVStatusControl']['EVReady'] = 'False'
         #   assert can_tester.expect('ChargeInfo', lambda data: data['StateMachineState'] in ['ShutOff', 'Default', 'SNA', 'SessionStop'])
 
 

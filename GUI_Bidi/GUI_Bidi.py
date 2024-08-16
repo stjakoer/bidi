@@ -29,6 +29,7 @@ update_time = 3000  # Zeit bis sich jede Funktion wiederholt
 gui_state = ''  # Not Ready, Ready, Charging, Ready to Charge
 all_connected = False   # Um zu speichern, ob alle Verbunden sind.
 laden_gestartet = False
+discharge_multiplicator = 0
 
 
 def cleanup_and_exit():
@@ -219,17 +220,19 @@ def reset_alarm_warning():
 # Interne Funktion
 # Dropdown:
 def update_operation_combo_states():   # Auswahl Charge/Discharge
-    global selected_operation, CNG_voltage_set, set_current
+    global selected_operation, CNG_voltage_set, set_current, discharge_multiplicator
     selected_operation = control_operation_var.get()
     print("Die Operation-Variable lautet:", selected_operation)
     set_current = 0
 
     # Basierend auf der Auswahl in "Control Operation" aktiviere die entsprechenden Schaltflächen
     if selected_operation == "Charge":
+        discharge_multiplicator = 1
         current_set_button.config(state="enable")
     elif selected_operation == "Discharge":
         print("Aktuell noch nicht unterstützt")
-        current_set_button.config(state="disable")
+        discharge_multiplicator = -1
+        current_set_button.config(state="enable")
 
     power_calculation()
     update_cng_buttons()
@@ -238,8 +241,9 @@ def update_operation_combo_states():   # Auswahl Charge/Discharge
 
 # Anzeige, dass Dropdown-Menü betätigt wurde
 def set_current_static_combo_selected():
-    global CNG_voltage_set, set_current, power_ok
+    global CNG_voltage_set, set_current, power_ok, discharge_multiplicator
     set_current = set_current_static_slider.get()
+    set_current = discharge_multiplicator * set_current
     current_set_button.config(text="Set New Value")
     print("Slider bestätigt: ", set_current, "A")
     # Anzeige der erwarteten Ladeleistung:

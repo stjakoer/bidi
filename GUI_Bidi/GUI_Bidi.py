@@ -339,6 +339,9 @@ def manage_cms_charging():
             control_indicator_light('rot','an')
             stop_charging()     # Normales beenden
             break
+        if cms_dict['StateMachineState'] == 'Error':
+            control_indicator_light('rot','an')
+            stop_charging()     # Normales beenden
         if laden_gestartet == False:    # damit das Warten auf Störungen beendet wird, sobald stop_charging gedrückt wird
             break
 

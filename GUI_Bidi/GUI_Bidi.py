@@ -560,7 +560,7 @@ stop_cng_button = ttk.Button(control_frame_1_0, text="Stop CNG", state="normal",
 stop_cng_button.grid(row=3, column=1, padx=5, pady=2)
 
 # Erstellen eines weiteren Frames "Stats EuT-Side" im Frame_1_0
-stats_display_frame = ttk.LabelFrame(frame_1_0, text="Stats Eut-Side")
+stats_display_frame = ttk.LabelFrame(frame_1_0, text="Status Eut-Side")
 stats_display_frame.grid(row=2, column=0, padx=10, pady=2, sticky="nsew")
 # Erstellen eines Labels zur Anzeige von Spannungswerts im "voltage_display_frame"
 voltage_un_label_text = ttk.Label(stats_display_frame, text="Voltage U-N:")
@@ -609,7 +609,7 @@ update_alarm_inv()
 
 warning_frame = ttk.Label(frame_1_0, text="")
 warning_frame.grid(row=15, column=0, padx=5, pady=2, sticky="nsew")
-warning_vector_label_text = ttk.Label(warning_frame, text=f"Waring_Vector_INV:  {cinergia_dict[23010]['value']}")
+warning_vector_label_text = ttk.Label(warning_frame, text=f"Warning_Vector_INV:  {cinergia_dict[23010]['value']}")
 warning_vector_label_text.grid(row=16, column=0, padx=5, pady=2)
 
 #   ======================================================================================================

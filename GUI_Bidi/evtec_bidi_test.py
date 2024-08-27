@@ -13,7 +13,7 @@ low = input_power_value & 0xFFFF
 
 client.write_multiple_registers(600, [high, low])
 
-registers = client.read_holding_registers(register_address, 2)  # 2 Register lesen
+registers = client.read_holding_registers(600, 2)  # 2 Register lesen
 
 client.close()
 

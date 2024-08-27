@@ -231,8 +231,8 @@ def update_operation_combo_states():   # Auswahl Charge/Discharge
         current_set_button.config(state="enable")
     elif selected_operation == "Discharge":
         print("Aktuell noch nicht unterstützt")
-        discharge_multiplicator = -1
-        current_set_button.config(state="enable")
+        #   discharge_multiplicator = -1
+        #   current_set_button.config(state="enable")
 
     power_calculation()
     update_cng_buttons()

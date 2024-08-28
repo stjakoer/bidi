@@ -1,5 +1,6 @@
 from pyModbusTCP.client import ModbusClient
 import struct
+import time
 client = ModbusClient(host="192.168.2.201", port=5020, unit_id=2)
 
 
@@ -22,7 +23,8 @@ def evtec_lesen():
     print(f"Wert des Registers 600: {value}")
 
 def main():
-    #evtec_schreiben(1000)
+    evtec_schreiben(1000)
+    time.sleep(4)
     evtec_lesen()
 
 if __name__ == "__main__":

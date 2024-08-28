@@ -10,7 +10,8 @@ def evtec_schreiben(input_power_value):
     high = (input_power_value >> 16) & 0xFFFF
     low = input_power_value & 0xFFFF
 
-    client.write_multiple_registers(600, [high, low])
+  #  client.write_multiple_registers(600, [high, low]) # big endian
+    client.write_multiple_registers(600, [low, high]) # little endian
     client.close()
 
 
@@ -18,9 +19,10 @@ def evtec_lesen():
     client.open()
     regs = client.read_holding_registers(600, 2)  # 2 Register lesen
     client.close()
-    value = struct.unpack('>i', struct.pack('>HH', *regs))[0]
+    value_big = struct.unpack('>i', struct.pack('>HH', *regs))[0]
+    value_little = struct.unpack('<i', struct.pack('<HH', *regs))[0]
 
-    print(f"Wert des Registers 600: {value}")
+    print(f"Wert des Registers 600: {value_big}, {value_little}")
 
 def main():
     evtec_schreiben(1000)

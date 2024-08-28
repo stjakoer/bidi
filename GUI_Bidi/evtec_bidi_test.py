@@ -17,14 +17,13 @@ def evtec_lesen():
     client.open()
     regs = client.read_holding_registers(600, 2)  # 2 Register lesen
     client.close()
-    value = struct.unpack('>f', struct.pack('>HH', *regs))[0]
+    value = struct.unpack('>i', struct.pack('>HH', *regs))[0]
 
     print(f"Wert des Registers 600: {value}")
 
 def main():
     #evtec_schreiben(1000)
     evtec_lesen()
-
 
 if __name__ == "__main__":
     main()

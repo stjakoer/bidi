@@ -78,7 +78,7 @@ def update_dicts():
         cms_status, cms_dict = cms_read_dict_handover()
         evtec_status, evtec_dict = evtec_modbus()
         wago_status, wago_dict = wago_modbus()
-        if cinergia_status and cms_status and evtec_status and wago_status:
+        if cinergia_status and cms_status and wago_status:
             all_connected = True
         else:
             all_connected = False
@@ -365,7 +365,7 @@ def manage_stop_charging():
         print("2. Versuch Stop charge")
         stop_charging_cms()
     cinergia_status, cinergia_dict = cinergia_modbus()
-    print("Warten auf Schütze...")
+    print("Schütze öffnen und auf Rückmeldung warten...")
     while True:
         if cms_dict['StateMachineState'] == 'ShutOff' and abs(round(cinergia_dict[26106]['value'], 0)) < 1:
             wago_write_modbus('close_contactor', 0)
